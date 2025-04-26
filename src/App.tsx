@@ -17,6 +17,7 @@ import DashboardRouter from "./pages/dashboard/DashboardRouter";
 
 // Resume Pages
 import ResumeUploadPage from "./pages/resume/ResumeUploadPage";
+import JobDescriptionPage from "./pages/resume/JobDescriptionPage";
 
 // Screening Pages
 import ScreeningsPage from "./pages/screening/ScreeningsPage";
@@ -29,6 +30,9 @@ import InterviewsPage from "./pages/interviews/InterviewsPage";
 
 // Application Pages
 import ApplicationPage from "./pages/application/ApplicationPage";
+
+// Settings Pages
+import SettingsPage from "./pages/settings/SettingsPage";
 
 // Landing Page
 import LandingPage from "./pages/LandingPage";
@@ -67,6 +71,18 @@ const App = () => (
                 <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout']}>
                   <MainLayout>
                     <ResumeUploadPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            
+            {/* Job Descriptions - For Talent Scout & Hiring Manager */}
+            <Route 
+              path="/job-descriptions"
+              element={
+                <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout']}>
+                  <MainLayout>
+                    <JobDescriptionPage />
                   </MainLayout>
                 </AuthProtection>
               }
@@ -115,6 +131,18 @@ const App = () => (
                 <AuthProtection allowedRoles={['applicant']}>
                   <MainLayout>
                     <ApplicationPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Settings - For All Users */}
+            <Route 
+              path="/settings"
+              element={
+                <AuthProtection>
+                  <MainLayout>
+                    <SettingsPage />
                   </MainLayout>
                 </AuthProtection>
               }

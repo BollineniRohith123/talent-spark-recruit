@@ -15,6 +15,7 @@ import {
   Menu,
   Building,
   FileSearch,
+  FileText
 } from 'lucide-react';
 
 // Define menu items per role
@@ -22,6 +23,7 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
   'company-admin': [
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
     { title: 'Teams', path: '/teams', icon: Users },
+    { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
     { title: 'Candidates', path: '/candidates', icon: ClipboardCheck },
     { title: 'Reports', path: '/reports', icon: FileSearch },
     { title: 'Settings', path: '/settings', icon: Settings },
@@ -29,12 +31,15 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
   'hiring-manager': [
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
     { title: 'Teams', path: '/teams', icon: Users },
-    { title: 'Candidates', path: '/candidates', icon: ClipboardCheck },
+    { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
+    { title: 'Resume Upload', path: '/resume-upload', icon: ClipboardCheck },
+    { title: 'Candidates', path: '/candidates', icon: Users },
     { title: 'Budget Management', path: '/budget', icon: Building },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
   'talent-scout': [
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
+    { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
     { title: 'Resume Upload', path: '/resume-upload', icon: ClipboardCheck },
     { title: 'Candidates', path: '/candidates', icon: Users },
     { title: 'Screenings', path: '/screenings', icon: FileSearch },
@@ -52,7 +57,7 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
     { title: 'My Application', path: '/application', icon: ClipboardCheck },
     { title: 'Screenings', path: '/screenings', icon: FileSearch },
     { title: 'Interviews', path: '/interviews', icon: Calendar },
-    { title: 'Profile', path: '/profile', icon: UserCog },
+    { title: 'Settings', path: '/settings', icon: Settings },
   ],
 };
 
