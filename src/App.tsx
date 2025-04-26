@@ -34,8 +34,15 @@ import ApplicationPage from "./pages/application/ApplicationPage";
 // Settings Pages
 import SettingsPage from "./pages/settings/SettingsPage";
 
+// Teams Pages
+import TeamsPage from "./pages/teams/TeamsPage";
+import ProfilesPage from "./pages/teams/ProfilesPage";
+
 // Landing Page
 import LandingPage from "./pages/LandingPage";
+
+// Add Index page for routing decisions
+import Index from "./pages/Index";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +57,9 @@ const App = () => (
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
+            
+            {/* Index route for deciding where to redirect based on auth state */}
+            <Route path="/index" element={<Index />} />
 
             {/* Protected Routes with MainLayout */}
             {/* Dashboard */}
@@ -59,6 +69,30 @@ const App = () => (
                 <AuthProtection>
                   <MainLayout>
                     <DashboardRouter />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Teams - For Company Admin & Hiring Manager */}
+            <Route 
+              path="/teams"
+              element={
+                <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
+                  <MainLayout>
+                    <TeamsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+            
+            {/* Profiles - For Company Admin & Hiring Manager */}
+            <Route 
+              path="/profiles"
+              element={
+                <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
+                  <MainLayout>
+                    <ProfilesPage />
                   </MainLayout>
                 </AuthProtection>
               }

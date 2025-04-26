@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { Upload, FileUp, X, Check, AlertCircle } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Upload, FileUp, X, Check, AlertCircle, Search, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { CandidateCard, Candidate } from '@/components/ui/candidate-card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { fileToText, parseResume, ParsedResume } from '@/utils/resumeParser';
 
 // Mock candidates (matching results after upload)
 const matchedCandidates: Candidate[] = [
@@ -52,27 +55,73 @@ const matchedCandidates: Candidate[] = [
 
 const ResumeUploadPage = () => {
   const [files, setFiles] = useState<File[]>([]);
+  const [parsedResumes, setParsedResumes] = useState<ParsedResume[]>([]);
   const [jobTitle, setJobTitle] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [parsing, setParsing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showMatches, setShowMatches] = useState(false);
+  const [selectedResumeIndex, setSelectedResumeIndex] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState("upload");
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const newFiles = Array.from(e.dataTransfer.files);
-    setFiles(prev => [...prev, ...newFiles]);
+    handleNewFiles(newFiles);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      setFiles(prev => [...prev, ...newFiles]);
+      handleNewFiles(newFiles);
+    }
+  };
+
+  const handleNewFiles = async (newFiles: File[]) => {
+    // Filter for only PDFs and DOCs
+    const validFiles = newFiles.filter(file => {
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      return ext === 'pdf' || ext === 'doc' || ext === 'docx';
+    });
+
+    if (validFiles.length !== newFiles.length) {
+      toast({
+        title: "Invalid File Type",
+        description: "Only PDF, DOC, and DOCX files are accepted",
+        variant: "destructive",
+      });
+    }
+
+    setFiles(prev => [...prev, ...validFiles]);
+
+    // Auto-parse new files
+    setParsing(true);
+    try {
+      for (const file of validFiles) {
+        const text = await fileToText(file);
+        const parsedResume = parseResume(text);
+        setParsedResumes(prev => [...prev, parsedResume]);
+      }
+    } catch (error) {
+      toast({
+        title: "Parsing Error",
+        description: "An error occurred while parsing the resume",
+        variant: "destructive",
+      });
+    } finally {
+      setParsing(false);
     }
   };
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
+    setParsedResumes(prev => prev.filter((_, i) => i !== index));
+    if (selectedResumeIndex === index) {
+      setSelectedResumeIndex(null);
+    } else if (selectedResumeIndex !== null && selectedResumeIndex > index) {
+      setSelectedResumeIndex(selectedResumeIndex - 1);
+    }
   };
 
   const handleUpload = () => {
@@ -106,6 +155,7 @@ const ResumeUploadPage = () => {
         clearInterval(interval);
         setUploading(false);
         setShowMatches(true);
+        setActiveTab("matches");
         toast({
           title: "Upload Complete",
           description: "Resumes uploaded and matched successfully",
@@ -128,6 +178,87 @@ const ResumeUploadPage = () => {
     });
   };
 
+  const renderResumeDetails = useCallback(() => {
+    if (selectedResumeIndex === null || !parsedResumes[selectedResumeIndex]) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+          <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="font-medium mb-1">Select a resume to view details</h3>
+          <p className="text-sm text-muted-foreground">
+            Click on a resume file to view the extracted information
+          </p>
+        </div>
+      );
+    }
+
+    const resume = parsedResumes[selectedResumeIndex];
+    
+    return (
+      <div className="space-y-6 p-4 animate-fade-in">
+        <div>
+          <h3 className="text-xl font-bold">{resume.name}</h3>
+          <div className="space-y-1 mt-2">
+            <p className="text-sm">{resume.email}</p>
+            {resume.phone && <p className="text-sm">{resume.phone}</p>}
+          </div>
+        </div>
+        
+        {resume.summary && (
+          <div>
+            <h4 className="font-medium text-sm mb-2">Summary</h4>
+            <p className="text-sm">{resume.summary}</p>
+          </div>
+        )}
+        
+        <div>
+          <h4 className="font-medium text-sm mb-2">Skills</h4>
+          <div className="flex flex-wrap gap-2">
+            {resume.skills.map((skill, i) => (
+              <Badge key={i} variant="outline" className="capitalize">
+                {skill}
+              </Badge>
+            ))}
+          </div>
+        </div>
+        
+        <div>
+          <h4 className="font-medium text-sm mb-2">Experience</h4>
+          <div className="space-y-4">
+            {resume.experience.map((exp, i) => (
+              <div key={i} className="space-y-1">
+                <div className="flex justify-between">
+                  <p className="font-medium text-sm">{exp.position}</p>
+                  <p className="text-xs text-muted-foreground">{exp.duration}</p>
+                </div>
+                <p className="text-sm text-muted-foreground">{exp.company}</p>
+                <ul className="text-sm list-disc pl-5 space-y-1">
+                  {exp.responsibilities.map((resp, j) => (
+                    <li key={j}>{resp}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        <div>
+          <h4 className="font-medium text-sm mb-2">Education</h4>
+          <div className="space-y-2">
+            {resume.education.map((edu, i) => (
+              <div key={i} className="space-y-1">
+                <div className="flex justify-between">
+                  <p className="font-medium text-sm">{edu.degree}</p>
+                  <p className="text-xs text-muted-foreground">{edu.year}</p>
+                </div>
+                <p className="text-sm text-muted-foreground">{edu.institution}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }, [selectedResumeIndex, parsedResumes]);
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div>
@@ -137,181 +268,290 @@ const ResumeUploadPage = () => {
         </p>
       </div>
 
-      {!showMatches ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Job Description Form */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-3 w-[400px]">
+          <TabsTrigger value="upload">Upload</TabsTrigger>
+          <TabsTrigger value="parse">Resume Parsing</TabsTrigger>
+          <TabsTrigger value="matches">Matches</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="upload" className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Job Description Form */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Job Description</CardTitle>
+                <CardDescription>Enter details about the position</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="jobTitle">Job Title</Label>
+                  <Input
+                    id="jobTitle"
+                    placeholder="e.g. Senior Software Engineer"
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="jobDescription">Job Description</Label>
+                  <Textarea
+                    id="jobDescription"
+                    placeholder="Enter detailed job requirements, skills, and responsibilities..."
+                    rows={10}
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Resume Upload Area */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Resume Upload</CardTitle>
+                <CardDescription>Upload candidate resumes (.pdf, .doc, .docx)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Drop Zone */}
+                <div
+                  className="border-2 border-dashed rounded-lg p-8 text-center hover:bg-muted/50 transition-colors cursor-pointer"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={handleFileDrop}
+                  onClick={() => document.getElementById('fileInput')?.click()}
+                >
+                  <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="font-medium mb-1">Drag & Drop Files Here</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    or click to browse files
+                  </p>
+                  <Input
+                    id="fileInput"
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <Button variant="outline" size="sm">
+                    <FileUp className="mr-2 h-4 w-4" />
+                    Select Files
+                  </Button>
+                </div>
+
+                {/* File List */}
+                {files.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="font-medium text-sm">Selected Files ({files.length})</h3>
+                    <div className="max-h-60 overflow-y-auto space-y-2">
+                      {files.map((file, index) => (
+                        <div 
+                          key={`${file.name}-${index}`}
+                          className={`flex items-center justify-between bg-muted p-2 rounded-md ${
+                            selectedResumeIndex === index ? 'ring-2 ring-primary' : ''
+                          } hover:bg-muted/80 cursor-pointer`}
+                          onClick={() => setSelectedResumeIndex(index)}
+                        >
+                          <div className="flex items-center overflow-hidden">
+                            <div className="flex-shrink-0 h-8 w-8 bg-primary/10 rounded-md flex items-center justify-center">
+                              <FileUp className="h-4 w-4 text-primary" />
+                            </div>
+                            <div className="ml-2 overflow-hidden">
+                              <p className="text-sm font-medium truncate">{file.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {(file.size / 1024).toFixed(0)} KB
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeFile(index);
+                            }}
+                            className="h-8 w-8 p-0"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {uploading && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Uploading...</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <Progress value={uploadProgress} />
+                  </div>
+                )}
+
+                <Button
+                  className="w-full"
+                  disabled={uploading || parsing}
+                  onClick={handleUpload}
+                >
+                  {uploading ? (
+                    <>Processing...</>
+                  ) : (
+                    <>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload & Match Resumes
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="parse" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Job Description</CardTitle>
-              <CardDescription>Enter details about the position</CardDescription>
+              <CardTitle>Resume Parsing Results</CardTitle>
+              <CardDescription>
+                Extracted information from uploaded resumes
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="jobTitle">Job Title</Label>
-                <Input
-                  id="jobTitle"
-                  placeholder="e.g. Senior Software Engineer"
-                  value={jobTitle}
-                  onChange={(e) => setJobTitle(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="jobDescription">Job Description</Label>
-                <Textarea
-                  id="jobDescription"
-                  placeholder="Enter detailed job requirements, skills, and responsibilities..."
-                  rows={10}
-                  value={jobDescription}
-                  onChange={(e) => setJobDescription(e.target.value)}
-                />
-              </div>
+            <CardContent>
+              {parsing && (
+                <div className="flex items-center justify-center p-8">
+                  <div className="text-center animate-pulse">
+                    <p className="font-medium mb-2">Parsing Resumes...</p>
+                    <p className="text-sm text-muted-foreground">
+                      Extracting skills and information
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {!parsing && files.length === 0 && (
+                <div className="flex flex-col items-center justify-center p-8 text-center">
+                  <Search className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="font-medium mb-1">No Resumes Uploaded Yet</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Upload resumes to extract skills and information
+                  </p>
+                  <Button 
+                    variant="outline"
+                    onClick={() => setActiveTab("upload")}
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Go to Upload
+                  </Button>
+                </div>
+              )}
+              
+              {!parsing && files.length > 0 && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="col-span-1 border rounded-md overflow-hidden">
+                    <div className="p-3 bg-muted font-medium text-sm">
+                      Resume Files
+                    </div>
+                    <div className="max-h-[500px] overflow-y-auto">
+                      {files.map((file, index) => (
+                        <div 
+                          key={index}
+                          className={`flex items-center p-3 border-b cursor-pointer hover:bg-muted/50 ${
+                            selectedResumeIndex === index ? 'bg-muted' : ''
+                          }`}
+                          onClick={() => setSelectedResumeIndex(index)}
+                        >
+                          <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span className="text-sm truncate">{file.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="col-span-2 border rounded-md overflow-hidden">
+                    <div className="p-3 bg-muted font-medium text-sm">
+                      Parsed Information
+                    </div>
+                    <div className="max-h-[500px] overflow-y-auto">
+                      {renderResumeDetails()}
+                    </div>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
-
-          {/* Resume Upload Area */}
+        </TabsContent>
+        
+        <TabsContent value="matches" className="mt-6">
+          {/* Matching Results */}
           <Card>
             <CardHeader>
-              <CardTitle>Resume Upload</CardTitle>
-              <CardDescription>Upload candidate resumes (.pdf, .doc, .docx)</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Drop Zone */}
-              <div
-                className="border-2 border-dashed rounded-lg p-8 text-center hover:bg-muted/50 transition-colors cursor-pointer"
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handleFileDrop}
-                onClick={() => document.getElementById('fileInput')?.click()}
-              >
-                <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-medium mb-1">Drag & Drop Files Here</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  or click to browse files
-                </p>
-                <Input
-                  id="fileInput"
-                  type="file"
-                  multiple
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-                <Button variant="outline" size="sm">
-                  <FileUp className="mr-2 h-4 w-4" />
-                  Select Files
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle>Matching Results</CardTitle>
+                  <CardDescription>
+                    Candidates matching the job position: {jobTitle}
+                  </CardDescription>
+                </div>
+                <Button variant="outline" onClick={() => {
+                  setShowMatches(false);
+                  setActiveTab("upload");
+                  setFiles([]);
+                  setParsedResumes([]);
+                  setJobTitle('');
+                  setJobDescription('');
+                }}>
+                  New Upload
                 </Button>
               </div>
+            </CardHeader>
+            <CardContent>
+              {!showMatches && (
+                <div className="flex flex-col items-center justify-center p-8 text-center">
+                  <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="font-medium mb-1">No Matches Found</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Upload and process resumes to find matching candidates
+                  </p>
+                  <Button 
+                    variant="outline"
+                    onClick={() => setActiveTab("upload")}
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Go to Upload
+                  </Button>
+                </div>
+              )}
+              
+              {showMatches && (
+                <>
+                  <div className="bg-recruit-success/30 p-4 rounded-md mb-6 flex items-start">
+                    <Check className="h-5 w-5 text-green-600 mt-0.5 mr-2 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium">Upload Complete</p>
+                      <p className="text-sm">
+                        {files.length} resumes were processed and matched with the job description for {jobTitle}
+                      </p>
+                    </div>
+                  </div>
 
-              {/* File List */}
-              {files.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="font-medium text-sm">Selected Files ({files.length})</h3>
-                  <div className="max-h-60 overflow-y-auto space-y-2">
-                    {files.map((file, index) => (
-                      <div 
-                        key={`${file.name}-${index}`}
-                        className="flex items-center justify-between bg-muted p-2 rounded-md"
-                      >
-                        <div className="flex items-center overflow-hidden">
-                          <div className="flex-shrink-0 h-8 w-8 bg-primary/10 rounded-md flex items-center justify-center">
-                            <FileUp className="h-4 w-4 text-primary" />
-                          </div>
-                          <div className="ml-2 overflow-hidden">
-                            <p className="text-sm font-medium truncate">{file.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {(file.size / 1024).toFixed(0)} KB
-                            </p>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeFile(index);
-                          }}
-                          className="h-8 w-8 p-0"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {matchedCandidates.map((candidate) => (
+                      <CandidateCard
+                        key={candidate.id}
+                        candidate={candidate}
+                        onView={handleViewCandidate}
+                        onAction={handleNextStep}
+                        actionLabel="Send Screening"
+                      />
                     ))}
                   </div>
-                </div>
+                </>
               )}
-
-              {uploading && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Uploading...</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <Progress value={uploadProgress} />
-                </div>
-              )}
-
-              <Button
-                className="w-full"
-                disabled={uploading}
-                onClick={handleUpload}
-              >
-                {uploading ? (
-                  <>Processing...</>
-                ) : (
-                  <>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload & Match Resumes
-                  </>
-                )}
-              </Button>
             </CardContent>
           </Card>
-        </div>
-      ) : (
-        /* Matching Results */
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle>Matching Results</CardTitle>
-                <CardDescription>
-                  Candidates matching the job position: {jobTitle}
-                </CardDescription>
-              </div>
-              <Button variant="outline" onClick={() => {
-                setShowMatches(false);
-                setFiles([]);
-                setJobTitle('');
-                setJobDescription('');
-              }}>
-                New Upload
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-recruit-success/30 p-4 rounded-md mb-6 flex items-start">
-              <Check className="h-5 w-5 text-green-600 mt-0.5 mr-2 flex-shrink-0" />
-              <div>
-                <p className="font-medium">Upload Complete</p>
-                <p className="text-sm">
-                  {files.length} resumes were processed and matched with the job description for {jobTitle}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {matchedCandidates.map((candidate) => (
-                <CandidateCard
-                  key={candidate.id}
-                  candidate={candidate}
-                  onView={handleViewCandidate}
-                  onAction={handleNextStep}
-                  actionLabel="Send Screening"
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

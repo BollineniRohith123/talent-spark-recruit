@@ -15,7 +15,8 @@ import {
   Menu,
   Building,
   FileSearch,
-  FileText
+  FileText,
+  UserPlus
 } from 'lucide-react';
 
 // Define menu items per role
@@ -23,6 +24,7 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
   'company-admin': [
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
     { title: 'Teams', path: '/teams', icon: Users },
+    { title: 'Profiles', path: '/profiles', icon: UserPlus },
     { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
     { title: 'Candidates', path: '/candidates', icon: ClipboardCheck },
     { title: 'Reports', path: '/reports', icon: FileSearch },
@@ -31,6 +33,7 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
   'hiring-manager': [
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
     { title: 'Teams', path: '/teams', icon: Users },
+    { title: 'Profiles', path: '/profiles', icon: UserPlus },
     { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
     { title: 'Resume Upload', path: '/resume-upload', icon: ClipboardCheck },
     { title: 'Candidates', path: '/candidates', icon: Users },
