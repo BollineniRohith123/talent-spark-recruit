@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,47 +8,60 @@ import {
   Shield,
   CheckCircle2,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  Zap,
+  Award,
+  Star,
+  LineChart,
+  Search,
+  Clock
 } from 'lucide-react';
 
 const LandingPage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b py-4">
+      {/* Header with glassmorphism effect */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b py-4 shadow-sm">
         <div className="container mx-auto px-4 flex justify-between items-center">
-          <div className="flex items-center">
+          <div className="flex items-center animate-fade-in">
             <Bot className="h-8 w-8 text-recruit-primary mr-2" />
-            <span className="text-xl font-bold">RecruitAI</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-recruit-primary to-recruit-secondary bg-clip-text text-transparent">
+              RecruitAI
+            </span>
           </div>
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
               Features
             </a>
-            <a href="#benefits" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            <a href="#benefits" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
               Benefits
             </a>
-            <a href="#roles" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            <a href="#roles" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
               User Roles
             </a>
           </div>
           <div className="flex items-center space-x-4">
             <Link to="/login">
-              <Button variant="outline">Sign In</Button>
+              <Button variant="outline" className="hover:scale-105 transition-transform duration-200">
+                Sign In
+              </Button>
             </Link>
             <Link to="/login">
-              <Button>Get Started</Button>
+              <Button className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-recruit-primary to-recruit-secondary hover:opacity-90">
+                Get Started
+              </Button>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="py-20 bg-gradient-to-br from-recruit-primary/10 to-recruit-secondary/10">
-        <div className="container mx-auto px-4">
+      {/* Hero Section with enhanced gradient and animations */}
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-recruit-primary/10 to-recruit-secondary/10 animate-gradient" />
+        <div className="container mx-auto px-4 relative">
           <div className="flex flex-col lg:flex-row items-center">
-            <div className="lg:w-1/2 mb-10 lg:mb-0">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            <div className="lg:w-1/2 mb-10 lg:mb-0 animate-fade-in">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-recruit-primary to-recruit-secondary bg-clip-text text-transparent">
                 AI-Powered Recruitment Platform
               </h1>
               <p className="text-xl text-muted-foreground mb-8 max-w-lg">
@@ -58,19 +70,19 @@ const LandingPage = () => {
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/login">
-                  <Button size="lg" className="rounded-full">
+                  <Button size="lg" className="animate-pulse-slow bg-gradient-to-r from-recruit-primary to-recruit-secondary hover:opacity-90">
                     Get Started <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
                 <a href="#features">
-                  <Button variant="outline" size="lg" className="rounded-full">
+                  <Button variant="outline" size="lg" className="hover:scale-105 transition-transform duration-200">
                     Learn More
                   </Button>
                 </a>
               </div>
             </div>
-            <div className="lg:w-1/2 lg:pl-16">
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="lg:w-1/2 lg:pl-16 animate-slide-in-right">
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-500">
                 <img 
                   src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-1.2.1&q=80&w=1500&auto=format&fit=crop"
                   alt="Person using RecruitAI"
@@ -82,7 +94,31 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features */}
+      {/* Stats Section - New */}
+      <section className="py-12 bg-gradient-to-r from-recruit-primary/5 to-recruit-secondary/5">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="text-center animate-fade-in">
+              <div className="text-3xl font-bold text-recruit-primary mb-2">500+</div>
+              <div className="text-sm text-muted-foreground">Companies Trust Us</div>
+            </div>
+            <div className="text-center animate-fade-in [animation-delay:200ms]">
+              <div className="text-3xl font-bold text-recruit-primary mb-2">10k+</div>
+              <div className="text-sm text-muted-foreground">Successful Placements</div>
+            </div>
+            <div className="text-center animate-fade-in [animation-delay:400ms]">
+              <div className="text-3xl font-bold text-recruit-primary mb-2">95%</div>
+              <div className="text-sm text-muted-foreground">Satisfaction Rate</div>
+            </div>
+            <div className="text-center animate-fade-in [animation-delay:600ms]">
+              <div className="text-3xl font-bold text-recruit-primary mb-2">30%</div>
+              <div className="text-sm text-muted-foreground">Time Saved</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features section with enhanced animations */}
       <section id="features" className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -174,7 +210,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Benefits */}
+      {/* Benefits section with enhanced visuals */}
       <section id="benefits" className="py-20 bg-gradient-to-br from-recruit-primary/10 to-recruit-secondary/10">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -246,7 +282,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* User Roles */}
+      {/* User Roles section */}
       <section id="roles" className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -393,20 +429,31 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 bg-gray-900 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Optimize Your Recruitment Process?</h2>
-          <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
-            Join leading consulting firms using RecruitAI to find better candidates, increase margins, and streamline hiring.
+      {/* Enhanced CTA section */}
+      <section className="py-20 bg-gradient-to-br from-gray-900 to-gray-800 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(40deg,transparent_25%,rgba(68,51,238,0.1)_50%,transparent_75%)] opacity-50"></div>
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 animate-fade-in">
+            Ready to Optimize Your Recruitment Process?
+          </h2>
+          <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto animate-fade-in [animation-delay:200ms]">
+            Join leading consulting firms using RecruitAI to find better candidates, 
+            increase margins, and streamline hiring.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/login">
-              <Button size="lg" className="rounded-full">
+              <Button 
+                size="lg" 
+                className="rounded-full animate-pulse-slow bg-gradient-to-r from-recruit-primary to-recruit-secondary hover:opacity-90"
+              >
                 Get Started <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="rounded-full text-white border-white hover:bg-white/10">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="rounded-full text-white border-white hover:bg-white/10 animate-fade-in [animation-delay:400ms]"
+            >
               Request a Demo
             </Button>
           </div>
