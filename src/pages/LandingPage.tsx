@@ -1,0 +1,470 @@
+
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import {
+  Bot,
+  BarChart3,
+  Users,
+  Briefcase,
+  Shield,
+  CheckCircle2,
+  ChevronRight,
+  ArrowRight
+} from 'lucide-react';
+
+const LandingPage = () => {
+  return (
+    <div className="flex flex-col min-h-screen bg-white">
+      {/* Header */}
+      <header className="border-b py-4">
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          <div className="flex items-center">
+            <Bot className="h-8 w-8 text-recruit-primary mr-2" />
+            <span className="text-xl font-bold">RecruitAI</span>
+          </div>
+          <div className="hidden md:flex items-center space-x-8">
+            <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+              Features
+            </a>
+            <a href="#benefits" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+              Benefits
+            </a>
+            <a href="#roles" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+              User Roles
+            </a>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Link to="/login">
+              <Button variant="outline">Sign In</Button>
+            </Link>
+            <Link to="/login">
+              <Button>Get Started</Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="py-20 bg-gradient-to-br from-recruit-primary/10 to-recruit-secondary/10">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row items-center">
+            <div className="lg:w-1/2 mb-10 lg:mb-0">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+                AI-Powered Recruitment Platform
+              </h1>
+              <p className="text-xl text-muted-foreground mb-8 max-w-lg">
+                Streamline your consulting firm's hiring process with intelligent 
+                screening, budgeting, and profit optimization.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link to="/login">
+                  <Button size="lg" className="rounded-full">
+                    Get Started <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                <a href="#features">
+                  <Button variant="outline" size="lg" className="rounded-full">
+                    Learn More
+                  </Button>
+                </a>
+              </div>
+            </div>
+            <div className="lg:w-1/2 lg:pl-16">
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <img 
+                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-1.2.1&q=80&w=1500&auto=format&fit=crop"
+                  alt="Person using RecruitAI"
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Key Features</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              RecruitAI combines advanced AI with intuitive workflow management to optimize your recruitment process.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
+                <Bot className="h-6 w-6 text-recruit-primary" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">AI Screening</h3>
+              <p className="text-muted-foreground mb-4">
+                Ultravox AI conducts voice-based candidate screenings, generating detailed feedback and analysis.
+              </p>
+              <a href="#" className="inline-flex items-center text-sm font-medium text-recruit-primary hover-scale">
+                Learn More <ChevronRight className="ml-1 h-4 w-4" />
+              </a>
+            </div>
+            
+            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
+                <BarChart3 className="h-6 w-6 text-recruit-primary" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Profit Optimization</h3>
+              <p className="text-muted-foreground mb-4">
+                Configure budget splits between client rates and candidate offers to maximize your margins.
+              </p>
+              <a href="#" className="inline-flex items-center text-sm font-medium text-recruit-primary hover-scale">
+                Learn More <ChevronRight className="ml-1 h-4 w-4" />
+              </a>
+            </div>
+            
+            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
+                <Users className="h-6 w-6 text-recruit-primary" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Resume Matching</h3>
+              <p className="text-muted-foreground mb-4">
+                Agentic RAG technology matches resumes against job descriptions with high accuracy.
+              </p>
+              <a href="#" className="inline-flex items-center text-sm font-medium text-recruit-primary hover-scale">
+                Learn More <ChevronRight className="ml-1 h-4 w-4" />
+              </a>
+            </div>
+            
+            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
+                <Briefcase className="h-6 w-6 text-recruit-primary" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Workflow Automation</h3>
+              <p className="text-muted-foreground mb-4">
+                Streamlined interview scheduling, feedback collection, and offer management.
+              </p>
+              <a href="#" className="inline-flex items-center text-sm font-medium text-recruit-primary hover-scale">
+                Learn More <ChevronRight className="ml-1 h-4 w-4" />
+              </a>
+            </div>
+            
+            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
+                <BarChart3 className="h-6 w-6 text-recruit-primary" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Role-Based Dashboards</h3>
+              <p className="text-muted-foreground mb-4">
+                Customized views for each role in the recruitment process, from admin to applicant.
+              </p>
+              <a href="#" className="inline-flex items-center text-sm font-medium text-recruit-primary hover-scale">
+                Learn More <ChevronRight className="ml-1 h-4 w-4" />
+              </a>
+            </div>
+            
+            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
+                <Shield className="h-6 w-6 text-recruit-primary" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Secure Deployment</h3>
+              <p className="text-muted-foreground mb-4">
+                On-premise deployment with subscription-based licensing for maximum data security.
+              </p>
+              <a href="#" className="inline-flex items-center text-sm font-medium text-recruit-primary hover-scale">
+                Learn More <ChevronRight className="ml-1 h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits */}
+      <section id="benefits" className="py-20 bg-gradient-to-br from-recruit-primary/10 to-recruit-secondary/10">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose RecruitAI</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Our platform offers distinct advantages for US consulting firms looking to optimize their recruitment process.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <div>
+              <img 
+                src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-1.2.1&q=80&w=1500&auto=format&fit=crop"
+                alt="Team collaborating using RecruitAI"
+                className="rounded-xl shadow-lg"
+              />
+            </div>
+            
+            <div className="space-y-8">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 mr-4">
+                  <CheckCircle2 className="h-6 w-6 text-recruit-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Increased Profit Margins</h3>
+                  <p className="text-muted-foreground">
+                    Maximize the difference between client budgets and candidate offers with transparent profit calculations.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="flex-shrink-0 mr-4">
+                  <CheckCircle2 className="h-6 w-6 text-recruit-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Reduced Time-to-Hire</h3>
+                  <p className="text-muted-foreground">
+                    Accelerate the recruitment process with AI screening and workflow automation, cutting hiring time by up to 40%.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="flex-shrink-0 mr-4">
+                  <CheckCircle2 className="h-6 w-6 text-recruit-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Better Candidate Quality</h3>
+                  <p className="text-muted-foreground">
+                    AI-powered matching ensures only the most qualified candidates move through your pipeline.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="flex-shrink-0 mr-4">
+                  <CheckCircle2 className="h-6 w-6 text-recruit-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Complete Data Security</h3>
+                  <p className="text-muted-foreground">
+                    On-premise deployment ensures your sensitive candidate and client data never leaves your infrastructure.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* User Roles */}
+      <section id="roles" className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Role-Based Dashboards</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              RecruitAI provides customized experiences for everyone involved in the recruitment process.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+              <h3 className="text-xl font-bold mb-3">Company Admin</h3>
+              <p className="text-muted-foreground mb-4">
+                Oversee the entire recruitment operation with high-level metrics on team performance, hiring stats, and financial data.
+              </p>
+              <ul className="space-y-2 mb-6">
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Total employees and candidates</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Financial overview and profit margins</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Team performance metrics</span>
+                </li>
+              </ul>
+              <Link to="/login">
+                <Button variant="outline" className="w-full">View Demo</Button>
+              </Link>
+            </div>
+            
+            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+              <h3 className="text-xl font-bold mb-3">Hiring Manager</h3>
+              <p className="text-muted-foreground mb-4">
+                Manage budgets, set profit splits, and track your team's hiring progress in real time.
+              </p>
+              <ul className="space-y-2 mb-6">
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Budget allocation and profit configuration</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Team performance tracking</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Recruitment pipeline visibility</span>
+                </li>
+              </ul>
+              <Link to="/login">
+                <Button variant="outline" className="w-full">View Demo</Button>
+              </Link>
+            </div>
+            
+            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+              <h3 className="text-xl font-bold mb-3">Talent Scout</h3>
+              <p className="text-muted-foreground mb-4">
+                Upload resumes, manage screenings, and track candidates throughout the hiring process.
+              </p>
+              <ul className="space-y-2 mb-6">
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Resume and JD management</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>AI screening administration</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Candidate pipeline management</span>
+                </li>
+              </ul>
+              <Link to="/login">
+                <Button variant="outline" className="w-full">View Demo</Button>
+              </Link>
+            </div>
+            
+            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+              <h3 className="text-xl font-bold mb-3">Team Member</h3>
+              <p className="text-muted-foreground mb-4">
+                Access candidate information, conduct interviews, and provide structured feedback.
+              </p>
+              <ul className="space-y-2 mb-6">
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Interview scheduling and management</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Candidate evaluation tools</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Feedback submission</span>
+                </li>
+              </ul>
+              <Link to="/login">
+                <Button variant="outline" className="w-full">View Demo</Button>
+              </Link>
+            </div>
+            
+            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+              <h3 className="text-xl font-bold mb-3">Applicant</h3>
+              <p className="text-muted-foreground mb-4">
+                Monitor application status, complete screenings, and respond to interview invitations.
+              </p>
+              <ul className="space-y-2 mb-6">
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Application progress tracking</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>AI screening participation</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Interview and offer management</span>
+                </li>
+              </ul>
+              <Link to="/login">
+                <Button variant="outline" className="w-full">View Demo</Button>
+              </Link>
+            </div>
+            
+            <div className="relative bg-gradient-to-br from-recruit-primary/80 to-recruit-secondary/80 p-8 rounded-xl shadow-sm border border-recruit-primary/20 text-white overflow-hidden">
+              <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full" />
+              <div className="relative z-10">
+                <h3 className="text-xl font-bold mb-3">Ready to Transform Your Recruitment?</h3>
+                <p className="mb-6 text-white/90">
+                  Experience the power of AI-driven recruitment tailored for consulting companies.
+                </p>
+                <Link to="/login">
+                  <Button variant="secondary" className="w-full">Get Started Today</Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 bg-gray-900 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Optimize Your Recruitment Process?</h2>
+          <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+            Join leading consulting firms using RecruitAI to find better candidates, increase margins, and streamline hiring.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/login">
+              <Button size="lg" className="rounded-full">
+                Get Started <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Button variant="outline" size="lg" className="rounded-full text-white border-white hover:bg-white/10">
+              Request a Demo
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 bg-white border-t">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="font-bold mb-4">RecruitAI</h3>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">About Us</a></li>
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Careers</a></li>
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Contact</a></li>
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Blog</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-bold mb-4">Product</h3>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Features</a></li>
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Pricing</a></li>
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Integration</a></li>
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">API</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-bold mb-4">Resources</h3>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Documentation</a></li>
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Guides</a></li>
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Support</a></li>
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Webinars</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-bold mb-4">Legal</h3>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Privacy Policy</a></li>
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Terms of Service</a></li>
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">Security</a></li>
+                <li><a href="#" className="text-muted-foreground hover:text-foreground">GDPR</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
+            <p>© 2025 RecruitAI. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default LandingPage;
