@@ -3,11 +3,11 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth, UserRole } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
-import { 
-  BarChart3, 
-  Users, 
-  ClipboardCheck, 
-  Calendar, 
+import {
+  BarChart3,
+  Users,
+  ClipboardCheck,
+  Calendar,
   MessageSquare,
   UserCog,
   Settings,
@@ -16,7 +16,10 @@ import {
   Building,
   FileSearch,
   FileText,
-  UserPlus
+  UserPlus,
+  DollarSign,
+  PieChart,
+  Upload
 } from 'lucide-react';
 
 // Define menu items per role
@@ -26,8 +29,10 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
     { title: 'Teams', path: '/teams', icon: Users },
     { title: 'Profiles', path: '/profiles', icon: UserPlus },
     { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
+    { title: 'Resume Upload', path: '/resume-upload', icon: Upload },
     { title: 'Candidates', path: '/candidates', icon: ClipboardCheck },
-    { title: 'Reports', path: '/reports', icon: FileSearch },
+    { title: 'Budget', path: '/budget', icon: DollarSign },
+    { title: 'Reports', path: '/reports', icon: PieChart },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
   'hiring-manager': [
@@ -35,17 +40,19 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
     { title: 'Teams', path: '/teams', icon: Users },
     { title: 'Profiles', path: '/profiles', icon: UserPlus },
     { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
-    { title: 'Resume Upload', path: '/resume-upload', icon: ClipboardCheck },
+    { title: 'Resume Upload', path: '/resume-upload', icon: Upload },
     { title: 'Candidates', path: '/candidates', icon: Users },
-    { title: 'Budget Management', path: '/budget', icon: Building },
+    { title: 'Budget', path: '/budget', icon: DollarSign },
+    { title: 'Reports', path: '/reports', icon: PieChart },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
   'talent-scout': [
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
     { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
-    { title: 'Resume Upload', path: '/resume-upload', icon: ClipboardCheck },
+    { title: 'Resume Upload', path: '/resume-upload', icon: Upload },
     { title: 'Candidates', path: '/candidates', icon: Users },
     { title: 'Screenings', path: '/screenings', icon: FileSearch },
+    { title: 'Feedback', path: '/feedback', icon: MessageSquare },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
   'team-member': [
@@ -82,10 +89,10 @@ const AppSidebar = () => {
         <div className="flex items-center justify-between p-4">
           {!collapsed && (
             <div className="text-sidebar-foreground font-bold text-xl">
-              RecruitAI
+              TalentSpark
             </div>
           )}
-          <button 
+          <button
             onClick={() => setCollapsed(!collapsed)}
             className="text-sidebar-foreground p-1 rounded-md hover:bg-sidebar-accent"
           >
@@ -115,7 +122,7 @@ const AppSidebar = () => {
         </div>
 
         <div className="p-4 border-t border-sidebar-border">
-          <button 
+          <button
             onClick={logout}
             className={cn(
               "flex items-center w-full px-3 py-2 rounded-md transition-colors text-sidebar-foreground hover:bg-sidebar-accent",

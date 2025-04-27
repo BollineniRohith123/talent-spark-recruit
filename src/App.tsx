@@ -24,6 +24,7 @@ import ScreeningsPage from "./pages/screening/ScreeningsPage";
 
 // Candidates Pages
 import CandidatesPage from "./pages/candidates/CandidatesPage";
+import CandidateDetailsPage from "./pages/candidates/CandidateDetailsPage";
 
 // Interview Pages
 import InterviewsPage from "./pages/interviews/InterviewsPage";
@@ -37,6 +38,17 @@ import SettingsPage from "./pages/settings/SettingsPage";
 // Teams Pages
 import TeamsPage from "./pages/teams/TeamsPage";
 import ProfilesPage from "./pages/teams/ProfilesPage";
+import TeamDetailsPage from "./pages/teams/TeamDetailsPage";
+import ProfileDetailsPage from "./pages/teams/ProfileDetailsPage";
+
+// Reports Page
+import ReportsPage from "./pages/reports/ReportsPage";
+
+// Budget Page
+import BudgetManagementPage from "./pages/budget/BudgetManagementPage";
+
+// Feedback Page
+import FeedbackPage from "./pages/feedback/FeedbackPage";
 
 // Landing Page
 import LandingPage from "./pages/LandingPage";
@@ -57,13 +69,13 @@ const App = () => (
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
-            
+
             {/* Index route for deciding where to redirect based on auth state */}
             <Route path="/index" element={<Index />} />
 
             {/* Protected Routes with MainLayout */}
             {/* Dashboard */}
-            <Route 
+            <Route
               path="/dashboard"
               element={
                 <AuthProtection>
@@ -75,7 +87,7 @@ const App = () => (
             />
 
             {/* Teams - For Company Admin & Hiring Manager */}
-            <Route 
+            <Route
               path="/teams"
               element={
                 <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
@@ -85,9 +97,21 @@ const App = () => (
                 </AuthProtection>
               }
             />
-            
+
+            {/* Team Details - For Company Admin & Hiring Manager */}
+            <Route
+              path="/teams/:teamId"
+              element={
+                <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
+                  <MainLayout>
+                    <TeamDetailsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
             {/* Profiles - For Company Admin & Hiring Manager */}
-            <Route 
+            <Route
               path="/profiles"
               element={
                 <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
@@ -98,8 +122,20 @@ const App = () => (
               }
             />
 
+            {/* Profile Details - For Company Admin & Hiring Manager */}
+            <Route
+              path="/profiles/:profileId"
+              element={
+                <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
+                  <MainLayout>
+                    <ProfileDetailsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
             {/* Resume Management - For Talent Scout & Hiring Manager */}
-            <Route 
+            <Route
               path="/resume-upload"
               element={
                 <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout']}>
@@ -109,9 +145,9 @@ const App = () => (
                 </AuthProtection>
               }
             />
-            
+
             {/* Job Descriptions - For Talent Scout & Hiring Manager */}
-            <Route 
+            <Route
               path="/job-descriptions"
               element={
                 <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout']}>
@@ -123,7 +159,7 @@ const App = () => (
             />
 
             {/* Screenings - For Talent Scout & Hiring Manager */}
-            <Route 
+            <Route
               path="/screenings"
               element={
                 <AuthProtection>
@@ -135,7 +171,7 @@ const App = () => (
             />
 
             {/* Candidates - For Everyone except Applicants */}
-            <Route 
+            <Route
               path="/candidates"
               element={
                 <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout', 'team-member']}>
@@ -146,8 +182,20 @@ const App = () => (
               }
             />
 
+            {/* Candidate Details - For Everyone except Applicants */}
+            <Route
+              path="/candidates/:candidateId"
+              element={
+                <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout', 'team-member']}>
+                  <MainLayout>
+                    <CandidateDetailsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
             {/* Interviews - For Team Members & Talent Scouts */}
-            <Route 
+            <Route
               path="/interviews"
               element={
                 <AuthProtection>
@@ -158,8 +206,20 @@ const App = () => (
               }
             />
 
+            {/* Feedback - For Team Members & Talent Scouts */}
+            <Route
+              path="/feedback"
+              element={
+                <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout', 'team-member']}>
+                  <MainLayout>
+                    <FeedbackPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
             {/* Application - For Applicants */}
-            <Route 
+            <Route
               path="/application"
               element={
                 <AuthProtection allowedRoles={['applicant']}>
@@ -170,8 +230,32 @@ const App = () => (
               }
             />
 
+            {/* Reports - For Company Admin & Hiring Manager */}
+            <Route
+              path="/reports"
+              element={
+                <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
+                  <MainLayout>
+                    <ReportsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Budget Management - For Company Admin & Hiring Manager */}
+            <Route
+              path="/budget"
+              element={
+                <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
+                  <MainLayout>
+                    <BudgetManagementPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
             {/* Settings - For All Users */}
-            <Route 
+            <Route
               path="/settings"
               element={
                 <AuthProtection>

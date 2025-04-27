@@ -26,7 +26,7 @@ const LandingPage = () => {
           <div className="flex items-center animate-fade-in">
             <Bot className="h-8 w-8 text-recruit-primary mr-2" />
             <span className="text-xl font-bold bg-gradient-to-r from-recruit-primary to-recruit-secondary bg-clip-text text-transparent">
-              RecruitAI
+              TalentSpark
             </span>
           </div>
           <div className="hidden md:flex items-center space-x-8">
@@ -65,7 +65,7 @@ const LandingPage = () => {
                 AI-Powered Recruitment Platform
               </h1>
               <p className="text-xl text-muted-foreground mb-8 max-w-lg">
-                Streamline your consulting firm's hiring process with intelligent 
+                Streamline your consulting firm's hiring process with intelligent
                 screening, budgeting, and profit optimization.
               </p>
               <div className="flex flex-wrap gap-4">
@@ -83,9 +83,9 @@ const LandingPage = () => {
             </div>
             <div className="lg:w-1/2 lg:pl-16 animate-slide-in-right">
               <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-500">
-                <img 
+                <img
                   src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-1.2.1&q=80&w=1500&auto=format&fit=crop"
-                  alt="Person using RecruitAI"
+                  alt="Person using TalentSpark"
                   className="w-full h-auto"
                 />
               </div>
@@ -124,10 +124,10 @@ const LandingPage = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Key Features</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              RecruitAI combines advanced AI with intuitive workflow management to optimize your recruitment process.
+              TalentSpark combines advanced AI with intuitive workflow management to optimize your recruitment process.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
               <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
@@ -141,7 +141,7 @@ const LandingPage = () => {
                 Learn More <ChevronRight className="ml-1 h-4 w-4" />
               </a>
             </div>
-            
+
             <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
               <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
                 <BarChart3 className="h-6 w-6 text-recruit-primary" />
@@ -154,7 +154,7 @@ const LandingPage = () => {
                 Learn More <ChevronRight className="ml-1 h-4 w-4" />
               </a>
             </div>
-            
+
             <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
               <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
                 <Users className="h-6 w-6 text-recruit-primary" />
@@ -167,7 +167,7 @@ const LandingPage = () => {
                 Learn More <ChevronRight className="ml-1 h-4 w-4" />
               </a>
             </div>
-            
+
             <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
               <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
                 <Briefcase className="h-6 w-6 text-recruit-primary" />
@@ -180,7 +180,7 @@ const LandingPage = () => {
                 Learn More <ChevronRight className="ml-1 h-4 w-4" />
               </a>
             </div>
-            
+
             <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
               <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
                 <BarChart3 className="h-6 w-6 text-recruit-primary" />
@@ -193,7 +193,7 @@ const LandingPage = () => {
                 Learn More <ChevronRight className="ml-1 h-4 w-4" />
               </a>
             </div>
-            
+
             <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
               <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
                 <Shield className="h-6 w-6 text-recruit-primary" />
@@ -214,21 +214,21 @@ const LandingPage = () => {
       <section id="benefits" className="py-20 bg-gradient-to-br from-recruit-primary/10 to-recruit-secondary/10">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose RecruitAI</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose TalentSpark</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Our platform offers distinct advantages for US consulting firms looking to optimize their recruitment process.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <div>
-              <img 
+              <img
                 src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-1.2.1&q=80&w=1500&auto=format&fit=crop"
-                alt="Team collaborating using RecruitAI"
+                alt="Team collaborating using TalentSpark"
                 className="rounded-xl shadow-lg"
               />
             </div>
-            
+
             <div className="space-y-8">
               <div className="flex items-start">
                 <div className="flex-shrink-0 mr-4">
@@ -241,7 +241,7 @@ const LandingPage = () => {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <div className="flex-shrink-0 mr-4">
                   <CheckCircle2 className="h-6 w-6 text-recruit-primary" />
@@ -253,7 +253,7 @@ const LandingPage = () => {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <div className="flex-shrink-0 mr-4">
                   <CheckCircle2 className="h-6 w-6 text-recruit-primary" />
@@ -265,7 +265,7 @@ const LandingPage = () => {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <div className="flex-shrink-0 mr-4">
                   <CheckCircle2 className="h-6 w-6 text-recruit-primary" />
@@ -288,10 +288,10 @@ const LandingPage = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Role-Based Dashboards</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              RecruitAI provides customized experiences for everyone involved in the recruitment process.
+              TalentSpark provides customized experiences for everyone involved in the recruitment process.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold mb-3">Company Admin</h3>
@@ -316,7 +316,7 @@ const LandingPage = () => {
                 <Button variant="outline" className="w-full">View Demo</Button>
               </Link>
             </div>
-            
+
             <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold mb-3">Hiring Manager</h3>
               <p className="text-muted-foreground mb-4">
@@ -340,7 +340,7 @@ const LandingPage = () => {
                 <Button variant="outline" className="w-full">View Demo</Button>
               </Link>
             </div>
-            
+
             <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold mb-3">Talent Scout</h3>
               <p className="text-muted-foreground mb-4">
@@ -364,7 +364,7 @@ const LandingPage = () => {
                 <Button variant="outline" className="w-full">View Demo</Button>
               </Link>
             </div>
-            
+
             <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold mb-3">Team Member</h3>
               <p className="text-muted-foreground mb-4">
@@ -388,7 +388,7 @@ const LandingPage = () => {
                 <Button variant="outline" className="w-full">View Demo</Button>
               </Link>
             </div>
-            
+
             <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold mb-3">Applicant</h3>
               <p className="text-muted-foreground mb-4">
@@ -412,7 +412,7 @@ const LandingPage = () => {
                 <Button variant="outline" className="w-full">View Demo</Button>
               </Link>
             </div>
-            
+
             <div className="relative bg-gradient-to-br from-recruit-primary/80 to-recruit-secondary/80 p-8 rounded-xl shadow-sm border border-recruit-primary/20 text-white overflow-hidden">
               <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full" />
               <div className="relative z-10">
@@ -437,21 +437,21 @@ const LandingPage = () => {
             Ready to Optimize Your Recruitment Process?
           </h2>
           <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto animate-fade-in [animation-delay:200ms]">
-            Join leading consulting firms using RecruitAI to find better candidates, 
+            Join leading consulting firms using TalentSpark to find better candidates,
             increase margins, and streamline hiring.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/login">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="rounded-full animate-pulse-slow bg-gradient-to-r from-recruit-primary to-recruit-secondary hover:opacity-90"
               >
                 Get Started <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Button 
-              variant="outline" 
-              size="lg" 
+            <Button
+              variant="outline"
+              size="lg"
               className="rounded-full text-white border-white hover:bg-white/10 animate-fade-in [animation-delay:400ms]"
             >
               Request a Demo
@@ -465,7 +465,7 @@ const LandingPage = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="font-bold mb-4">RecruitAI</h3>
+              <h3 className="font-bold mb-4">TalentSpark</h3>
               <ul className="space-y-2 text-sm">
                 <li><a href="#" className="text-muted-foreground hover:text-foreground">About Us</a></li>
                 <li><a href="#" className="text-muted-foreground hover:text-foreground">Careers</a></li>
@@ -473,7 +473,7 @@ const LandingPage = () => {
                 <li><a href="#" className="text-muted-foreground hover:text-foreground">Blog</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="font-bold mb-4">Product</h3>
               <ul className="space-y-2 text-sm">
@@ -483,7 +483,7 @@ const LandingPage = () => {
                 <li><a href="#" className="text-muted-foreground hover:text-foreground">API</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="font-bold mb-4">Resources</h3>
               <ul className="space-y-2 text-sm">
@@ -493,7 +493,7 @@ const LandingPage = () => {
                 <li><a href="#" className="text-muted-foreground hover:text-foreground">Webinars</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="font-bold mb-4">Legal</h3>
               <ul className="space-y-2 text-sm">
@@ -504,9 +504,9 @@ const LandingPage = () => {
               </ul>
             </div>
           </div>
-          
+
           <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
-            <p>© 2025 RecruitAI. All rights reserved.</p>
+            <p>© 2025 TalentSpark. All rights reserved.</p>
           </div>
         </div>
       </footer>

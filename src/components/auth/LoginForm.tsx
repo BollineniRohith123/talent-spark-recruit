@@ -17,7 +17,7 @@ const LoginForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       toast({
         title: "Error",
@@ -26,7 +26,7 @@ const LoginForm = () => {
       });
       return;
     }
-    
+
     try {
       setIsLoading(true);
       await login(email, password);
@@ -49,7 +49,7 @@ const LoginForm = () => {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle className="text-2xl">Login to RecruitAI</CardTitle>
+        <CardTitle className="text-2xl">Login to TalentSpark</CardTitle>
         <CardDescription>
           Enter your email and password to access your account
         </CardDescription>
@@ -70,8 +70,8 @@ const LoginForm = () => {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="password">Password</Label>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="text-xs text-primary hover:underline"
                 onClick={(e) => {
                   e.preventDefault();
@@ -93,22 +93,22 @@ const LoginForm = () => {
               required
             />
           </div>
-          
+
           {/* Demo accounts helper */}
           <div className="bg-muted p-3 rounded-md">
             <p className="text-sm font-medium mb-2">Demo Accounts:</p>
             <div className="grid grid-cols-1 gap-2 text-xs">
               <p>
-                <strong>Company Admin:</strong> admin@recruitai.com
+                <strong>Company Admin:</strong> admin@talentspark.com
               </p>
               <p>
-                <strong>Hiring Manager:</strong> manager@recruitai.com
+                <strong>Hiring Manager:</strong> manager@talentspark.com
               </p>
               <p>
-                <strong>Talent Scout:</strong> scout@recruitai.com
+                <strong>Talent Scout:</strong> scout@talentspark.com
               </p>
               <p>
-                <strong>Team Member:</strong> member@recruitai.com
+                <strong>Team Member:</strong> member@talentspark.com
               </p>
               <p>
                 <strong>Applicant:</strong> applicant@example.com
@@ -118,9 +118,9 @@ const LoginForm = () => {
           </div>
         </CardContent>
         <CardFooter>
-          <Button 
-            type="submit" 
-            className="w-full" 
+          <Button
+            type="submit"
+            className="w-full"
             disabled={isLoading}
           >
             {isLoading ? "Logging in..." : "Login"}

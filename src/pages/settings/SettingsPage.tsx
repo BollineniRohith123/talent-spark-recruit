@@ -8,13 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import { 
-  Settings, 
-  User, 
-  Bell, 
-  Shield, 
-  Key, 
-  Building, 
+import {
+  Settings,
+  User,
+  Bell,
+  Shield,
+  Key,
+  Building,
   CreditCard,
   Lock,
   Mic,
@@ -26,7 +26,7 @@ const SettingsPage = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [saving, setSaving] = useState(false);
-  
+
   const handleSave = () => {
     setSaving(true);
     setTimeout(() => {
@@ -428,7 +428,7 @@ const SettingsPage = () => {
                   <div className="bg-muted/50 p-4 rounded-md border">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="font-medium">RecruitAI Enterprise License</p>
+                        <p className="font-medium">TalentSpark Enterprise License</p>
                         <p className="text-sm text-muted-foreground">
                           Valid until: December 31, 2025
                         </p>

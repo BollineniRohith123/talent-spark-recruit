@@ -21,23 +21,23 @@ const applicationData = {
   appliedDate: '2025-04-15',
   jobDescription: `
     We are seeking an experienced Senior Software Engineer to join our team. The ideal candidate has strong experience with:
-    
+
     • 5+ years of experience with React, TypeScript, and Node.js
     • Experience with cloud platforms like AWS or Azure
     • Strong problem-solving abilities and communication skills
     • Experience with CI/CD pipelines and DevOps practices
     • Ability to mentor junior developers
-    
+
     This role offers competitive compensation, remote work flexibility, and opportunities for professional growth.
   `,
   nextStep: 'Complete AI Screening',
-  screeningLink: 'https://screening.recruitai.com/abc123',
+  screeningLink: 'https://screening.talentspark.com/abc123',
   screeningDeadline: '2025-04-30'
 };
 
 const ApplicationPage = () => {
   const { user } = useAuth();
-  
+
   const handleStartScreening = () => {
     toast({
       title: "Starting Screening",
@@ -83,14 +83,14 @@ const ApplicationPage = () => {
             </div>
             <Progress value={applicationData.progress} className="h-2" />
           </div>
-          
+
           {/* Status Steps */}
           <div className="flex justify-between items-center mb-8">
             {statusSteps.map((step, index) => (
               <div key={index} className="flex flex-col items-center">
-                <div className={`h-10 w-10 rounded-full flex items-center justify-center mb-2 
-                  ${step.completed ? 'bg-green-100 text-green-800' : 
-                    step.current ? 'bg-blue-100 text-blue-800 border-2 border-blue-300' : 
+                <div className={`h-10 w-10 rounded-full flex items-center justify-center mb-2
+                  ${step.completed ? 'bg-green-100 text-green-800' :
+                    step.current ? 'bg-blue-100 text-blue-800 border-2 border-blue-300' :
                     'bg-muted text-muted-foreground'}`}>
                   {step.completed ? (
                     <CheckCircle className="h-5 w-5" />
@@ -104,7 +104,7 @@ const ApplicationPage = () => {
               </div>
             ))}
           </div>
-          
+
           {/* Next Steps */}
           <div className="bg-muted p-4 rounded-md">
             <div className="flex items-center justify-between">
@@ -149,7 +149,7 @@ const ApplicationPage = () => {
               <p>{applicationData.salary}</p>
             </div>
           </div>
-          
+
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-2">Job Description</h3>
             <div className="bg-muted p-4 rounded-md whitespace-pre-line">
@@ -169,13 +169,13 @@ const ApplicationPage = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
-              <Textarea 
-                id="notes" 
+              <Textarea
+                id="notes"
                 placeholder="Add any additional information you'd like the hiring team to know..."
                 rows={5}
               />
             </div>
-            
+
             <div className="flex justify-end">
               <Button variant="outline" onClick={() => {
                 toast({

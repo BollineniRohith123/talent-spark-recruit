@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, UserPlus, Filter, MoreHorizontal, Mail, Phone, Briefcase, Calendar } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -41,7 +42,7 @@ const mockProfiles = [
   {
     id: '2',
     name: 'Morgan Smith',
-    email: 'morgan.smith@recruitai.com',
+    email: 'morgan.smith@talentspark.com',
     phone: '(555) 234-5678',
     role: 'Talent Scout',
     department: 'Recruiting',
@@ -73,7 +74,7 @@ const mockProfiles = [
   {
     id: '4',
     name: 'Robin Taylor',
-    email: 'robin.taylor@recruitai.com',
+    email: 'robin.taylor@talentspark.com',
     phone: '(555) 456-7890',
     role: 'Company Admin',
     department: 'Executive',
@@ -89,7 +90,7 @@ const mockProfiles = [
   {
     id: '5',
     name: 'Casey Wilson',
-    email: 'casey.wilson@recruitai.com',
+    email: 'casey.wilson@talentspark.com',
     phone: '(555) 567-8901',
     role: 'Talent Scout',
     department: 'Recruiting',
@@ -105,7 +106,7 @@ const mockProfiles = [
   {
     id: '6',
     name: 'Jordan Lee',
-    email: 'jordan.lee@recruitai.com',
+    email: 'jordan.lee@talentspark.com',
     phone: '(555) 678-9012',
     role: 'Hiring Manager',
     department: 'Design',
@@ -121,6 +122,7 @@ const mockProfiles = [
 ];
 
 const ProfilesPage = () => {
+  const navigate = useNavigate();
   const [profiles, setProfiles] = useState(mockProfiles);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -135,18 +137,22 @@ const ProfilesPage = () => {
   });
   const [activeTab, setActiveTab] = useState('grid');
 
+  const handleViewProfile = (profileId) => {
+    navigate(`/profiles/${profileId}`);
+  };
+
   const filteredProfiles = profiles.filter(profile => {
     const matchesSearch = profile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           profile.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           profile.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           profile.department.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesRole = roleFilter === 'all' || 
+
+    const matchesRole = roleFilter === 'all' ||
                          profile.role.toLowerCase() === roleFilter.toLowerCase();
-    
-    const matchesDepartment = departmentFilter === 'all' || 
+
+    const matchesDepartment = departmentFilter === 'all' ||
                                profile.department.toLowerCase() === departmentFilter.toLowerCase();
-    
+
     return matchesSearch && matchesRole && matchesDepartment;
   });
 
@@ -168,8 +174,8 @@ const ProfilesPage = () => {
       name: newProfile.name,
       email: newProfile.email,
       phone: newProfile.phone || '(555) 000-0000',
-      role: newProfile.role === 'hiring-manager' ? 'Hiring Manager' : 
-            newProfile.role === 'talent-scout' ? 'Talent Scout' : 
+      role: newProfile.role === 'hiring-manager' ? 'Hiring Manager' :
+            newProfile.role === 'talent-scout' ? 'Talent Scout' :
             newProfile.role === 'company-admin' ? 'Company Admin' : 'Team Member',
       department: newProfile.department,
       hireDate: new Date().toISOString().split('T')[0],
@@ -191,7 +197,7 @@ const ProfilesPage = () => {
       department: '',
     });
     setShowAddProfileDialog(false);
-    
+
     toast({
       title: "Profile Added",
       description: `${newProfile.name} has been added successfully.`,
@@ -255,7 +261,7 @@ const ProfilesPage = () => {
                 <Label htmlFor="role">Role</Label>
                 <Select
                   value={newProfile.role}
-                  onValueChange={(value: string) => 
+                  onValueChange={(value: string) =>
                     setNewProfile({ ...newProfile, role: value })
                   }
                 >
@@ -302,7 +308,7 @@ const ProfilesPage = () => {
             className="pl-10"
           />
         </div>
-        
+
         <div className="flex gap-2">
           <div className="w-[180px]">
             <Select value={roleFilter} onValueChange={setRoleFilter}>
@@ -322,7 +328,7 @@ const ProfilesPage = () => {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div className="w-[180px]">
             <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
               <SelectTrigger>
@@ -341,7 +347,7 @@ const ProfilesPage = () => {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList>
@@ -381,15 +387,10 @@ const ProfilesPage = () => {
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => 
-                      toast({
-                        title: "View Profile",
-                        description: `Viewing profile for ${profile.name}`,
-                      })
-                    }>
+                    <DropdownMenuItem onClick={() => handleViewProfile(profile.id)}>
                       View Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => 
+                    <DropdownMenuItem onClick={() =>
                       toast({
                         title: "Edit Profile",
                         description: `Editing profile for ${profile.name}`,
@@ -397,7 +398,7 @@ const ProfilesPage = () => {
                     }>
                       Edit Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => 
+                    <DropdownMenuItem onClick={() =>
                       toast({
                         title: "Email Sent",
                         description: `Email drafted to ${profile.name}`,
@@ -428,7 +429,7 @@ const ProfilesPage = () => {
                       <span>Joined {new Date(profile.hireDate).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  
+
                   <div>
                     <h4 className="text-sm font-medium mb-2">Skills & Expertise</h4>
                     <div className="flex flex-wrap gap-2">
@@ -437,7 +438,7 @@ const ProfilesPage = () => {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-3 gap-2 pt-2">
                     <div className="text-center p-2 bg-muted rounded-md">
                       <p className="text-xs text-muted-foreground">Requisitions</p>
@@ -485,15 +486,10 @@ const ProfilesPage = () => {
                     <div className="col-span-1">{profile.department}</div>
                     <div className="col-span-1">{new Date(profile.hireDate).toLocaleDateString()}</div>
                     <div className="col-span-1 flex gap-2">
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
-                        onClick={() => 
-                          toast({
-                            title: "View Profile",
-                            description: `Viewing profile for ${profile.name}`,
-                          })
-                        }
+                        onClick={() => handleViewProfile(profile.id)}
                       >
                         View
                       </Button>
@@ -504,7 +500,7 @@ const ProfilesPage = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => 
+                          <DropdownMenuItem onClick={() =>
                             toast({
                               title: "Edit Profile",
                               description: `Editing profile for ${profile.name}`,
@@ -512,7 +508,7 @@ const ProfilesPage = () => {
                           }>
                             Edit Profile
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => 
+                          <DropdownMenuItem onClick={() =>
                             toast({
                               title: "Email Sent",
                               description: `Email drafted to ${profile.name}`,

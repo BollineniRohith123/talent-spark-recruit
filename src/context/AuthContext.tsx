@@ -25,28 +25,28 @@ const demoUsers: Record<UserRole, User> = {
   'company-admin': {
     id: '1',
     name: 'Alex Johnson',
-    email: 'admin@recruitai.com',
+    email: 'admin@talentspark.com',
     role: 'company-admin',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   'hiring-manager': {
     id: '2',
     name: 'Morgan Smith',
-    email: 'manager@recruitai.com',
+    email: 'manager@talentspark.com',
     role: 'hiring-manager',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   'talent-scout': {
     id: '3',
     name: 'Jamie Garcia',
-    email: 'scout@recruitai.com',
+    email: 'scout@talentspark.com',
     role: 'talent-scout',
     avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   'team-member': {
     id: '4',
     name: 'Robin Taylor',
-    email: 'member@recruitai.com',
+    email: 'member@talentspark.com',
     role: 'team-member',
     avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     // Simulate authentication delay
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     // Simple email-based role assignment for demo
     if (email.includes('admin')) {
       setUser(demoUsers['company-admin']);

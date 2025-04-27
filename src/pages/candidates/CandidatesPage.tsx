@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Briefcase, UserCheck, ArrowUpDown, Clock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -110,6 +111,7 @@ const candidateTimes: Record<string, string> = {
 };
 
 const CandidatesPage = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [positionFilter, setPositionFilter] = useState<string>('all');
@@ -123,17 +125,17 @@ const CandidatesPage = () => {
       if (searchTerm && !candidate.name.toLowerCase().includes(searchTerm.toLowerCase())) {
         return false;
       }
-      
+
       // Filter by status
       if (statusFilter !== 'all' && candidate.status !== statusFilter) {
         return false;
       }
-      
+
       // Filter by position
       if (positionFilter !== 'all' && candidate.position !== positionFilter) {
         return false;
       }
-      
+
       return true;
     })
     .sort((a, b) => {
@@ -141,7 +143,7 @@ const CandidatesPage = () => {
       if (sortOrder === 'match') {
         return (b.matchScore || 0) - (a.matchScore || 0);
       }
-      
+
       // Sort by name (ascending)
       return a.name.localeCompare(b.name);
     });
@@ -151,21 +153,18 @@ const CandidatesPage = () => {
 
   // Handle actions
   const handleViewCandidate = (id: string) => {
-    toast({
-      title: "View Candidate",
-      description: `Viewing candidate profile for ID: ${id}`,
-    });
+    navigate(`/candidates/${id}`);
   };
 
   const handleCandidateAction = (id: string) => {
     const candidate = mockCandidates.find(c => c.id === id);
-    
+
     if (!candidate) return;
-    
+
     const actionText = candidate.status === 'screening' ? 'Schedule Interview' :
                        candidate.status === 'interview' ? 'Send Offer' :
                        candidate.status === 'offer' ? 'Mark as Hired' : 'Next Step';
-    
+
     toast({
       title: actionText,
       description: `Moving ${candidate.name} to the next step`,
@@ -180,7 +179,7 @@ const CandidatesPage = () => {
     { value: 'hired', label: 'Hired' },
     { value: 'rejected', label: 'Rejected' },
   ];
-  
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div>
@@ -203,7 +202,7 @@ const CandidatesPage = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex flex-col items-center">
@@ -217,7 +216,7 @@ const CandidatesPage = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex flex-col items-center">
@@ -231,7 +230,7 @@ const CandidatesPage = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex flex-col items-center">
@@ -258,7 +257,7 @@ const CandidatesPage = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        
+
         <div className="sm:col-span-3">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger>
@@ -273,7 +272,7 @@ const CandidatesPage = () => {
             </SelectContent>
           </Select>
         </div>
-        
+
         <div className="sm:col-span-3">
           <Select value={positionFilter} onValueChange={setPositionFilter}>
             <SelectTrigger>
@@ -289,7 +288,7 @@ const CandidatesPage = () => {
             </SelectContent>
           </Select>
         </div>
-        
+
         <div className="sm:col-span-2 flex gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -307,7 +306,7 @@ const CandidatesPage = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          
+
           <Button
             variant={viewMode === 'grid' ? 'default' : 'outline'}
             size="icon"
@@ -316,7 +315,7 @@ const CandidatesPage = () => {
           >
             <i className="grid text-xs font-bold">⊞</i>
           </Button>
-          
+
           <Button
             variant={viewMode === 'list' ? 'default' : 'outline'}
             size="icon"
@@ -371,9 +370,9 @@ const CandidatesPage = () => {
                       <td className="py-3 px-4">
                         <div className="flex items-center">
                           <div className="h-8 w-8 rounded-full overflow-hidden mr-3">
-                            <img 
-                              src={candidate.avatar} 
-                              alt={candidate.name} 
+                            <img
+                              src={candidate.avatar}
+                              alt={candidate.name}
                               className="h-full w-full object-cover"
                             />
                           </div>
@@ -416,15 +415,15 @@ const CandidatesPage = () => {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => handleViewCandidate(candidate.id)}
                           >
                             View
                           </Button>
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             onClick={() => handleCandidateAction(candidate.id)}
                           >
                             Next

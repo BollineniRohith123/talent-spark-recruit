@@ -16,42 +16,99 @@ import {
 
 // Mock data for charts
 const budgetData = [
-  { position: 'Software Engineer', budget: 100, offered: 65, profit: 35 },
-  { position: 'Data Scientist', budget: 120, offered: 80, profit: 40 },
-  { position: 'Product Manager', budget: 110, offered: 75, profit: 35 },
-  { position: 'UX Designer', budget: 95, offered: 60, profit: 35 },
-  { position: 'DevOps Engineer', budget: 105, offered: 70, profit: 35 },
+  {
+    position: 'Software Engineer',
+    clientBudget: 120,
+    internalBudget: 85,
+    candidateShare: 68, // 80% of internal budget
+    companyShare: 17,   // 20% of internal budget
+    clientToCompany: 35, // client budget - internal budget
+    companyToCandidate: 17, // 20% of internal budget
+    totalProfit: 52 // clientToCompany + companyToCandidate
+  },
+  {
+    position: 'Data Scientist',
+    clientBudget: 130,
+    internalBudget: 90,
+    candidateShare: 67.5, // 75% of internal budget
+    companyShare: 22.5,   // 25% of internal budget
+    clientToCompany: 40, // client budget - internal budget
+    companyToCandidate: 22.5, // 25% of internal budget
+    totalProfit: 62.5 // clientToCompany + companyToCandidate
+  },
+  {
+    position: 'Product Manager',
+    clientBudget: 110,
+    internalBudget: 80,
+    candidateShare: 64, // 80% of internal budget
+    companyShare: 16,   // 20% of internal budget
+    clientToCompany: 30, // client budget - internal budget
+    companyToCandidate: 16, // 20% of internal budget
+    totalProfit: 46 // clientToCompany + companyToCandidate
+  },
+  {
+    position: 'UX Designer',
+    clientBudget: 95,
+    internalBudget: 70,
+    candidateShare: 59.5, // 85% of internal budget
+    companyShare: 10.5,   // 15% of internal budget
+    clientToCompany: 25, // client budget - internal budget
+    companyToCandidate: 10.5, // 15% of internal budget
+    totalProfit: 35.5 // clientToCompany + companyToCandidate
+  },
+  {
+    position: 'DevOps Engineer',
+    clientBudget: 105,
+    internalBudget: 75,
+    candidateShare: 60, // 80% of internal budget
+    companyShare: 15,   // 20% of internal budget
+    clientToCompany: 30, // client budget - internal budget
+    companyToCandidate: 15, // 20% of internal budget
+    totalProfit: 45 // clientToCompany + companyToCandidate
+  },
 ];
 
 // Active recruitments
 const activeRecruitments = [
-  { 
-    id: 1, 
-    position: 'Senior React Developer', 
-    budget: 110, 
-    targetOffer: 75, 
-    candidates: 12, 
-    interviews: 5, 
+  {
+    id: 1,
+    position: 'Senior React Developer',
+    clientBudget: 110,
+    internalBudget: 75,
+    candidateSplit: 80,
+    companySplit: 20,
+    profit: 50, // (110-75) + (75*0.2)
+    profitMargin: 45.5, // (50/110)*100
+    candidates: 12,
+    interviews: 5,
     deadline: '2025-06-15',
     progress: 70
   },
-  { 
-    id: 2, 
-    position: 'Data Engineer', 
-    budget: 105, 
-    targetOffer: 70, 
-    candidates: 8, 
-    interviews: 3, 
+  {
+    id: 2,
+    position: 'Data Engineer',
+    clientBudget: 105,
+    internalBudget: 70,
+    candidateSplit: 80,
+    companySplit: 20,
+    profit: 49, // (105-70) + (70*0.2)
+    profitMargin: 46.7, // (49/105)*100
+    candidates: 8,
+    interviews: 3,
     deadline: '2025-05-30',
     progress: 50
   },
-  { 
-    id: 3, 
-    position: 'Product Manager', 
-    budget: 120, 
-    targetOffer: 85, 
-    candidates: 15, 
-    interviews: 7, 
+  {
+    id: 3,
+    position: 'Product Manager',
+    clientBudget: 120,
+    internalBudget: 85,
+    candidateSplit: 75,
+    companySplit: 25,
+    profit: 56.25, // (120-85) + (85*0.25)
+    profitMargin: 46.9, // (56.25/120)*100
+    candidates: 15,
+    interviews: 7,
     deadline: '2025-06-25',
     progress: 40
   }
@@ -97,11 +154,11 @@ const HiringManagerDashboard = () => {
         />
       </div>
 
-      {/* Budget Allocation Chart */}
+      {/* Budget & Profit Breakdown Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Budget Allocation</CardTitle>
-          <CardDescription>Hourly rate breakdown by position</CardDescription>
+          <CardTitle>Budget & Profit Breakdown</CardTitle>
+          <CardDescription>Detailed budget and profit allocation by position</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={350}>
@@ -117,21 +174,32 @@ const HiringManagerDashboard = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="position" />
               <YAxis />
-              <Tooltip 
+              <Tooltip
                 formatter={(value, name) => {
-                  return [`$${value}`, name === 'profit' ? 'Agency Profit' : name === 'offered' ? 'Candidate Offer' : 'Client Budget'];
+                  const labels = {
+                    'clientBudget': 'Client Budget',
+                    'internalBudget': 'Internal Budget',
+                    'candidateShare': 'Candidate Share',
+                    'companyShare': 'Company Share',
+                    'totalProfit': 'Total Profit'
+                  };
+                  return [`$${value}/hr`, labels[name] || name];
                 }}
               />
-              <Legend 
+              <Legend
                 payload={[
                   { value: 'Client Budget', type: 'circle', color: '#8884d8' },
-                  { value: 'Candidate Offer', type: 'circle', color: '#82ca9d' },
-                  { value: 'Agency Profit', type: 'circle', color: '#ffc658' }
+                  { value: 'Internal Budget', type: 'circle', color: '#82ca9d' },
+                  { value: 'Candidate Share', type: 'circle', color: '#4ade80' },
+                  { value: 'Company Share', type: 'circle', color: '#f97316' },
+                  { value: 'Total Profit', type: 'circle', color: '#ec4899' }
                 ]}
               />
-              <Bar dataKey="budget" stackId="a" fill="#8884d8" />
-              <Bar dataKey="offered" stackId="b" fill="#82ca9d" />
-              <Bar dataKey="profit" stackId="c" fill="#ffc658" />
+              <Bar dataKey="clientBudget" fill="#8884d8" />
+              <Bar dataKey="internalBudget" fill="#82ca9d" />
+              <Bar dataKey="candidateShare" fill="#4ade80" />
+              <Bar dataKey="companyShare" fill="#f97316" />
+              <Bar dataKey="totalProfit" fill="#ec4899" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -150,9 +218,11 @@ const HiringManagerDashboard = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-semibold text-lg">{recruitment.position}</h3>
-                    <div className="flex space-x-6 mt-1 text-sm text-muted-foreground">
-                      <span>Budget: ${recruitment.budget}/hr</span>
-                      <span>Target Offer: ${recruitment.targetOffer}/hr</span>
+                    <div className="flex flex-wrap gap-4 mt-1 text-sm text-muted-foreground">
+                      <span>Internal Budget: ${recruitment.internalBudget}/hr</span>
+                      <span>Candidate Split: {recruitment.candidateSplit}%</span>
+                      <span>Company Split: {recruitment.companySplit}%</span>
+                      <span>Profit: ${recruitment.profit.toFixed(2)}/hr ({recruitment.profitMargin.toFixed(1)}%)</span>
                       <span>Deadline: {new Date(recruitment.deadline).toLocaleDateString()}</span>
                     </div>
                   </div>
@@ -172,7 +242,7 @@ const HiringManagerDashboard = () => {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Talent Scout Performance */}
       <Card>
         <CardHeader>

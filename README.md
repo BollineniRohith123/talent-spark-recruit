@@ -1,22 +1,16 @@
-# Welcome to your Lovable project
+# TalentSpark Recruit
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/b02c4a88-a39a-4073-8a95-777d8d0b8611
+TalentSpark Recruit is an AI-powered recruitment platform designed for consulting firms.
 
 ## How can I edit this code?
 
 There are several ways of editing your application.
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/b02c4a88-a39a-4073-8a95-777d8d0b8611) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
 **Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+If you want to work locally using your own IDE, you can clone this repo and push changes.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -62,12 +56,14 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/b02c4a88-a39a-4073-8a95-777d8d0b8611) and click on Share -> Publish.
+You can deploy this project using any hosting service that supports React applications, such as:
 
-## Can I connect a custom domain to my Lovable project?
+- Vercel
+- Netlify
+- GitHub Pages
+- AWS Amplify
+- Firebase Hosting
 
-Yes, you can!
+## Setting up a custom domain
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+You can connect a custom domain to your deployed application through your chosen hosting provider's domain management settings.

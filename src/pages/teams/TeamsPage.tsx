@@ -1,9 +1,12 @@
 
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, UserPlus, Settings, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from '@/hooks/use-toast';
 
 const TeamsPage = () => {
+  const navigate = useNavigate();
   const teams = [
     {
       id: 1,
@@ -28,6 +31,25 @@ const TeamsPage = () => {
     },
   ];
 
+  const handleViewTeam = (teamId) => {
+    navigate(`/teams/${teamId}`);
+  };
+
+  const handleAddTeam = () => {
+    toast({
+      title: "Add Team",
+      description: "This functionality will be implemented soon.",
+    });
+  };
+
+  const handleTeamSettings = (teamId, e) => {
+    e.stopPropagation();
+    toast({
+      title: "Team Settings",
+      description: `Opening settings for team ID: ${teamId}`,
+    });
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex justify-between items-center">
@@ -37,7 +59,10 @@ const TeamsPage = () => {
             Manage your organization's teams and their recruitment processes
           </p>
         </div>
-        <Button className="bg-recruit-primary hover:bg-recruit-primary/90">
+        <Button
+          className="bg-recruit-primary hover:bg-recruit-primary/90"
+          onClick={handleAddTeam}
+        >
           <UserPlus className="mr-2 h-4 w-4" /> Add New Team
         </Button>
       </div>
@@ -48,7 +73,11 @@ const TeamsPage = () => {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 {team.name}
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => handleTeamSettings(team.id, e)}
+                >
                   <Settings className="h-4 w-4" />
                 </Button>
               </CardTitle>
@@ -66,7 +95,13 @@ const TeamsPage = () => {
                     <span>{team.activeScreenings} Active Screenings</span>
                   </div>
                 </div>
-                <Button variant="outline" className="w-full">View Details</Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => handleViewTeam(team.id)}
+                >
+                  View Details
+                </Button>
               </div>
             </CardContent>
           </Card>

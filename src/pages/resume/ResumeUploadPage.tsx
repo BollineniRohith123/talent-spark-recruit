@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { Upload, FileUp, X, Check, AlertCircle, Search, FileText } from 'lucide-react';
+import { Upload, FileUp, X, Check, AlertCircle, Search, FileText, Database, FolderUp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { CandidateCard, Candidate } from '@/components/ui/candidate-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { fileToText, parseResume, ParsedResume } from '@/utils/resumeParser';
 
 // Mock candidates (matching results after upload)
@@ -53,6 +54,37 @@ const matchedCandidates: Candidate[] = [
   },
 ];
 
+// Mock candidates for database view
+const mockCandidates: Candidate[] = [
+  {
+    id: '5',
+    name: 'Jamie Garcia',
+    position: 'Product Manager',
+    skills: ['Product Strategy', 'Agile', 'User Research'],
+    status: 'available',
+    matchScore: 0,
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+  },
+  {
+    id: '6',
+    name: 'Riley Johnson',
+    position: 'UX Designer',
+    skills: ['UI/UX', 'Figma', 'User Testing'],
+    status: 'available',
+    matchScore: 0,
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+  },
+  {
+    id: '7',
+    name: 'Casey Martinez',
+    position: 'Data Scientist',
+    skills: ['Python', 'Machine Learning', 'SQL'],
+    status: 'available',
+    matchScore: 0,
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+  },
+];
+
 const ResumeUploadPage = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [parsedResumes, setParsedResumes] = useState<ParsedResume[]>([]);
@@ -64,6 +96,13 @@ const ResumeUploadPage = () => {
   const [showMatches, setShowMatches] = useState(false);
   const [selectedResumeIndex, setSelectedResumeIndex] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState("upload");
+  const [uploadMode, setUploadMode] = useState<'single' | 'bulk'>('single');
+  const [bulkUploadStatus, setBulkUploadStatus] = useState({
+    total: 0,
+    processed: 0,
+    saved: 0,
+  });
+  const [showDatabaseInfo, setShowDatabaseInfo] = useState(false);
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -125,7 +164,7 @@ const ResumeUploadPage = () => {
   };
 
   const handleUpload = () => {
-    if (!jobTitle.trim()) {
+    if (!jobTitle.trim() && uploadMode === 'single') {
       toast({
         title: "Missing Information",
         description: "Please enter a job title",
@@ -144,24 +183,64 @@ const ResumeUploadPage = () => {
     }
 
     setUploading(true);
-    
-    // Simulate upload progress
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 5;
-      setUploadProgress(progress);
-      
-      if (progress >= 100) {
-        clearInterval(interval);
-        setUploading(false);
-        setShowMatches(true);
-        setActiveTab("matches");
-        toast({
-          title: "Upload Complete",
-          description: "Resumes uploaded and matched successfully",
-        });
-      }
-    }, 200);
+
+    if (uploadMode === 'single') {
+      // Simulate upload progress for job matching
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 5;
+        setUploadProgress(progress);
+
+        if (progress >= 100) {
+          clearInterval(interval);
+          setUploading(false);
+          setShowMatches(true);
+          setActiveTab("matches");
+          toast({
+            title: "Upload Complete",
+            description: "Resumes uploaded and matched successfully",
+          });
+        }
+      }, 200);
+    } else {
+      // Bulk upload to database
+      const totalFiles = files.length;
+      setBulkUploadStatus({
+        total: totalFiles,
+        processed: 0,
+        saved: 0,
+      });
+
+      // Simulate bulk processing
+      let processed = 0;
+      const processInterval = setInterval(() => {
+        processed++;
+        setBulkUploadStatus(prev => ({
+          ...prev,
+          processed,
+          saved: processed,
+        }));
+        setUploadProgress(Math.round((processed / totalFiles) * 100));
+
+        if (processed >= totalFiles) {
+          clearInterval(processInterval);
+          setUploading(false);
+          setShowDatabaseInfo(true);
+          toast({
+            title: "Bulk Upload Complete",
+            description: `${totalFiles} resumes have been added to the database`,
+          });
+        }
+      }, 200);
+    }
+  };
+
+  const handleBulkUpload = () => {
+    setUploadMode('bulk');
+  };
+
+  const handleSingleUpload = () => {
+    setUploadMode('single');
   };
 
   const handleViewCandidate = (id: string) => {
@@ -192,7 +271,7 @@ const ResumeUploadPage = () => {
     }
 
     const resume = parsedResumes[selectedResumeIndex];
-    
+
     return (
       <div className="space-y-6 p-4 animate-fade-in">
         <div>
@@ -202,14 +281,14 @@ const ResumeUploadPage = () => {
             {resume.phone && <p className="text-sm">{resume.phone}</p>}
           </div>
         </div>
-        
+
         {resume.summary && (
           <div>
             <h4 className="font-medium text-sm mb-2">Summary</h4>
             <p className="text-sm">{resume.summary}</p>
           </div>
         )}
-        
+
         <div>
           <h4 className="font-medium text-sm mb-2">Skills</h4>
           <div className="flex flex-wrap gap-2">
@@ -220,7 +299,7 @@ const ResumeUploadPage = () => {
             ))}
           </div>
         </div>
-        
+
         <div>
           <h4 className="font-medium text-sm mb-2">Experience</h4>
           <div className="space-y-4">
@@ -240,7 +319,7 @@ const ResumeUploadPage = () => {
             ))}
           </div>
         </div>
-        
+
         <div>
           <h4 className="font-medium text-sm mb-2">Education</h4>
           <div className="space-y-2">
@@ -269,42 +348,116 @@ const ResumeUploadPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-3 w-[400px]">
+        <TabsList className="grid grid-cols-4 w-[500px]">
           <TabsTrigger value="upload">Upload</TabsTrigger>
           <TabsTrigger value="parse">Resume Parsing</TabsTrigger>
           <TabsTrigger value="matches">Matches</TabsTrigger>
+          <TabsTrigger value="database">Database</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="upload" className="mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Job Description Form */}
+            {/* Upload Mode Selection */}
             <Card>
               <CardHeader>
-                <CardTitle>Job Description</CardTitle>
-                <CardDescription>Enter details about the position</CardDescription>
+                <CardTitle>Upload Mode</CardTitle>
+                <CardDescription>Choose how you want to upload resumes</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="jobTitle">Job Title</Label>
-                  <Input
-                    id="jobTitle"
-                    placeholder="e.g. Senior Software Engineer"
-                    value={jobTitle}
-                    onChange={(e) => setJobTitle(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="jobDescription">Job Description</Label>
-                  <Textarea
-                    id="jobDescription"
-                    placeholder="Enter detailed job requirements, skills, and responsibilities..."
-                    rows={10}
-                    value={jobDescription}
-                    onChange={(e) => setJobDescription(e.target.value)}
-                  />
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    variant={uploadMode === 'single' ? "default" : "outline"}
+                    className="h-24 flex flex-col items-center justify-center"
+                    onClick={handleSingleUpload}
+                  >
+                    <FileUp className="h-8 w-8 mb-2" />
+                    <span className="font-medium">Match with Job</span>
+                    <span className="text-xs text-muted-foreground mt-1">Upload and match with a job description</span>
+                  </Button>
+                  <Button
+                    variant={uploadMode === 'bulk' ? "default" : "outline"}
+                    className="h-24 flex flex-col items-center justify-center"
+                    onClick={handleBulkUpload}
+                  >
+                    <FolderUp className="h-8 w-8 mb-2" />
+                    <span className="font-medium">Bulk Upload</span>
+                    <span className="text-xs text-muted-foreground mt-1">Upload multiple resumes to database</span>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Job Description Form - Only shown in single upload mode */}
+            {uploadMode === 'single' ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Job Description</CardTitle>
+                  <CardDescription>Enter details about the position</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="jobTitle">Job Title</Label>
+                    <Input
+                      id="jobTitle"
+                      placeholder="e.g. Senior Software Engineer"
+                      value={jobTitle}
+                      onChange={(e) => setJobTitle(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="jobDescription">Job Description</Label>
+                    <Textarea
+                      id="jobDescription"
+                      placeholder="Enter detailed job requirements, skills, and responsibilities..."
+                      rows={10}
+                      value={jobDescription}
+                      onChange={(e) => setJobDescription(e.target.value)}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Resume Database</CardTitle>
+                  <CardDescription>Upload resumes to the central database for future matching</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center p-4 bg-muted rounded-md">
+                      <Database className="h-8 w-8 mr-4 text-primary" />
+                      <div>
+                        <h3 className="font-medium">Resume Database</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Resumes uploaded to the database can be matched with any job description later.
+                          This is useful for building a talent pool.
+                        </p>
+                      </div>
+                    </div>
+
+                    {showDatabaseInfo && (
+                      <div className="p-4 border rounded-md">
+                        <h3 className="font-medium mb-2">Database Statistics</h3>
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div>
+                            <p className="text-2xl font-bold">247</p>
+                            <p className="text-sm text-muted-foreground">Total Resumes</p>
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold">32</p>
+                            <p className="text-sm text-muted-foreground">Added Today</p>
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold">18</p>
+                            <p className="text-sm text-muted-foreground">Skills Indexed</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Resume Upload Area */}
             <Card>
@@ -345,7 +498,7 @@ const ResumeUploadPage = () => {
                     <h3 className="font-medium text-sm">Selected Files ({files.length})</h3>
                     <div className="max-h-60 overflow-y-auto space-y-2">
                       {files.map((file, index) => (
-                        <div 
+                        <div
                           key={`${file.name}-${index}`}
                           className={`flex items-center justify-between bg-muted p-2 rounded-md ${
                             selectedResumeIndex === index ? 'ring-2 ring-primary' : ''
@@ -400,7 +553,7 @@ const ResumeUploadPage = () => {
                   ) : (
                     <>
                       <Upload className="mr-2 h-4 w-4" />
-                      Upload & Match Resumes
+                      {uploadMode === 'single' ? 'Upload & Match Resumes' : 'Upload to Database'}
                     </>
                   )}
                 </Button>
@@ -408,7 +561,7 @@ const ResumeUploadPage = () => {
             </Card>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="parse" className="mt-6">
           <Card>
             <CardHeader>
@@ -428,7 +581,7 @@ const ResumeUploadPage = () => {
                   </div>
                 </div>
               )}
-              
+
               {!parsing && files.length === 0 && (
                 <div className="flex flex-col items-center justify-center p-8 text-center">
                   <Search className="h-12 w-12 text-muted-foreground mb-4" />
@@ -436,7 +589,7 @@ const ResumeUploadPage = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Upload resumes to extract skills and information
                   </p>
-                  <Button 
+                  <Button
                     variant="outline"
                     onClick={() => setActiveTab("upload")}
                   >
@@ -445,7 +598,7 @@ const ResumeUploadPage = () => {
                   </Button>
                 </div>
               )}
-              
+
               {!parsing && files.length > 0 && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="col-span-1 border rounded-md overflow-hidden">
@@ -454,7 +607,7 @@ const ResumeUploadPage = () => {
                     </div>
                     <div className="max-h-[500px] overflow-y-auto">
                       {files.map((file, index) => (
-                        <div 
+                        <div
                           key={index}
                           className={`flex items-center p-3 border-b cursor-pointer hover:bg-muted/50 ${
                             selectedResumeIndex === index ? 'bg-muted' : ''
@@ -467,7 +620,7 @@ const ResumeUploadPage = () => {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="col-span-2 border rounded-md overflow-hidden">
                     <div className="p-3 bg-muted font-medium text-sm">
                       Parsed Information
@@ -481,7 +634,114 @@ const ResumeUploadPage = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
+        <TabsContent value="database" className="mt-6">
+          {/* Resume Database */}
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle>Resume Database</CardTitle>
+                  <CardDescription>
+                    Search and match resumes from the central database
+                  </CardDescription>
+                </div>
+                <Button variant="outline" onClick={() => {
+                  setActiveTab("upload");
+                  setUploadMode('bulk');
+                }}>
+                  Add More Resumes
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="flex items-center p-4 bg-muted rounded-md">
+                  <Database className="h-8 w-8 mr-4 text-primary" />
+                  <div>
+                    <h3 className="font-medium">Resume Database</h3>
+                    <p className="text-sm text-muted-foreground">
+                      The database contains 247 resumes that can be matched with any job description.
+                      Use the search below to find candidates or upload a job description to match.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                  <div className="p-4 border rounded-md">
+                    <p className="text-2xl font-bold">247</p>
+                    <p className="text-sm text-muted-foreground">Total Resumes</p>
+                  </div>
+                  <div className="p-4 border rounded-md">
+                    <p className="text-2xl font-bold">32</p>
+                    <p className="text-sm text-muted-foreground">Added Today</p>
+                  </div>
+                  <div className="p-4 border rounded-md">
+                    <p className="text-2xl font-bold">18</p>
+                    <p className="text-sm text-muted-foreground">Skills Indexed</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="font-medium">Match with Job Description</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="dbJobTitle">Job Title</Label>
+                      <Input
+                        id="dbJobTitle"
+                        placeholder="e.g. Senior Software Engineer"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="dbSkills">Required Skills</Label>
+                      <Input
+                        id="dbSkills"
+                        placeholder="e.g. React, TypeScript, Node.js"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="dbJobDescription">Job Description</Label>
+                    <Textarea
+                      id="dbJobDescription"
+                      placeholder="Enter detailed job requirements, skills, and responsibilities..."
+                      rows={5}
+                    />
+                  </div>
+                  <Button className="w-full">
+                    <Search className="mr-2 h-4 w-4" />
+                    Find Matching Candidates
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-medium">Recently Added Resumes</h3>
+                    <Button variant="link" className="h-auto p-0">View All</Button>
+                  </div>
+                  <div className="space-y-2">
+                    {mockCandidates.slice(0, 3).map((candidate) => (
+                      <div key={candidate.id} className="flex items-center justify-between p-3 border rounded-md">
+                        <div className="flex items-center">
+                          <Avatar className="h-10 w-10 mr-3">
+                            <AvatarImage src={candidate.avatar} alt={candidate.name} />
+                            <AvatarFallback>{candidate.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{candidate.name}</p>
+                            <p className="text-sm text-muted-foreground">{candidate.skills.join(', ')}</p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm">View</Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="matches" className="mt-6">
           {/* Matching Results */}
           <Card>
@@ -513,7 +773,7 @@ const ResumeUploadPage = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Upload and process resumes to find matching candidates
                   </p>
-                  <Button 
+                  <Button
                     variant="outline"
                     onClick={() => setActiveTab("upload")}
                   >
@@ -522,7 +782,7 @@ const ResumeUploadPage = () => {
                   </Button>
                 </div>
               )}
-              
+
               {showMatches && (
                 <>
                   <div className="bg-recruit-success/30 p-4 rounded-md mb-6 flex items-start">

@@ -22,15 +22,15 @@ const LoginPage = () => {
         <div className="w-full md:w-1/2 bg-white p-8 flex items-center justify-center">
           <LoginForm />
         </div>
-        
+
         {/* Right Side - Info */}
         <div className="w-full md:w-1/2 bg-gradient-to-br from-recruit-primary to-recruit-secondary p-8 text-white flex flex-col justify-center">
           <div>
-            <h1 className="text-3xl font-bold mb-4">RecruitAI Platform</h1>
+            <h1 className="text-3xl font-bold mb-4">TalentSpark Platform</h1>
             <p className="mb-6">
               AI-powered recruitment platform designed for US consulting companies. Streamline your hiring process with intelligent tools.
             </p>
-            
+
             <div className="space-y-4">
               <div className="flex items-start">
                 <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center mr-3 mt-0.5">
@@ -43,7 +43,7 @@ const LoginPage = () => {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center mr-3 mt-0.5">
                   <span className="text-sm">2</span>
@@ -55,7 +55,7 @@ const LoginPage = () => {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center mr-3 mt-0.5">
                   <span className="text-sm">3</span>

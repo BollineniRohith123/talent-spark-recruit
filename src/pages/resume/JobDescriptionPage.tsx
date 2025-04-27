@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Search, FileUp, Check, AlertCircle, FileText, Building, Clock, Briefcase, Plus, Users } from 'lucide-react';
+import { Search, FileUp, Check, AlertCircle, FileText, Building, Clock, Briefcase, Plus, Users, DollarSign, Percent, Info } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from '@/components/ui/badge';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Mock data for job descriptions
 const savedJobDescriptions = [
@@ -36,7 +42,11 @@ const savedJobDescriptions = [
     applicants: 24,
     status: 'active',
     client: 'TechCorp Inc.',
-    budget: '$120/hr',
+    clientBudget: 120, // Client budget in dollars per hour
+    internalBudget: 85, // What employees see (internal budget) in dollars per hour
+    candidateSplit: 80, // Percentage of internal budget that goes to candidate (80%)
+    companySplit: 20, // Percentage of internal budget that goes to company (20%)
+    budget: '$120/hr', // For backward compatibility
     description: 'We are looking for a Senior Software Engineer with experience in React, Node.js, and AWS to join our team. The ideal candidate will have 5+ years of experience in full-stack development.',
   },
   {
@@ -48,7 +58,11 @@ const savedJobDescriptions = [
     applicants: 18,
     status: 'active',
     client: 'FinTech Solutions',
-    budget: '$130/hr',
+    clientBudget: 130, // Client budget in dollars per hour
+    internalBudget: 90, // What employees see (internal budget) in dollars per hour
+    candidateSplit: 75, // Percentage of internal budget that goes to candidate (75%)
+    companySplit: 25, // Percentage of internal budget that goes to company (25%)
+    budget: '$130/hr', // For backward compatibility
     description: 'Seeking a skilled Data Scientist with expertise in machine learning, Python, and statistical analysis. The candidate should have experience with large datasets and data visualization.',
   },
   {
@@ -60,7 +74,11 @@ const savedJobDescriptions = [
     applicants: 15,
     status: 'closed',
     client: 'Creative Agency',
-    budget: '$95/hr',
+    clientBudget: 95, // Client budget in dollars per hour
+    internalBudget: 70, // What employees see (internal budget) in dollars per hour
+    candidateSplit: 85, // Percentage of internal budget that goes to candidate (85%)
+    companySplit: 15, // Percentage of internal budget that goes to company (15%)
+    budget: '$95/hr', // For backward compatibility
     description: 'We are looking for a UX/UI Designer with a strong portfolio showcasing user-centered design solutions. Experience with Figma, Adobe Creative Suite, and user testing required.',
   },
 ];
@@ -111,7 +129,11 @@ const JobDescriptionPage = () => {
   const [department, setDepartment] = useState('');
   const [location, setLocation] = useState('');
   const [client, setClient] = useState('');
-  const [budget, setBudget] = useState('');
+  const [clientBudget, setClientBudget] = useState('');
+  const [internalBudget, setInternalBudget] = useState('');
+  const [candidateSplit, setCandidateSplit] = useState('80'); // Default 80%
+  const [companySplit, setCompanySplit] = useState('20'); // Default 20%
+  const [showProfitDetails, setShowProfitDetails] = useState(false);
   const [jobDescription, setJobDescription] = useState('');
   const [responsibilities, setResponsibilities] = useState('');
   const [requirements, setRequirements] = useState('');
@@ -148,21 +170,76 @@ const JobDescriptionPage = () => {
       return;
     }
 
+    if (!clientBudget.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter the client budget",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!internalBudget.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter the internal budget",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate that internal budget is less than client budget
+    if (parseFloat(internalBudget) >= parseFloat(clientBudget)) {
+      toast({
+        title: "Invalid Budget Configuration",
+        description: "Internal budget must be less than client budget",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate that candidate split + company split = 100%
+    if (parseInt(candidateSplit) + parseInt(companySplit) !== 100) {
+      toast({
+        title: "Invalid Profit Split",
+        description: "Candidate split and company split must add up to 100%",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setUploading(true);
-    
+
+    // Calculate profit margins for reporting
+    const clientToCompanyProfit = parseFloat(clientBudget) - parseFloat(internalBudget);
+    const companyToCandidateProfit = (parseFloat(internalBudget) * parseInt(companySplit)) / 100;
+    const totalProfit = clientToCompanyProfit + companyToCandidateProfit;
+
+    // Log profit information (in a real app, this would be saved to the database)
+    console.log('Profit Configuration:', {
+      clientBudget: parseFloat(clientBudget),
+      internalBudget: parseFloat(internalBudget),
+      candidateSplit: parseInt(candidateSplit),
+      companySplit: parseInt(companySplit),
+      clientToCompanyProfit,
+      companyToCandidateProfit,
+      totalProfit,
+      profitMargin: (totalProfit / parseFloat(clientBudget)) * 100
+    });
+
     // Simulate upload progress
     let progress = 0;
     const interval = setInterval(() => {
       progress += 5;
       setUploadProgress(progress);
-      
+
       if (progress >= 100) {
         clearInterval(interval);
         setUploading(false);
         setShowMatches(true);
         toast({
           title: "Job Description Created",
-          description: "Job description has been created and candidates matched successfully",
+          description: "Job description has been created with profit configuration and candidates matched successfully",
         });
       }
     }, 200);
@@ -175,13 +252,13 @@ const JobDescriptionPage = () => {
 
   const handleFindMatches = () => {
     setUploading(true);
-    
+
     // Simulate matching process
     let progress = 0;
     const interval = setInterval(() => {
       progress += 5;
       setUploadProgress(progress);
-      
+
       if (progress >= 100) {
         clearInterval(interval);
         setUploading(false);
@@ -208,7 +285,7 @@ const JobDescriptionPage = () => {
     });
   };
 
-  const selectedJob = selectedJobId 
+  const selectedJob = selectedJobId
     ? savedJobDescriptions.find(job => job.id === selectedJobId)
     : null;
 
@@ -289,14 +366,170 @@ const JobDescriptionPage = () => {
                         onChange={(e) => setClient(e.target.value)}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="budget">Budget</Label>
-                      <Input
-                        id="budget"
-                        placeholder="e.g. $100/hr"
-                        value={budget}
-                        onChange={(e) => setBudget(e.target.value)}
-                      />
+
+                    {/* Budget and Profit Configuration */}
+                    <div className="space-y-4 border p-4 rounded-md bg-muted/30">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-medium">Budget & Profit Configuration</h4>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-6 w-6">
+                                <Info className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-sm">
+                              <p>Configure client budget, internal budget (visible to employees), and profit splits between candidate and company.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="clientBudget">Client Budget ($/hr)</Label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="clientBudget"
+                              type="number"
+                              placeholder="e.g. 100"
+                              value={clientBudget}
+                              onChange={(e) => {
+                                setClientBudget(e.target.value);
+                                // Auto-calculate internal budget as 70% of client budget if not set
+                                if (!internalBudget && e.target.value) {
+                                  setInternalBudget((parseFloat(e.target.value) * 0.7).toFixed(2));
+                                }
+                              }}
+                              className="pl-8"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="internalBudget">Internal Budget ($/hr)</Label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="internalBudget"
+                              type="number"
+                              placeholder="e.g. 70"
+                              value={internalBudget}
+                              onChange={(e) => setInternalBudget(e.target.value)}
+                              className="pl-8"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground">Visible to employees</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Internal Budget Split</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="candidateSplit" className="text-xs">Candidate (%)</Label>
+                            <div className="relative">
+                              <Percent className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="candidateSplit"
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={candidateSplit}
+                                onChange={(e) => {
+                                  const value = parseInt(e.target.value);
+                                  setCandidateSplit(e.target.value);
+                                  if (!isNaN(value) && value >= 0 && value <= 100) {
+                                    setCompanySplit((100 - value).toString());
+                                  }
+                                }}
+                                className="pl-8"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="companySplit" className="text-xs">Company (%)</Label>
+                            <div className="relative">
+                              <Percent className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="companySplit"
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={companySplit}
+                                onChange={(e) => {
+                                  const value = parseInt(e.target.value);
+                                  setCompanySplit(e.target.value);
+                                  if (!isNaN(value) && value >= 0 && value <= 100) {
+                                    setCandidateSplit((100 - value).toString());
+                                  }
+                                }}
+                                className="pl-8"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Profit Calculation Preview */}
+                      {clientBudget && internalBudget && (
+                        <div className="mt-2 p-3 bg-muted rounded-md">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-medium">Profit Preview</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setShowProfitDetails(!showProfitDetails)}
+                              className="h-6 px-2 text-xs"
+                            >
+                              {showProfitDetails ? 'Hide Details' : 'Show Details'}
+                            </Button>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Client-to-Company Profit:</span>
+                              <span className="font-medium">
+                                ${(parseFloat(clientBudget) - parseFloat(internalBudget)).toFixed(2)}/hr
+                              </span>
+                            </div>
+
+                            {showProfitDetails && (
+                              <>
+                                <div className="flex justify-between text-sm">
+                                  <span>Company-to-Candidate Profit:</span>
+                                  <span className="font-medium">
+                                    ${((parseFloat(internalBudget) * parseInt(companySplit)) / 100).toFixed(2)}/hr
+                                  </span>
+                                </div>
+
+                                <div className="flex justify-between text-sm">
+                                  <span>Total Profit:</span>
+                                  <span className="font-medium">
+                                    ${(
+                                      (parseFloat(clientBudget) - parseFloat(internalBudget)) +
+                                      ((parseFloat(internalBudget) * parseInt(companySplit)) / 100)
+                                    ).toFixed(2)}/hr
+                                  </span>
+                                </div>
+
+                                <div className="flex justify-between text-sm">
+                                  <span>Profit Margin:</span>
+                                  <span className="font-medium">
+                                    {(
+                                      ((parseFloat(clientBudget) - parseFloat(internalBudget)) +
+                                      ((parseFloat(internalBudget) * parseInt(companySplit)) / 100)) /
+                                      parseFloat(clientBudget) * 100
+                                    ).toFixed(2)}%
+                                  </span>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -366,7 +599,11 @@ const JobDescriptionPage = () => {
                     setDepartment('');
                     setLocation('');
                     setClient('');
-                    setBudget('');
+                    setClientBudget('');
+                    setInternalBudget('');
+                    setCandidateSplit('80');
+                    setCompanySplit('20');
+                    setShowProfitDetails(false);
                     setJobDescription('');
                     setResponsibilities('');
                     setRequirements('');
@@ -450,7 +687,7 @@ const JobDescriptionPage = () => {
                   <AccordionTrigger>Be specific about skills and experience</AccordionTrigger>
                   <AccordionContent>
                     <p className="text-sm text-muted-foreground">
-                      Clearly list required technical skills, years of experience, and necessary qualifications. 
+                      Clearly list required technical skills, years of experience, and necessary qualifications.
                       Example: "5+ years of experience with React.js, Node.js, and AWS" instead of "Experience with web development".
                     </p>
                   </AccordionContent>
@@ -459,7 +696,7 @@ const JobDescriptionPage = () => {
                   <AccordionTrigger>Use industry-standard job titles</AccordionTrigger>
                   <AccordionContent>
                     <p className="text-sm text-muted-foreground">
-                      Use recognized job titles to improve matching accuracy. For example, "Frontend Developer" 
+                      Use recognized job titles to improve matching accuracy. For example, "Frontend Developer"
                       instead of "Web Specialist" will match more relevant candidates.
                     </p>
                   </AccordionContent>
@@ -468,7 +705,7 @@ const JobDescriptionPage = () => {
                   <AccordionTrigger>Include soft skills and culture fit</AccordionTrigger>
                   <AccordionContent>
                     <p className="text-sm text-muted-foreground">
-                      Mention important soft skills like "excellent communication," "problem-solving," or 
+                      Mention important soft skills like "excellent communication," "problem-solving," or
                       "team collaboration" to help match candidates with the right work style.
                     </p>
                   </AccordionContent>
@@ -477,7 +714,7 @@ const JobDescriptionPage = () => {
                   <AccordionTrigger>Organize with clear sections</AccordionTrigger>
                   <AccordionContent>
                     <p className="text-sm text-muted-foreground">
-                      Structure your job description with clear sections for responsibilities, requirements, 
+                      Structure your job description with clear sections for responsibilities, requirements,
                       benefits, and company information to improve readability and matching.
                     </p>
                   </AccordionContent>
@@ -595,14 +832,87 @@ const JobDescriptionPage = () => {
                     <p>{selectedJob.client}</p>
                   </div>
                   <div className="bg-muted p-4 rounded-lg">
-                    <h4 className="text-sm font-medium mb-1">Budget</h4>
-                    <p>{selectedJob.budget}</p>
+                    <h4 className="text-sm font-medium mb-1">Client Budget</h4>
+                    <p>${selectedJob.clientBudget}/hr</p>
                   </div>
                   <div className="bg-muted p-4 rounded-lg">
                     <h4 className="text-sm font-medium mb-1">Applicants</h4>
                     <p>{selectedJob.applicants} total applications</p>
                   </div>
                 </div>
+
+                {/* Profit Configuration Details */}
+                <Card className="mb-6 border-dashed">
+                  <CardHeader className="py-3">
+                    <CardTitle className="text-base">Profit Configuration</CardTitle>
+                    <CardDescription>Budget allocation and profit margins</CardDescription>
+                  </CardHeader>
+                  <CardContent className="py-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <h4 className="text-sm font-medium mb-2">Budget Allocation</h4>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">Client Budget:</span>
+                            <span className="font-medium">${selectedJob.clientBudget}/hr</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">Internal Budget:</span>
+                            <span className="font-medium">${selectedJob.internalBudget}/hr</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">Client-to-Company Profit:</span>
+                            <span className="font-medium text-green-600">
+                              ${(selectedJob.clientBudget - selectedJob.internalBudget).toFixed(2)}/hr
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="text-sm font-medium mb-2">Internal Budget Split</h4>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">Candidate Share:</span>
+                            <span className="font-medium">{selectedJob.candidateSplit}% (${((selectedJob.internalBudget * selectedJob.candidateSplit) / 100).toFixed(2)}/hr)</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">Company Share:</span>
+                            <span className="font-medium">{selectedJob.companySplit}% (${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr)</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">Company-to-Candidate Profit:</span>
+                            <span className="font-medium text-green-600">
+                              ${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-muted p-3 rounded-md">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">Total Profit:</span>
+                        <span className="font-medium text-green-600">
+                          ${(
+                            (selectedJob.clientBudget - selectedJob.internalBudget) +
+                            ((selectedJob.internalBudget * selectedJob.companySplit) / 100)
+                          ).toFixed(2)}/hr
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="font-medium">Profit Margin:</span>
+                        <span className="font-medium text-green-600">
+                          {(
+                            ((selectedJob.clientBudget - selectedJob.internalBudget) +
+                            ((selectedJob.internalBudget * selectedJob.companySplit) / 100)) /
+                            selectedJob.clientBudget * 100
+                          ).toFixed(2)}%
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
                 <div className="space-y-6">
                   <div>
@@ -611,7 +921,7 @@ const JobDescriptionPage = () => {
                       {selectedJob.description}
                     </p>
                   </div>
-                  
+
                   {uploading && (
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
