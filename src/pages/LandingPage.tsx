@@ -16,6 +16,8 @@ import {
   Search,
   Clock
 } from 'lucide-react';
+import { TalentSparkHero } from '@/components/landing/TalentSparkHero';
+import { TalentSparkFeatures } from '@/components/landing/TalentSparkFeatures';
 
 const LandingPage = () => {
   return (
@@ -55,44 +57,8 @@ const LandingPage = () => {
         </div>
       </header>
 
-      {/* Hero Section with enhanced gradient and animations */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-recruit-primary/10 to-recruit-secondary/10 animate-gradient" />
-        <div className="container mx-auto px-4 relative">
-          <div className="flex flex-col lg:flex-row items-center">
-            <div className="lg:w-1/2 mb-10 lg:mb-0 animate-fade-in">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-recruit-primary to-recruit-secondary bg-clip-text text-transparent">
-                AI-Powered Recruitment Platform
-              </h1>
-              <p className="text-xl text-muted-foreground mb-8 max-w-lg">
-                Streamline your consulting firm's hiring process with intelligent
-                screening, budgeting, and profit optimization.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link to="/login">
-                  <Button size="lg" className="animate-pulse-slow bg-gradient-to-r from-recruit-primary to-recruit-secondary hover:opacity-90">
-                    Get Started <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-                <a href="#features">
-                  <Button variant="outline" size="lg" className="hover:scale-105 transition-transform duration-200">
-                    Learn More
-                  </Button>
-                </a>
-              </div>
-            </div>
-            <div className="lg:w-1/2 lg:pl-16 animate-slide-in-right">
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-500">
-                <img
-                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-1.2.1&q=80&w=1500&auto=format&fit=crop"
-                  alt="Person using TalentSpark"
-                  className="w-full h-auto"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Section with advanced animations */}
+      <TalentSparkHero />
 
       {/* Stats Section - New */}
       <section className="py-12 bg-gradient-to-r from-recruit-primary/5 to-recruit-secondary/5">
@@ -119,95 +85,8 @@ const LandingPage = () => {
       </section>
 
       {/* Features section with enhanced animations */}
-      <section id="features" className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Key Features</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              TalentSpark combines advanced AI with intuitive workflow management to optimize your recruitment process.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-              <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
-                <Bot className="h-6 w-6 text-recruit-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">AI Screening</h3>
-              <p className="text-muted-foreground mb-4">
-                Ultravox AI conducts voice-based candidate screenings, generating detailed feedback and analysis.
-              </p>
-              <a href="#" className="inline-flex items-center text-sm font-medium text-recruit-primary hover-scale">
-                Learn More <ChevronRight className="ml-1 h-4 w-4" />
-              </a>
-            </div>
-
-            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-              <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
-                <BarChart3 className="h-6 w-6 text-recruit-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Profit Optimization</h3>
-              <p className="text-muted-foreground mb-4">
-                Configure budget splits between client rates and candidate offers to maximize your margins.
-              </p>
-              <a href="#" className="inline-flex items-center text-sm font-medium text-recruit-primary hover-scale">
-                Learn More <ChevronRight className="ml-1 h-4 w-4" />
-              </a>
-            </div>
-
-            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-              <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
-                <Users className="h-6 w-6 text-recruit-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Resume Matching</h3>
-              <p className="text-muted-foreground mb-4">
-                Agentic RAG technology matches resumes against job descriptions with high accuracy.
-              </p>
-              <a href="#" className="inline-flex items-center text-sm font-medium text-recruit-primary hover-scale">
-                Learn More <ChevronRight className="ml-1 h-4 w-4" />
-              </a>
-            </div>
-
-            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-              <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
-                <Briefcase className="h-6 w-6 text-recruit-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Workflow Automation</h3>
-              <p className="text-muted-foreground mb-4">
-                Streamlined interview scheduling, feedback collection, and offer management.
-              </p>
-              <a href="#" className="inline-flex items-center text-sm font-medium text-recruit-primary hover-scale">
-                Learn More <ChevronRight className="ml-1 h-4 w-4" />
-              </a>
-            </div>
-
-            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-              <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
-                <BarChart3 className="h-6 w-6 text-recruit-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Role-Based Dashboards</h3>
-              <p className="text-muted-foreground mb-4">
-                Customized views for each role in the recruitment process, from admin to applicant.
-              </p>
-              <a href="#" className="inline-flex items-center text-sm font-medium text-recruit-primary hover-scale">
-                Learn More <ChevronRight className="ml-1 h-4 w-4" />
-              </a>
-            </div>
-
-            <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-              <div className="h-12 w-12 bg-recruit-primary/20 rounded-full flex items-center justify-center mb-6">
-                <Shield className="h-6 w-6 text-recruit-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Secure Deployment</h3>
-              <p className="text-muted-foreground mb-4">
-                On-premise deployment with subscription-based licensing for maximum data security.
-              </p>
-              <a href="#" className="inline-flex items-center text-sm font-medium text-recruit-primary hover-scale">
-                Learn More <ChevronRight className="ml-1 h-4 w-4" />
-              </a>
-            </div>
-          </div>
-        </div>
+      <section id="features">
+        <TalentSparkFeatures />
       </section>
 
       {/* Benefits section with enhanced visuals */}
