@@ -1,48 +1,52 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import {
-  Bot,
-  BarChart3,
-  Users,
-  Briefcase,
-  Shield,
-  CheckCircle2,
-  ChevronRight,
-  ArrowRight,
-  Zap,
-  Award,
-  Star,
-  LineChart,
-  Search,
-  Clock
-} from 'lucide-react';
-import { TalentSparkHero } from '@/components/landing/TalentSparkHero';
-import { TalentSparkFeatures } from '@/components/landing/TalentSparkFeatures';
+import { Bot } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { EnhancedHero } from '@/components/landing/EnhancedHero';
+import { EnhancedFeatures } from '@/components/landing/EnhancedFeatures';
+import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
+import { CtaSection } from '@/components/landing/CtaSection';
+import { Footer } from '@/components/landing/Footer';
 
 const LandingPage = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
       {/* Header with glassmorphism effect */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b py-4 shadow-sm">
+      <header className="fixed top-0 z-50 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 py-4 shadow-sm">
         <div className="container mx-auto px-4 flex justify-between items-center">
-          <div className="flex items-center animate-fade-in">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center"
+          >
             <Bot className="h-8 w-8 text-recruit-primary mr-2" />
             <span className="text-xl font-bold bg-gradient-to-r from-recruit-primary to-recruit-secondary bg-clip-text text-transparent">
               TalentSpark
             </span>
-          </div>
-          <div className="hidden md:flex items-center space-x-8">
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="hidden md:flex items-center space-x-8"
+          >
             <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
               Features
             </a>
-            <a href="#benefits" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
-              Benefits
+            <a href="#testimonials" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
+              Testimonials
             </a>
-            <a href="#roles" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
-              User Roles
+            <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
+              Pricing
             </a>
-          </div>
-          <div className="flex items-center space-x-4">
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center space-x-4"
+          >
             <Link to="/login">
               <Button variant="outline" className="hover:scale-105 transition-transform duration-200">
                 Sign In
@@ -53,41 +57,74 @@ const LandingPage = () => {
                 Get Started
               </Button>
             </Link>
-          </div>
+          </motion.div>
         </div>
       </header>
 
       {/* Hero Section with advanced animations */}
-      <TalentSparkHero />
+      <EnhancedHero />
 
       {/* Stats Section - New */}
       <section className="py-12 bg-gradient-to-r from-recruit-primary/5 to-recruit-secondary/5">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center animate-fade-in">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center"
+            >
               <div className="text-3xl font-bold text-recruit-primary mb-2">500+</div>
               <div className="text-sm text-muted-foreground">Companies Trust Us</div>
-            </div>
-            <div className="text-center animate-fade-in [animation-delay:200ms]">
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-center"
+            >
               <div className="text-3xl font-bold text-recruit-primary mb-2">10k+</div>
               <div className="text-sm text-muted-foreground">Successful Placements</div>
-            </div>
-            <div className="text-center animate-fade-in [animation-delay:400ms]">
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-center"
+            >
               <div className="text-3xl font-bold text-recruit-primary mb-2">95%</div>
               <div className="text-sm text-muted-foreground">Satisfaction Rate</div>
-            </div>
-            <div className="text-center animate-fade-in [animation-delay:600ms]">
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="text-center"
+            >
               <div className="text-3xl font-bold text-recruit-primary mb-2">30%</div>
               <div className="text-sm text-muted-foreground">Time Saved</div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Features section with enhanced animations */}
       <section id="features">
-        <TalentSparkFeatures />
+        <EnhancedFeatures />
       </section>
+
+      {/* Testimonials section */}
+      <section id="testimonials">
+        <TestimonialsSection />
+      </section>
+
+      {/* Call to action section */}
+      <section id="cta">
+        <CtaSection />
+      </section>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Benefits section with enhanced visuals */}
       <section id="benefits" className="py-20 bg-gradient-to-br from-recruit-primary/10 to-recruit-secondary/10">
