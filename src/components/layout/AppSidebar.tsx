@@ -19,7 +19,8 @@ import {
   UserPlus,
   DollarSign,
   PieChart,
-  Upload
+  Upload,
+  Briefcase
 } from 'lucide-react';
 
 // Define menu items per role
@@ -28,10 +29,8 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
     { title: 'Teams', path: '/teams', icon: Users },
     { title: 'Profiles', path: '/profiles', icon: UserPlus },
-    { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
-    { title: 'Resume Upload', path: '/resume-upload', icon: Upload },
+    { title: 'Job Listings', path: '/jobs', icon: Briefcase },
     { title: 'Candidates', path: '/candidates', icon: ClipboardCheck },
-    { title: 'Budget', path: '/budget', icon: DollarSign },
     { title: 'Reports', path: '/reports', icon: PieChart },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
@@ -39,16 +38,15 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
     { title: 'Teams', path: '/teams', icon: Users },
     { title: 'Profiles', path: '/profiles', icon: UserPlus },
-    { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
-    { title: 'Resume Upload', path: '/resume-upload', icon: Upload },
+    { title: 'Job Listings', path: '/jobs', icon: Briefcase },
     { title: 'Candidates', path: '/candidates', icon: Users },
-    { title: 'Budget', path: '/budget', icon: DollarSign },
     { title: 'Reports', path: '/reports', icon: PieChart },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
   'talent-scout': [
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
     { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
+    { title: 'Job Listings', path: '/jobs', icon: Briefcase },
     { title: 'Resume Upload', path: '/resume-upload', icon: Upload },
     { title: 'Candidates', path: '/candidates', icon: Users },
     { title: 'Screenings', path: '/screenings', icon: FileSearch },
@@ -57,6 +55,9 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
   ],
   'team-member': [
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
+    { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
+    { title: 'Job Listings', path: '/jobs', icon: Briefcase },
+    { title: 'Resume Upload', path: '/resume-upload', icon: Upload },
     { title: 'Interviews', path: '/interviews', icon: Calendar },
     { title: 'Candidates', path: '/candidates', icon: Users },
     { title: 'Feedback', path: '/feedback', icon: MessageSquare },

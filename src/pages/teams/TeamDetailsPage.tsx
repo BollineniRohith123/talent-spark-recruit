@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { 
-  Users, 
-  UserPlus, 
-  Briefcase, 
-  Calendar, 
-  ArrowLeft, 
-  Mail, 
-  Phone, 
-  Clock, 
-  Star, 
-  CheckCircle2, 
-  XCircle 
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import {
+  Users,
+  UserPlus,
+  Briefcase,
+  Calendar,
+  ArrowLeft,
+  Mail,
+  Phone,
+  Clock,
+  Star,
+  CheckCircle2,
+  XCircle,
+  Building2,
+  MapPin
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +22,14 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
+import {
+  Department,
+  TeamMember,
+  getDepartmentById,
+  getTeamMembersByDepartmentId,
+  getTeamLeadByDepartmentId,
+  getLocationById
+} from '@/types/organization';
 
 // Mock team data
 const mockTeams = [
@@ -166,35 +176,50 @@ const mockOpenPositions = [
 
 const TeamDetailsPage = () => {
   const { teamId } = useParams();
-  const [team, setTeam] = useState(null);
+  const navigate = useNavigate();
+  const [department, setDepartment] = useState<Department | null>(null);
+  const [location, setLocation] = useState(null);
+  const [teamLead, setTeamLead] = useState<TeamMember | null>(null);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    // In a real app, fetch team data from API
-    const id = parseInt(teamId);
-    const foundTeam = mockTeams.find(t => t.id === id);
-    
-    if (foundTeam) {
-      setTeam(foundTeam);
+    // In a real app, fetch department data from API
+    if (!teamId) return;
+
+    const foundDepartment = getDepartmentById(teamId);
+
+    if (foundDepartment) {
+      setDepartment(foundDepartment);
+
+      // Get location
+      const departmentLocation = getLocationById(foundDepartment.locationId);
+      setLocation(departmentLocation);
+
+      // Get team lead
+      const lead = getTeamLeadByDepartmentId(foundDepartment.id);
+      setTeamLead(lead || null);
+
+      // Get team members
+      const members = getTeamMembersByDepartmentId(foundDepartment.id);
+      setTeamMembers(members);
     } else {
       toast({
-        title: "Team Not Found",
-        description: "The requested team could not be found",
+        title: "Department Not Found",
+        description: "The requested department could not be found",
         variant: "destructive",
       });
+      navigate('/teams');
     }
-  }, [teamId]);
+  }, [teamId, navigate]);
 
-  if (!team) {
+  if (!department || !location) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p>Loading team details...</p>
+        <p>Loading department details...</p>
       </div>
     );
   }
-
-  const budgetPercentage = Math.round((team.budgetSpent / team.budget) * 100);
-  const hiringPercentage = Math.round((team.hiringProgress / team.hiringGoal) * 100);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -206,16 +231,19 @@ const TeamDetailsPage = () => {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold">{team.name}</h1>
+            <h1 className="text-3xl font-bold">{department.name}</h1>
             <p className="text-muted-foreground mt-1">
-              {team.department} • {team.location}
+              <span className="flex items-center">
+                <Building2 className="h-4 w-4 mr-1" />
+                {location.name}
+              </span>
             </p>
           </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
             <Mail className="h-4 w-4 mr-2" />
-            Contact Team
+            Contact Department
           </Button>
           <Button>
             <UserPlus className="h-4 w-4 mr-2" />
@@ -229,43 +257,44 @@ const TeamDetailsPage = () => {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="members">Members</TabsTrigger>
           <TabsTrigger value="positions">Open Positions</TabsTrigger>
-          <TabsTrigger value="budget">Budget</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Team Lead</CardTitle>
-                <CardDescription>Primary contact for this team</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={team.leadAvatar} alt={team.leadName} />
-                    <AvatarFallback>{team.leadName.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-medium">{team.leadName}</h3>
-                    <div className="text-sm text-muted-foreground space-y-1">
-                      <div className="flex items-center">
-                        <Mail className="h-3.5 w-3.5 mr-1" />
-                        <span>{team.leadEmail}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Phone className="h-3.5 w-3.5 mr-1" />
-                        <span>{team.leadPhone}</span>
+            {teamLead && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Department Lead</CardTitle>
+                  <CardDescription>Primary contact for this department</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center space-x-4">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={teamLead.avatar} alt={teamLead.name} />
+                      <AvatarFallback>{teamLead.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="font-medium">{teamLead.name}</h3>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <div className="flex items-center">
+                          <Mail className="h-3.5 w-3.5 mr-1" />
+                          <span>{teamLead.email}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Phone className="h-3.5 w-3.5 mr-1" />
+                          <span>Contact via email</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             <Card>
               <CardHeader>
-                <CardTitle>Team Stats</CardTitle>
-                <CardDescription>Current team composition</CardDescription>
+                <CardTitle>Department Stats</CardTitle>
+                <CardDescription>Current department composition</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -274,21 +303,21 @@ const TeamDetailsPage = () => {
                       <Users className="h-4 w-4 mr-2 text-primary" />
                       <span>Total Members</span>
                     </div>
-                    <span className="font-medium">{team.members}</span>
+                    <span className="font-medium">{department.memberCount}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <Briefcase className="h-4 w-4 mr-2 text-primary" />
-                      <span>Open Positions</span>
+                      <Building2 className="h-4 w-4 mr-2 text-primary" />
+                      <span>Location</span>
                     </div>
-                    <span className="font-medium">{team.openPositions}</span>
+                    <span className="font-medium">{location.city}, {location.state}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <Star className="h-4 w-4 mr-2 text-primary" />
-                      <span>Active Screenings</span>
+                      <Calendar className="h-4 w-4 mr-2 text-primary" />
+                      <span>Created</span>
                     </div>
-                    <span className="font-medium">{team.activeScreenings}</span>
+                    <span className="font-medium">{new Date(department.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               </CardContent>
@@ -296,30 +325,31 @@ const TeamDetailsPage = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Hiring Progress</CardTitle>
-                <CardDescription>Progress toward hiring goals</CardDescription>
+                <CardTitle>Location Details</CardTitle>
+                <CardDescription>Information about this location</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm">Budget Utilization</span>
-                      <span className="text-sm font-medium">{budgetPercentage}%</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Building2 className="h-4 w-4 mr-2 text-primary" />
+                      <span>Name</span>
                     </div>
-                    <Progress value={budgetPercentage} className="h-2" />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      ${team.budgetSpent.toLocaleString()} of ${team.budget.toLocaleString()}
-                    </p>
+                    <span className="font-medium">{location.name}</span>
                   </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm">Hiring Goal</span>
-                      <span className="text-sm font-medium">{hiringPercentage}%</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-2 text-primary" />
+                      <span>Address</span>
                     </div>
-                    <Progress value={hiringPercentage} className="h-2" />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {team.hiringProgress} of {team.hiringGoal} positions filled
-                    </p>
+                    <span className="font-medium">{location.address}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Users className="h-4 w-4 mr-2 text-primary" />
+                      <span>Departments</span>
+                    </div>
+                    <span className="font-medium">{location.departmentIds.length}</span>
                   </div>
                 </div>
               </CardContent>
@@ -328,11 +358,11 @@ const TeamDetailsPage = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Team Description</CardTitle>
-              <CardDescription>About this team and its responsibilities</CardDescription>
+              <CardTitle>Department Description</CardTitle>
+              <CardDescription>About this department and its responsibilities</CardDescription>
             </CardHeader>
             <CardContent>
-              <p>{team.description}</p>
+              <p>{department.description}</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -342,7 +372,7 @@ const TeamDetailsPage = () => {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Team Members</CardTitle>
-                <CardDescription>Current members of {team.name}</CardDescription>
+                <CardDescription>Current members of {department.name}</CardDescription>
               </div>
               <Button>
                 <UserPlus className="h-4 w-4 mr-2" />
@@ -363,7 +393,7 @@ const TeamDetailsPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockTeamMembers.map((member) => (
+                    {teamMembers.map((member) => (
                       <tr key={member.id} className="border-b hover:bg-muted/50">
                         <td className="py-3 px-4">
                           <div className="flex items-center">
@@ -399,6 +429,29 @@ const TeamDetailsPage = () => {
                         </td>
                       </tr>
                     ))}
+
+                    {teamMembers.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                          No team members found for this department.
+                          <div className="mt-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                // In a real app, this would open the add member dialog
+                                toast({
+                                  title: "Add Member",
+                                  description: "This functionality will be implemented soon.",
+                                });
+                              }}
+                            >
+                              <UserPlus className="h-4 w-4 mr-1" /> Add Team Member
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -411,7 +464,7 @@ const TeamDetailsPage = () => {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Open Positions</CardTitle>
-                <CardDescription>Current job openings for {team.name}</CardDescription>
+                <CardDescription>Current job openings for {department.name}</CardDescription>
               </div>
               <Button>
                 <Briefcase className="h-4 w-4 mr-2" />
@@ -433,7 +486,8 @@ const TeamDetailsPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockOpenPositions.map((position) => (
+                    {/* Use mock data for now */}
+                    {mockOpenPositions.filter(p => p.department === department.name).map((position) => (
                       <tr key={position.id} className="border-b hover:bg-muted/50">
                         <td className="py-3 px-4 font-medium">{position.title}</td>
                         <td className="py-3 px-4">{position.department}</td>
@@ -451,78 +505,31 @@ const TeamDetailsPage = () => {
                         </td>
                       </tr>
                     ))}
+
+                    {mockOpenPositions.filter(p => p.department === department.name).length === 0 && (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center text-muted-foreground">
+                          No open positions found for this department.
+                          <div className="mt-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                // In a real app, this would open the add position dialog
+                                toast({
+                                  title: "Add Position",
+                                  description: "This functionality will be implemented soon.",
+                                });
+                              }}
+                            >
+                              <Briefcase className="h-4 w-4 mr-1" /> Add Position
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="budget" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Budget Overview</CardTitle>
-                <CardDescription>Current budget allocation and spending</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm">Total Budget</span>
-                      <span className="text-sm font-medium">${team.budget.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm">Spent</span>
-                      <span className="text-sm font-medium">${team.budgetSpent.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm">Remaining</span>
-                      <span className="text-sm font-medium">${(team.budget - team.budgetSpent).toLocaleString()}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm">Budget Utilization</span>
-                      <span className="text-sm font-medium">{budgetPercentage}%</span>
-                    </div>
-                    <Progress value={budgetPercentage} className="h-2" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Budget Breakdown</CardTitle>
-                <CardDescription>How the budget is being allocated</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[250px] flex items-center justify-center border rounded-md">
-                  <div className="text-center p-6">
-                    <h3 className="text-lg font-medium mb-2">Budget Allocation Chart</h3>
-                    <p className="text-sm text-muted-foreground max-w-md">
-                      This chart would display the budget breakdown by category (salaries, tools, training, etc.)
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Budget History</CardTitle>
-              <CardDescription>Monthly budget allocation and spending</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px] flex items-center justify-center border rounded-md">
-                <div className="text-center p-6">
-                  <h3 className="text-lg font-medium mb-2">Budget History Chart</h3>
-                  <p className="text-sm text-muted-foreground max-w-md">
-                    This chart would display the budget history over time, showing allocation and spending trends.
-                  </p>
-                </div>
               </div>
             </CardContent>
           </Card>

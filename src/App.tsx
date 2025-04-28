@@ -44,8 +44,10 @@ import ProfileDetailsPage from "./pages/teams/ProfileDetailsPage";
 // Reports Page
 import ReportsPage from "./pages/reports/ReportsPage";
 
-// Budget Page
-import BudgetManagementPage from "./pages/budget/BudgetManagementPage";
+// Job Listings Pages
+import JobListingsPage from "./pages/jobs/JobListingsPage";
+import JobDetailsPage from "./pages/jobs/JobDetailsPage";
+import JobCreatePage from "./pages/jobs/JobCreatePage";
 
 // Feedback Page
 import FeedbackPage from "./pages/feedback/FeedbackPage";
@@ -242,13 +244,37 @@ const App = () => (
               }
             />
 
-            {/* Budget Management - For Company Admin & Hiring Manager */}
+            {/* Job Listings - For All Roles except Applicant */}
             <Route
-              path="/budget"
+              path="/jobs"
+              element={
+                <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout', 'team-member']}>
+                  <MainLayout>
+                    <JobListingsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Job Details - For All Roles except Applicant */}
+            <Route
+              path="/jobs/:jobId"
+              element={
+                <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout', 'team-member']}>
+                  <MainLayout>
+                    <JobDetailsPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Create Job - For Admin and Hiring Manager */}
+            <Route
+              path="/jobs/create"
               element={
                 <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
                   <MainLayout>
-                    <BudgetManagementPage />
+                    <JobCreatePage />
                   </MainLayout>
                 </AuthProtection>
               }

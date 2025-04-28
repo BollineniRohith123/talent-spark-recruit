@@ -4,8 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { StatsCard } from '@/components/ui/stats-card';
 import { Progress } from '@/components/ui/progress';
 import {
-  Bar,
   BarChart,
+  Bar,
   CartesianGrid,
   Legend,
   ResponsiveContainer,
@@ -117,10 +117,10 @@ const activeRecruitments = [
 const HiringManagerDashboard = () => {
   return (
     <div className="space-y-8 animate-fade-in">
-      <div>
+      <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold">Hiring Manager Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          Track budgets, profit margins, and team recruitment progress
+        <p className="text-muted-foreground">
+          Track budgets, profit margins, and recruitment progress
         </p>
       </div>
 
@@ -128,9 +128,10 @@ const HiringManagerDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
           title="Total Budget"
-          value="$32,500"
+          value="$325K"
           description="Current month"
           icon={<DollarSign className="h-6 w-6 text-primary" />}
+          trend={{ value: 5, isPositive: true }}
         />
         <StatsCard
           title="Average Profit Margin"
@@ -142,7 +143,7 @@ const HiringManagerDashboard = () => {
         <StatsCard
           title="Open Positions"
           value="8"
-          description="Across all teams"
+          description="Across teams"
           icon={<Users className="h-6 w-6 text-primary" />}
         />
         <StatsCard

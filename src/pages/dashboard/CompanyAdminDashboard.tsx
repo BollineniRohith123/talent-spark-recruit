@@ -3,6 +3,7 @@ import { BarChart3, Users, ClipboardCheck, Award, DollarSign, TrendingUp, Percen
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatsCard } from '@/components/ui/stats-card';
 import { Progress } from '@/components/ui/progress';
+import { MetricsTable } from '@/components/dashboard/MetricsTable';
 import {
   Area,
   AreaChart,
@@ -286,6 +287,9 @@ const CompanyAdminDashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Detailed Metrics Table with Filters */}
+      <MetricsTable />
     </div>
   );
 };
