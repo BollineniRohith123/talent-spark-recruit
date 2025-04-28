@@ -7,6 +7,7 @@ This document provides a comprehensive overview of all tasks and subtasks for th
 - 🔄 **In Progress**: Feature is partially implemented or needs refinement
 - ❌ **Pending**: Feature is not yet implemented
 - 🚩 **High Priority**: Critical feature that should be implemented first
+- 🆕 **New Requirement**: Recently added requirement for US-based recruiting consultancies
 
 ## Table of Contents
 
@@ -27,6 +28,7 @@ This document provides a comprehensive overview of all tasks and subtasks for th
 15. [Backend Integration](#15-backend-integration)
 16. [Testing & Quality Assurance](#16-testing--quality-assurance)
 17. [Deployment & DevOps](#17-deployment--devops)
+18. [US Recruiting Consultancy Features](#18-us-recruiting-consultancy-features)
 
 ---
 
@@ -648,6 +650,8 @@ This document provides a comprehensive overview of all tasks and subtasks for th
 ### Completed ✅
 - Basic deployment setup
 - GitHub repository configuration
+- Vercel deployment integration
+- Automatic deployment from GitHub
 
 ### Pending ❌
 - [ ] **CI/CD Pipeline**
@@ -676,6 +680,54 @@ This document provides a comprehensive overview of all tasks and subtasks for th
 
 ---
 
+## 18. US Recruiting Consultancy Features
+
+### Completed ✅
+- Role-specific terminology for US-based recruiting consultancy
+- Two-level profit tracking system (client-to-company and company-to-candidate)
+- Exact dollar amount profit tracking (not percentages)
+- Company-to-candidate profit percentages visible to employees only
+- Client-to-company percentages hidden from employees
+- Job creation with budget allocation and profit margin tracking
+- Comprehensive hiring metrics for admin dashboards
+- Role-specific dashboards reflecting profit optimization changes
+
+### In Progress 🔄
+- Branch-based organization structure UI
+- Location and department management interfaces
+- Role-specific job listing views
+
+### Pending ❌
+- [ ] 🆕 **Hierarchical Organization Structure Backend**
+  - [ ] Implement location management API
+  - [ ] Create department management within locations
+  - [ ] Set up role-based access control for locations and departments
+  - [ ] Implement hiring manager assignment to locations
+  - [ ] Create team member assignment to departments
+
+- [ ] 🆕 **Job Assignment System**
+  - [ ] Implement job assignment to scouts and team members
+  - [ ] Create job reassignment functionality for scouts
+  - [ ] Add job prioritization capabilities
+  - [ ] Implement status tracking with filtering
+  - [ ] Create detailed candidate views with role-based permissions
+
+- [ ] 🆕 **Notification System**
+  - [ ] Implement in-app notifications for job assignments
+  - [ ] Create email notification system for assignments
+  - [ ] Add status change alerts
+  - [ ] Implement priority job notifications
+  - [ ] Create notification preferences by role
+
+- [ ] 🆕 **Advanced Profit Analytics**
+  - [ ] Implement comprehensive profit tracking API
+  - [ ] Create profit visualization dashboards
+  - [ ] Add profit forecasting based on pipeline
+  - [ ] Implement profit optimization recommendations
+  - [ ] Create profit comparison reports by location/department
+
+---
+
 ## Priority Implementation Order
 
 Based on the current state of the application and business requirements, here is the recommended order for implementing pending tasks:
@@ -686,23 +738,27 @@ Based on the current state of the application and business requirements, here is
    - Implement core API endpoints for authentication, users, teams
    - Create data models and relationships
    - Implement basic CRUD operations
+   - Design hierarchical data model for locations and departments
 
 2. **Real Authentication System**
    - JWT-based authentication with refresh tokens
    - Role-based access control
    - User management API
    - Session handling
+   - Role-specific permissions for US recruiting consultancy structure
 
-3. **AI Integration - Core Components**
-   - Resume parsing with NLP
-   - Agentic RAG matching engine
-   - Vector embeddings for semantic search
-   - Ultravox AI integration for screening
+3. **US Recruiting Consultancy Structure Backend**
+   - Implement location management API
+   - Create department management within locations
+   - Set up role-based access control for locations and departments
+   - Implement hiring manager assignment to locations
+   - Create team member assignment to departments
 
 4. **Budget & Profit Management Backend**
    - Real budget data storage and retrieval
-   - Two-level profit tracking implementation
-   - Budget approval workflows
+   - Two-level profit tracking implementation (client-to-company and company-to-candidate)
+   - Exact dollar amount profit tracking
+   - Role-specific profit visibility controls
    - Financial data integration
 
 ### High Priority (Next Phase)
@@ -711,24 +767,28 @@ Based on the current state of the application and business requirements, here is
    - Automated notifications
    - Pipeline analytics
    - Stage transition rules
+   - Job prioritization capabilities
 
-2. **Interview & Feedback System**
+2. **Notification System**
+   - Implement in-app notifications for job assignments
+   - Create email notification system for assignments
+   - WebSocket implementation for real-time updates
+   - Status change alerts
+   - Priority job notifications
+
+3. **Job Assignment System**
+   - Implement job assignment to scouts and team members
+   - Create job reassignment functionality for scouts
+   - Implement status tracking with filtering
+   - Create detailed candidate views with role-based permissions
+   - Add job listing prioritization
+
+4. **Interview & Feedback System**
    - Calendar integration for scheduling
    - Video conferencing integration
    - Structured feedback templates
    - Multi-stage feedback collection
-
-3. **Team & Profile Management**
-   - Complete CRUD operations
-   - Team hierarchy implementation
-   - Performance metrics tracking
-   - Permission management
-
-4. **Real-time Updates & Notifications**
-   - WebSocket implementation
-   - Real-time dashboard updates
-   - Notification system
-   - Activity feed
+   - Role-specific feedback views
 
 ### Medium Priority (Enhancement Phase)
 1. **Advanced Analytics & Reporting**
@@ -736,24 +796,28 @@ Based on the current state of the application and business requirements, here is
    - Custom report builder
    - Data export functionality
    - Scheduled reports
+   - Filterable tables (daily/weekly/monthly)
 
-2. **Workflow Automation with n8n**
+2. **Advanced Profit Analytics**
+   - Profit forecasting based on pipeline
+   - What-if scenario modeling
+   - Optimization suggestions
+   - Benchmarking
+   - Profit comparison reports by location/department
+
+3. **Team & Profile Management**
+   - Complete CRUD operations
+   - Team hierarchy implementation
+   - Performance metrics tracking with profit metrics
+   - Permission management
+   - Branch-based team structure
+
+4. **Workflow Automation with n8n**
    - Integration with n8n.io
    - Custom workflow templates
    - Conditional workflow branching
    - Error handling and monitoring
-
-3. **Dashboard Customization**
-   - Widget customization
-   - Saved layouts
-   - User preferences
-   - Custom metrics
-
-4. **Advanced Profit Analytics**
-   - Profit forecasting
-   - What-if scenario modeling
-   - Optimization suggestions
-   - Benchmarking
+   - Automated job assignment workflows
 
 ### Lower Priority (Future Enhancements)
 1. **Mobile Responsiveness & PWA**
@@ -784,9 +848,10 @@ Based on the current state of the application and business requirements, here is
 
 ## Detailed Implementation Timeline
 
-### Phase 1: Core Backend & Authentication (4-6 weeks)
+### Phase 1: Core Backend & US Recruiting Structure (6-8 weeks)
 - Week 1-2: Database setup and schema design
   - PostgreSQL setup with pgvector extension
+  - Hierarchical data model for locations and departments
   - Database schema creation
   - Migration scripts
   - Data validation
@@ -794,16 +859,53 @@ Based on the current state of the application and business requirements, here is
 - Week 3-4: Authentication system implementation
   - JWT authentication
   - User management API
-  - Role-based access control
+  - Role-based access control for US recruiting consultancy structure
   - Session handling
+  - Permission hierarchy for locations and departments
 
-- Week 5-6: Core API development
+- Week 5-6: US Recruiting Consultancy Structure Backend
+  - Location management API
+  - Department management within locations
+  - Hiring manager assignment to locations
+  - Team member assignment to departments
+  - Role-specific access control
+
+- Week 7-8: Core API development
   - Teams and profiles API
-  - Budget management API
-  - Job description API
+  - Budget management API with two-level profit tracking
+  - Job description API with profit configuration
   - Candidate management API
 
-### Phase 2: AI & Matching Implementation (6-8 weeks)
+### Phase 2: Job Management & Notification System (6-8 weeks)
+- Week 1-2: Job Assignment System
+  - Job assignment to scouts and team members
+  - Job reassignment functionality for scouts
+  - Status tracking with filtering
+  - Detailed candidate views with role-based permissions
+  - Job listing prioritization
+
+- Week 3-4: Notification System
+  - In-app notifications for job assignments
+  - Email notification system for assignments
+  - WebSocket implementation for real-time updates
+  - Status change alerts
+  - Priority job notifications
+
+- Week 5-6: Candidate Pipeline Management
+  - Status workflow implementation
+  - Automated notifications
+  - Pipeline analytics
+  - Stage transition rules
+  - Job prioritization capabilities
+
+- Week 7-8: Interview and Feedback System
+  - Calendar integration for scheduling
+  - Video conferencing integration
+  - Structured feedback templates
+  - Multi-stage feedback collection
+  - Role-specific feedback views
+
+### Phase 3: AI & Matching Implementation (6-8 weeks)
 - Week 1-2: Resume parsing implementation
   - NLP integration
   - Entity extraction
@@ -822,36 +924,12 @@ Based on the current state of the application and business requirements, here is
   - Transcript processing
   - Automated evaluation
 
-- Week 7-8: Recommendation engine
-  - Candidate recommendation
-  - Job recommendation
-  - Skill-based matching
-  - Learning from outcomes
-
-### Phase 3: Advanced Features & Workflow (6-8 weeks)
-- Week 1-2: Interview and feedback system
-  - Calendar integration
-  - Video conferencing
-  - Structured feedback
-  - Decision support
-
-- Week 3-4: Real-time updates
-  - WebSocket implementation
-  - Notification system
-  - Live dashboard updates
-  - Activity feed
-
-- Week 5-6: n8n workflow automation
-  - n8n.io integration
-  - Workflow triggers
-  - Notification workflows
-  - Conditional branching
-
-- Week 7-8: Advanced analytics
-  - Interactive charts
-  - Custom reporting
-  - Data export
-  - Scheduled reports
+- Week 7-8: Advanced Profit Analytics
+  - Profit forecasting based on pipeline
+  - What-if scenario modeling
+  - Optimization suggestions
+  - Benchmarking
+  - Profit comparison reports by location/department
 
 ### Phase 4: Optimization & Enterprise Readiness (4-6 weeks)
 - Week 1-2: Performance optimization
@@ -874,26 +952,30 @@ Based on the current state of the application and business requirements, here is
 
 ## Success Criteria & Milestones
 
-### Milestone 1: MVP Backend (Week 6)
-- ✓ Database setup complete
-- ✓ Authentication system working
-- ✓ Core API endpoints implemented
+### Milestone 1: US Recruiting Structure Backend (Week 8)
+- ✓ Database setup with hierarchical structure complete
+- ✓ Authentication system with role-specific permissions working
+- ✓ Location and department management API implemented
+- ✓ Two-level profit tracking system operational
 - ✓ Frontend connected to backend
 
-### Milestone 2: AI Integration (Week 14)
+### Milestone 2: Job Management & Notifications (Week 16)
+- ✓ Job assignment system implemented
+- ✓ Notification system (in-app and email) working
+- ✓ Candidate pipeline management operational
+- ✓ Interview and feedback system complete
+- ✓ Role-specific views for job listings implemented
+
+### Milestone 3: AI & Advanced Analytics (Week 24)
 - ✓ Resume parsing working
 - ✓ RAG matching engine implemented
 - ✓ Ultravox screening integrated
-- ✓ Recommendation engine functional
+- ✓ Advanced profit analytics operational
+- ✓ Profit optimization recommendations available
 
-### Milestone 3: Advanced Features (Week 22)
-- ✓ Interview and feedback system complete
-- ✓ Real-time updates implemented
-- ✓ Workflow automation working
-- ✓ Advanced analytics available
-
-### Milestone 4: Enterprise Ready (Week 28)
+### Milestone 4: Enterprise Ready (Week 30)
 - ✓ Performance optimized
 - ✓ Security hardened
 - ✓ Enterprise integrations complete
+- ✓ Workflow automation with n8n implemented
 - ✓ System fully tested and documented
