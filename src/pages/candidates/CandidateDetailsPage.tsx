@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  FileText, 
-  CheckCircle2, 
-  XCircle, 
-  Clock, 
-  Star, 
-  MessageSquare, 
-  Download, 
-  Send 
+import {
+  ArrowLeft,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  FileText,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Star,
+  MessageSquare,
+  Download,
+  Send,
+  UserCog,
+  Users
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,6 +25,8 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Mock candidate data
 const mockCandidates = [
@@ -39,6 +43,12 @@ const mockCandidates = [
     appliedDate: '2023-05-15',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     summary: 'Experienced software engineer with 8+ years of experience in full-stack development. Strong expertise in React, TypeScript, and cloud technologies.',
+    assignedTo: {
+      id: 'profile-1',
+      name: 'Alex Johnson',
+      role: 'Hiring Manager',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    },
     experience: [
       {
         title: 'Senior Software Engineer',
@@ -103,6 +113,12 @@ const mockCandidates = [
     appliedDate: '2023-05-20',
     avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     summary: 'Product manager with 5+ years of experience in SaaS products. Passionate about user-centered design and data-driven decision making.',
+    assignedTo: {
+      id: 'profile-2',
+      name: 'Sarah Chen',
+      role: 'Talent Scout',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    },
     experience: [
       {
         title: 'Senior Product Manager',
@@ -144,6 +160,90 @@ const mockCandidates = [
         content: 'Strong background in product management. Resume shows consistent growth and increasing responsibilities.'
       }
     ]
+  },
+  {
+    id: '3',
+    name: 'Morgan Chen',
+    position: 'UX Designer',
+    email: 'morgan.chen@example.com',
+    phone: '(555) 345-6789',
+    location: 'Chicago, IL',
+    skills: ['UI Design', 'User Research', 'Figma', 'Prototyping'],
+    status: 'offer',
+    matchScore: 95,
+    appliedDate: '2023-05-10',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    summary: 'Creative UX designer with 6+ years of experience creating user-centered digital experiences. Proficient in design thinking and rapid prototyping.',
+    assignedTo: {
+      id: 'profile-3',
+      name: 'Michael Torres',
+      role: 'Team Member',
+      avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    },
+    experience: [
+      {
+        title: 'Senior UX Designer',
+        company: 'Design Innovations',
+        location: 'Chicago, IL',
+        startDate: '2021-02',
+        endDate: 'Present',
+        description: 'Lead UX designer for enterprise software products. Conducted user research and created wireframes and prototypes for new features.'
+      },
+      {
+        title: 'UX Designer',
+        company: 'Creative Solutions',
+        location: 'Boston, MA',
+        startDate: '2018-05',
+        endDate: '2021-01',
+        description: 'Designed user interfaces for mobile applications. Collaborated with product managers and developers to implement user-centered designs.'
+      }
+    ],
+    education: [
+      {
+        degree: 'M.A. Human-Computer Interaction',
+        institution: 'Carnegie Mellon University',
+        location: 'Pittsburgh, PA',
+        year: '2018'
+      },
+      {
+        degree: 'B.F.A. Graphic Design',
+        institution: 'Rhode Island School of Design',
+        location: 'Providence, RI',
+        year: '2016'
+      }
+    ],
+    interviews: [
+      {
+        id: 'int-1',
+        type: 'Design Portfolio Review',
+        date: '2023-05-25T13:00:00',
+        interviewer: 'Michael Torres',
+        status: 'completed',
+        notes: 'Excellent portfolio with strong focus on user-centered design. Great attention to detail in prototypes.'
+      },
+      {
+        id: 'int-2',
+        type: 'Team Interview',
+        date: '2023-06-02T10:00:00',
+        interviewer: 'Design Team',
+        status: 'completed',
+        notes: 'Team was impressed with problem-solving approach and collaboration skills.'
+      }
+    ],
+    notes: [
+      {
+        id: 'note-1',
+        author: 'Michael Torres',
+        date: '2023-05-26T14:30:00',
+        content: 'Morgan has exceptional design skills and a strong portfolio. Would be a great addition to our design team.'
+      },
+      {
+        id: 'note-2',
+        author: 'Sarah Chen',
+        date: '2023-06-03T11:15:00',
+        content: 'Team feedback was very positive. Moving forward with offer preparation.'
+      }
+    ]
   }
 ];
 
@@ -156,16 +256,54 @@ const statusConfig = {
   rejected: { label: 'Rejected', color: 'bg-red-100 text-red-800', icon: XCircle },
 };
 
+// Mock employees for reassignment
+const mockEmployees = [
+  {
+    id: 'profile-1',
+    name: 'Alex Johnson',
+    role: 'Hiring Manager',
+    department: 'Engineering',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    candidateCount: 12
+  },
+  {
+    id: 'profile-2',
+    name: 'Sarah Chen',
+    role: 'Talent Scout',
+    department: 'Recruitment',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    candidateCount: 28
+  },
+  {
+    id: 'profile-3',
+    name: 'Michael Torres',
+    role: 'Team Member',
+    department: 'Product',
+    avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    candidateCount: 3
+  },
+  {
+    id: 'profile-4',
+    name: 'Jessica Williams',
+    role: 'Marketing Recruiter',
+    department: 'Marketing',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    candidateCount: 15
+  }
+];
+
 const CandidateDetailsPage = () => {
   const { candidateId } = useParams();
   const [candidate, setCandidate] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [newNote, setNewNote] = useState('');
+  const [showReassignDialog, setShowReassignDialog] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState('');
 
   useEffect(() => {
     // In a real app, fetch candidate data from API
     const foundCandidate = mockCandidates.find(c => c.id === candidateId);
-    
+
     if (foundCandidate) {
       setCandidate(foundCandidate);
     } else {
@@ -202,7 +340,7 @@ const CandidateDetailsPage = () => {
       title: "Note Added",
       description: "Your note has been added to the candidate's profile",
     });
-    
+
     setNewNote('');
   };
 
@@ -228,15 +366,50 @@ const CandidateDetailsPage = () => {
   };
 
   const handleMoveToNextStage = () => {
-    const nextStage = status === 'screening' ? 'interview' : 
-                      status === 'interview' ? 'offer' : 
+    const nextStage = status === 'screening' ? 'interview' :
+                      status === 'interview' ? 'offer' :
                       status === 'offer' ? 'hired' : status;
-    
+
     if (nextStage !== status) {
       toast({
         title: "Candidate Advanced",
         description: `${candidate.name} has been moved to ${statusConfig[nextStage].label} stage`,
       });
+    }
+  };
+
+  const handleReassignCandidate = () => {
+    if (!selectedEmployee) {
+      toast({
+        title: "Error",
+        description: "Please select an employee to reassign the candidate to",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const employee = mockEmployees.find(e => e.id === selectedEmployee);
+
+    if (employee) {
+      // In a real app, this would update the database
+      toast({
+        title: "Candidate Reassigned",
+        description: `${candidate.name} has been reassigned to ${employee.name}`,
+      });
+
+      // Update the local state to reflect the change
+      setCandidate({
+        ...candidate,
+        assignedTo: {
+          id: employee.id,
+          name: employee.name,
+          role: employee.role,
+          avatar: employee.avatar
+        }
+      });
+
+      setShowReassignDialog(false);
+      setSelectedEmployee('');
     }
   };
 
@@ -289,6 +462,112 @@ const CandidateDetailsPage = () => {
           Download Resume
         </Button>
       </div>
+
+      {/* Assigned Employee Section */}
+      {candidate.assignedTo ? (
+        <div className="flex items-center justify-between bg-muted/50 p-4 rounded-lg">
+          <div className="flex items-center">
+            <UserCog className="h-5 w-5 text-primary mr-2" />
+            <span className="font-medium mr-2">Assigned To:</span>
+            <div className="flex items-center">
+              <Avatar className="h-8 w-8 mr-2">
+                <AvatarImage src={candidate.assignedTo.avatar} alt={candidate.assignedTo.name} />
+                <AvatarFallback>{candidate.assignedTo.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm font-medium">{candidate.assignedTo.name}</p>
+                <p className="text-xs text-muted-foreground">{candidate.assignedTo.role}</p>
+              </div>
+            </div>
+          </div>
+          <Dialog open={showReassignDialog} onOpenChange={setShowReassignDialog}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Users className="h-4 w-4 mr-2" />
+                Reassign
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Reassign Candidate</DialogTitle>
+                <DialogDescription>
+                  Select an employee to reassign {candidate.name} to.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an employee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockEmployees.map((employee) => (
+                      <SelectItem key={employee.id} value={employee.id}>
+                        <div className="flex items-center">
+                          <span>{employee.name}</span>
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            ({employee.role} • {employee.candidateCount} candidates)
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowReassignDialog(false)}>Cancel</Button>
+                <Button onClick={handleReassignCandidate}>Reassign</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between bg-muted/50 p-4 rounded-lg">
+          <div className="flex items-center">
+            <UserCog className="h-5 w-5 text-primary mr-2" />
+            <span className="font-medium mr-2">Not Assigned</span>
+            <p className="text-sm text-muted-foreground">This candidate is not assigned to any employee yet.</p>
+          </div>
+          <Dialog open={showReassignDialog} onOpenChange={setShowReassignDialog}>
+            <DialogTrigger asChild>
+              <Button variant="default" size="sm">
+                <Users className="h-4 w-4 mr-2" />
+                Assign
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Assign Candidate</DialogTitle>
+                <DialogDescription>
+                  Select an employee to assign {candidate.name} to.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an employee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockEmployees.map((employee) => (
+                      <SelectItem key={employee.id} value={employee.id}>
+                        <div className="flex items-center">
+                          <span>{employee.name}</span>
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            ({employee.role} • {employee.candidateCount} candidates)
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowReassignDialog(false)}>Cancel</Button>
+                <Button onClick={handleReassignCandidate}>Assign</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      )}
 
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
@@ -376,26 +655,26 @@ const CandidateDetailsPage = () => {
                       Schedule Interview
                     </Button>
                   )}
-                  
+
                   {status === 'interview' && (
                     <Button className="w-full" onClick={handleMoveToNextStage}>
                       <FileText className="h-4 w-4 mr-2" />
                       Prepare Offer
                     </Button>
                   )}
-                  
+
                   {status === 'offer' && (
                     <Button className="w-full" onClick={handleMoveToNextStage}>
                       <CheckCircle2 className="h-4 w-4 mr-2" />
                       Mark as Hired
                     </Button>
                   )}
-                  
+
                   <Button variant="outline" className="w-full" onClick={handleSendEmail}>
                     <Mail className="h-4 w-4 mr-2" />
                     Send Email
                   </Button>
-                  
+
                   <Button variant="outline" className="w-full" onClick={() => setActiveTab('notes')}>
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Add Note
@@ -483,7 +762,7 @@ const CandidateDetailsPage = () => {
                   <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <h3 className="font-medium text-lg mb-2">No Interviews Scheduled</h3>
                   <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    There are no interviews scheduled for this candidate yet. 
+                    There are no interviews scheduled for this candidate yet.
                     Click the "Schedule Interview" button to set up an interview.
                   </p>
                 </div>
@@ -545,7 +824,7 @@ const CandidateDetailsPage = () => {
               <CardDescription>Record your observations about this candidate</CardDescription>
             </CardHeader>
             <CardContent>
-              <Textarea 
+              <Textarea
                 placeholder="Enter your notes about this candidate..."
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}

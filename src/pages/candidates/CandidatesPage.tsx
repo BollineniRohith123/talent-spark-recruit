@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { CandidateCard, Candidate, CandidateStatus } from '@/components/ui/candidate-card';
 import {
   Select,
@@ -110,13 +111,16 @@ const candidateTimes: Record<string, string> = {
   '8': '16 days'
 };
 
+// Candidate profiles are separate from employee profiles
+// This was a misunderstanding - candidates are job applicants, not company employees
+
 const CandidatesPage = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [positionFilter, setPositionFilter] = useState<string>('all');
   const [sortOrder, setSortOrder] = useState<'match' | 'name'>('match');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
 
   // Filter and sort candidates
   const filteredCandidates = mockCandidates
@@ -354,14 +358,14 @@ const CandidatesPage = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4">Candidate</th>
-                    <th className="text-left py-3 px-4">Position</th>
-                    <th className="text-left py-3 px-4">Skills</th>
-                    <th className="text-left py-3 px-4">Status</th>
-                    <th className="text-left py-3 px-4">Match</th>
-                    <th className="text-left py-3 px-4">Time in Pipeline</th>
-                    <th className="text-left py-3 px-4">Actions</th>
+                  <tr className="border-b bg-muted/50">
+                    <th className="text-left py-3 px-4 font-medium">Candidate</th>
+                    <th className="text-left py-3 px-4 font-medium">Position</th>
+                    <th className="text-left py-3 px-4 font-medium">Skills</th>
+                    <th className="text-left py-3 px-4 font-medium">Status</th>
+                    <th className="text-left py-3 px-4 font-medium">Match</th>
+                    <th className="text-left py-3 px-4 font-medium">Time in Pipeline</th>
+                    <th className="text-left py-3 px-4 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -369,7 +373,7 @@ const CandidatesPage = () => {
                     <tr key={candidate.id} className="border-b hover:bg-muted/50">
                       <td className="py-3 px-4">
                         <div className="flex items-center">
-                          <div className="h-8 w-8 rounded-full overflow-hidden mr-3">
+                          <div className="h-10 w-10 rounded-full overflow-hidden mr-3">
                             <img
                               src={candidate.avatar}
                               alt={candidate.name}
@@ -408,25 +412,41 @@ const CandidatesPage = () => {
                         </Badge>
                       </td>
                       <td className="py-3 px-4">
-                        {candidate.matchScore ? `${candidate.matchScore}%` : '-'}
+                        <div className="flex items-center">
+                          <span className="font-medium">{candidate.matchScore ? `${candidate.matchScore}%` : '-'}</span>
+                          {candidate.matchScore && (
+                            <div className="w-16 ml-2">
+                              <Progress value={candidate.matchScore} className="h-2" />
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 px-4">
-                        {candidateTimes[candidate.id]}
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                          {candidateTimes[candidate.id]}
+                        </div>
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex gap-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleViewCandidate(candidate.id)}
+                            onClick={() => {
+                              toast({
+                                title: "Quick View",
+                                description: `Showing summary for ${candidate.name}`,
+                              });
+                            }}
                           >
-                            View
+                            Quick View
                           </Button>
                           <Button
+                            variant="default"
                             size="sm"
-                            onClick={() => handleCandidateAction(candidate.id)}
+                            onClick={() => handleViewCandidate(candidate.id)}
                           >
-                            Next
+                            View Details
                           </Button>
                         </div>
                       </td>
