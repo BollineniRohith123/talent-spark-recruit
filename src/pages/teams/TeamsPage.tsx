@@ -5,6 +5,7 @@ import { Building2, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
+import { isAdmin } from "@/utils/adminPermissions";
 import {
   Location,
   Department,
@@ -19,7 +20,7 @@ import AddLocationDialog from "@/components/organization/AddLocationDialog";
 const TeamsPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'company-admin';
+  const adminUser = isAdmin(user?.role);
 
   const [locations, setLocations] = useState<Location[]>(mockLocations);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -27,8 +28,8 @@ const TeamsPage = () => {
   const [userLocation, setUserLocation] = useState<Location | null>(null);
 
   useEffect(() => {
-    // For hiring managers, find their assigned location
-    if (user?.role === 'hiring-manager') {
+    // For branch managers and other managers, find their assigned location
+    if (user?.role === 'branch-manager' || user?.role === 'marketing-head' || user?.role === 'marketing-supervisor') {
       // In a real app, this would be fetched from an API
       // For now, just use the first location as an example
       const hiringManagerLocation = mockLocations.find(
@@ -50,18 +51,18 @@ const TeamsPage = () => {
         <div>
           <h1 className="text-3xl font-bold">Organization Structure</h1>
           <p className="text-muted-foreground mt-2">
-            {isAdmin
+            {adminUser
               ? "Manage your organization's locations, departments, and team members"
               : "Manage departments and team members in your location"}
           </p>
         </div>
 
-        {isAdmin && (
+        {adminUser && (
           <AddLocationDialog onAddLocation={handleAddLocation} />
         )}
       </div>
 
-      {isAdmin ? (
+      {adminUser ? (
         // Admin view - show all locations and departments
         <div className="space-y-4">
           <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
@@ -81,7 +82,7 @@ const TeamsPage = () => {
                 <LocationCard
                   key={location.id}
                   location={location}
-                  isAdmin={isAdmin}
+                  isAdmin={adminUser}
                 />
               ))}
 

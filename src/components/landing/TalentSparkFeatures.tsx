@@ -461,21 +461,21 @@ export function TalentSparkFeatures() {
     <section className="py-20">
       <div className="container mx-auto px-4">
         <div className="mb-12 text-center">
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="mb-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
           >
-            AI-Powered Recruitment
+            SmartMatch-Powered Recruitment
           </motion.h2>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mx-auto max-w-2xl text-muted-foreground"
           >
-            TalentSpark uses cutting-edge AI technology to streamline your recruitment process and find the perfect candidates faster.
+            TalentSpark uses cutting-edge SmartMatch technology to streamline your recruitment process and find the perfect candidates faster.
           </motion.p>
         </div>
 

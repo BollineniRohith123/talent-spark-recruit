@@ -4,7 +4,7 @@ This document provides a comprehensive overview of the current implementation st
 
 ## Overview
 
-TalentSpark Recruit is an AI-powered recruitment platform designed specifically for US-based recruiting consultancies. The application provides role-based dashboards for different user types (Company Admin, Hiring Manager, Talent Scout, Team Member, and Applicant) and includes features for managing teams, profiles, resumes, candidates, budgets, and profit optimization.
+TalentSpark Recruit is a SmartMatch-powered recruitment platform designed specifically for US-based recruiting consultancies. The application provides role-based dashboards for different user types (CEO, Branch Manager, Marketing Head, Marketing Supervisor, Marketing Recruiter, Marketing Associate, and Applicant) and includes features for managing teams, profiles, resumes, candidates, budgets, and profit optimization.
 
 The platform's core value proposition is its sophisticated two-level profit tracking system that allows consulting firms to maximize their margins through:
 1. Client-to-company profit tracking (difference between client budget and internal budget)
@@ -112,11 +112,11 @@ The application follows a hierarchical organization structure where admins can a
 - ✅ Two upload modes: "Match with Job" and "Bulk Upload"
 
 #### Pending:
-- ❌ Real resume parsing with AI
+- ❌ Real resume parsing with SmartMatch
 - ❌ Actual database storage integration
 - ❌ Real-time matching with job descriptions
 - ❌ RAG (Retrieval-Augmented Generation) implementation for resume matching
-- ❌ Integration with Ultravox AI for voice-based screening
+- ❌ Integration with TalentPulse for voice-based screening
 - ❌ Automated screening link generation and sending
 
 #### Issues:
@@ -320,9 +320,9 @@ While the UI components and profit optimization features are well-implemented, t
    - Implementing role-based access control at the API level
    - Setting up secure session management
 
-3. **AI Implementation**
-   - Implementing AI-powered resume parsing and matching
-   - Integrating with Ultravox for voice-based screening
+3. **SmartMatch Implementation**
+   - Implementing SmartMatch-powered resume parsing and matching
+   - Integrating with TalentPulse for voice-based screening
    - Setting up RAG for semantic matching of resumes to job descriptions
 
 4. **Notification System**

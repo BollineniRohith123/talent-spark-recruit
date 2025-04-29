@@ -16,10 +16,12 @@ import NotificationCenter from '@/components/notifications/NotificationCenter';
 
 // Role display names
 const roleNames: Record<UserRole, string> = {
-  'company-admin': 'Company Admin',
-  'hiring-manager': 'Hiring Manager',
-  'talent-scout': 'Talent Scout',
-  'team-member': 'Team Member',
+  'ceo': 'CEO',
+  'branch-manager': 'Branch Manager',
+  'marketing-head': 'Marketing Head',
+  'marketing-supervisor': 'Marketing Supervisor',
+  'marketing-recruiter': 'Marketing Recruiter',
+  'marketing-associate': 'Marketing Associate',
   'applicant': 'Applicant'
 };
 
@@ -80,17 +82,23 @@ const Navbar = () => {
 
                 {/* Role switcher for demo purposes */}
                 <DropdownMenuLabel>Demo: Switch Role</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => setRole('company-admin')}>
-                  Company Admin
+                <DropdownMenuItem onClick={() => setRole('ceo')}>
+                  CEO
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setRole('hiring-manager')}>
-                  Hiring Manager
+                <DropdownMenuItem onClick={() => setRole('branch-manager')}>
+                  Branch Manager
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setRole('talent-scout')}>
-                  Talent Scout
+                <DropdownMenuItem onClick={() => setRole('marketing-head')}>
+                  Marketing Head
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setRole('team-member')}>
-                  Team Member
+                <DropdownMenuItem onClick={() => setRole('marketing-supervisor')}>
+                  Marketing Supervisor
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setRole('marketing-recruiter')}>
+                  Marketing Recruiter
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setRole('marketing-associate')}>
+                  Marketing Associate
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setRole('applicant')}>
                   Applicant

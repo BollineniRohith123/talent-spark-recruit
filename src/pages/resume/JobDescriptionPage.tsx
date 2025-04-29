@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { CandidateCard, Candidate } from '@/components/ui/candidate-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/context/AuthContext';
 import {
   Select,
   SelectContent,
@@ -88,8 +89,8 @@ const matchedCandidates: Candidate[] = [
   {
     id: '1',
     name: 'Jordan Lee',
-    position: 'Senior Software Engineer',
-    skills: ['React', 'TypeScript', 'Node.js', 'AWS'],
+    position: 'Senior Recruitment Specialist',
+    skills: ['Talent Acquisition', 'Candidate Sourcing', 'ATS Management'],
     status: 'screening',
     matchScore: 92,
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
@@ -97,8 +98,8 @@ const matchedCandidates: Candidate[] = [
   {
     id: '2',
     name: 'Taylor Smith',
-    position: 'Software Engineer',
-    skills: ['JavaScript', 'Python', 'Docker'],
+    position: 'Account Executive',
+    skills: ['Sales', 'Client Relationship', 'Negotiation'],
     status: 'screening',
     matchScore: 87,
     avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
@@ -123,7 +124,19 @@ const matchedCandidates: Candidate[] = [
   },
 ];
 
+/**
+ * JobDescriptionPage - Manages job description creation and candidate matching
+ * Admin users have full access to create, edit, and view all job descriptions
+ * across the organization, including client budgets and profit configurations
+ */
 const JobDescriptionPage = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ceo';
+  const isHiringManager = user?.role === 'branch-manager' || user?.role === 'marketing-head' || user?.role === 'marketing-supervisor';
+  const isScout = user?.role === 'marketing-recruiter';
+  const isTeamMember = user?.role === 'marketing-associate';
+  const canSeeClientBudget = isAdmin || isHiringManager; // Only CEO and managers can see client budget
+
   const [activeTab, setActiveTab] = useState('create');
   const [jobTitle, setJobTitle] = useState('');
   const [department, setDepartment] = useState('');
@@ -170,32 +183,45 @@ const JobDescriptionPage = () => {
       return;
     }
 
-    if (!clientBudget.trim()) {
-      toast({
-        title: "Missing Information",
-        description: "Please enter the client budget",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Budget validation only for admin and hiring manager
+    if (canSeeClientBudget) {
+      if (!clientBudget.trim()) {
+        toast({
+          title: "Missing Information",
+          description: "Please enter the client budget",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    if (!internalBudget.trim()) {
-      toast({
-        title: "Missing Information",
-        description: "Please enter the internal budget",
-        variant: "destructive",
-      });
-      return;
-    }
+      if (!internalBudget.trim()) {
+        toast({
+          title: "Missing Information",
+          description: "Please enter the internal budget",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    // Validate that internal budget is less than client budget
-    if (parseFloat(internalBudget) >= parseFloat(clientBudget)) {
-      toast({
-        title: "Invalid Budget Configuration",
-        description: "Internal budget must be less than client budget",
-        variant: "destructive",
-      });
-      return;
+      // Validate that internal budget is less than client budget
+      if (parseFloat(internalBudget) >= parseFloat(clientBudget)) {
+        toast({
+          title: "Invalid Budget Configuration",
+          description: "Internal budget must be less than client budget",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      // For scouts and team members, only validate internal budget if provided
+      if (internalBudget.trim() && !candidateSplit.trim()) {
+        toast({
+          title: "Missing Information",
+          description: "Please enter the candidate split percentage",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     // Validate that candidate split + company split = 100%
@@ -211,21 +237,42 @@ const JobDescriptionPage = () => {
     setUploading(true);
 
     // Calculate profit margins for reporting
-    const clientToCompanyProfit = parseFloat(clientBudget) - parseFloat(internalBudget);
-    const companyToCandidateProfit = (parseFloat(internalBudget) * parseInt(companySplit)) / 100;
-    const totalProfit = clientToCompanyProfit + companyToCandidateProfit;
+    let clientToCompanyProfit = 0;
+    let companyToCandidateProfit = 0;
+    let totalProfit = 0;
+    let profitMargin = 0;
 
-    // Log profit information (in a real app, this would be saved to the database)
-    console.log('Profit Configuration:', {
-      clientBudget: parseFloat(clientBudget),
-      internalBudget: parseFloat(internalBudget),
-      candidateSplit: parseInt(candidateSplit),
-      companySplit: parseInt(companySplit),
-      clientToCompanyProfit,
-      companyToCandidateProfit,
-      totalProfit,
-      profitMargin: (totalProfit / parseFloat(clientBudget)) * 100
-    });
+    if (canSeeClientBudget && clientBudget && internalBudget) {
+      // Full profit calculation for admin and hiring manager
+      clientToCompanyProfit = parseFloat(clientBudget) - parseFloat(internalBudget);
+      companyToCandidateProfit = (parseFloat(internalBudget) * parseInt(companySplit)) / 100;
+      totalProfit = clientToCompanyProfit + companyToCandidateProfit;
+      profitMargin = (totalProfit / parseFloat(clientBudget)) * 100;
+
+      // Log complete profit information (in a real app, this would be saved to the database)
+      console.log('Profit Configuration (Admin/Manager):', {
+        clientBudget: parseFloat(clientBudget),
+        internalBudget: parseFloat(internalBudget),
+        candidateSplit: parseInt(candidateSplit),
+        companySplit: parseInt(companySplit),
+        clientToCompanyProfit,
+        companyToCandidateProfit,
+        totalProfit,
+        profitMargin
+      });
+    } else if (internalBudget) {
+      // Limited profit calculation for scouts and team members
+      // They only see company-to-candidate profit based on internal budget
+      companyToCandidateProfit = (parseFloat(internalBudget) * parseInt(companySplit)) / 100;
+
+      // Log limited profit information
+      console.log('Profit Configuration (Scout/Team Member):', {
+        internalBudget: parseFloat(internalBudget),
+        candidateSplit: parseInt(candidateSplit),
+        companySplit: parseInt(companySplit),
+        companyToCandidateProfit
+      });
+    }
 
     // Simulate upload progress
     let progress = 0;
@@ -370,7 +417,9 @@ const JobDescriptionPage = () => {
                     {/* Budget and Profit Configuration */}
                     <div className="space-y-4 border p-4 rounded-md bg-muted/30">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-medium">Budget & Profit Configuration</h4>
+                        <h4 className="text-sm font-medium">
+                          {canSeeClientBudget ? 'Budget & Profit Configuration' : 'Profit Configuration'}
+                        </h4>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -379,34 +428,60 @@ const JobDescriptionPage = () => {
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent className="max-w-sm">
-                              <p>Configure client budget, internal budget (visible to employees), and profit splits between candidate and company.</p>
+                              {canSeeClientBudget ? (
+                                <p>Configure client budget, internal budget (visible to employees), and profit splits between candidate and company.</p>
+                              ) : (
+                                <p>Configure internal budget and profit splits between candidate and company. Client budget is managed by admins and hiring managers.</p>
+                              )}
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="clientBudget">Client Budget ($/hr)</Label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              id="clientBudget"
-                              type="number"
-                              placeholder="e.g. 100"
-                              value={clientBudget}
-                              onChange={(e) => {
-                                setClientBudget(e.target.value);
-                                // Auto-calculate internal budget as 70% of client budget if not set
-                                if (!internalBudget && e.target.value) {
-                                  setInternalBudget((parseFloat(e.target.value) * 0.7).toFixed(2));
-                                }
-                              }}
-                              className="pl-8"
-                            />
+                      {/* Admin and Hiring Manager see full budget configuration */}
+                      {canSeeClientBudget && (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="clientBudget">Client Budget ($/hr)</Label>
+                            <div className="relative">
+                              <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="clientBudget"
+                                type="number"
+                                placeholder="e.g. 100"
+                                value={clientBudget}
+                                onChange={(e) => {
+                                  setClientBudget(e.target.value);
+                                  // Auto-calculate internal budget as 70% of client budget if not set
+                                  if (!internalBudget && e.target.value) {
+                                    setInternalBudget((parseFloat(e.target.value) * 0.7).toFixed(2));
+                                  }
+                                }}
+                                className="pl-8"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="internalBudget">Internal Budget ($/hr)</Label>
+                            <div className="relative">
+                              <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="internalBudget"
+                                type="number"
+                                placeholder="e.g. 70"
+                                value={internalBudget}
+                                onChange={(e) => setInternalBudget(e.target.value)}
+                                className="pl-8"
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground">Visible to employees</p>
                           </div>
                         </div>
+                      )}
 
+                      {/* Scouts and Team Members only see internal budget */}
+                      {!canSeeClientBudget && (
                         <div className="space-y-2">
                           <Label htmlFor="internalBudget">Internal Budget ($/hr)</Label>
                           <div className="relative">
@@ -420,9 +495,9 @@ const JobDescriptionPage = () => {
                               className="pl-8"
                             />
                           </div>
-                          <p className="text-xs text-muted-foreground">Visible to employees</p>
+                          <p className="text-xs text-muted-foreground">Budget allocated for this position</p>
                         </div>
-                      </div>
+                      )}
 
                       <div className="space-y-2">
                         <Label>Internal Budget Split</Label>
@@ -473,59 +548,76 @@ const JobDescriptionPage = () => {
                         </div>
                       </div>
 
-                      {/* Profit Calculation Preview */}
-                      {clientBudget && internalBudget && (
+                      {/* Profit Calculation Preview - Different for each role */}
+                      {internalBudget && (
                         <div className="mt-2 p-3 bg-muted rounded-md">
                           <div className="flex justify-between items-center mb-2">
                             <span className="text-sm font-medium">Profit Preview</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setShowProfitDetails(!showProfitDetails)}
-                              className="h-6 px-2 text-xs"
-                            >
-                              {showProfitDetails ? 'Hide Details' : 'Show Details'}
-                            </Button>
+                            {canSeeClientBudget && clientBudget && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowProfitDetails(!showProfitDetails)}
+                                className="h-6 px-2 text-xs"
+                              >
+                                {showProfitDetails ? 'Hide Details' : 'Show Details'}
+                              </Button>
+                            )}
                           </div>
 
                           <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span>Client-to-Company Profit:</span>
-                              <span className="font-medium">
-                                ${(parseFloat(clientBudget) - parseFloat(internalBudget)).toFixed(2)}/hr
-                              </span>
-                            </div>
-
-                            {showProfitDetails && (
+                            {/* Admin and Hiring Manager see full profit details */}
+                            {canSeeClientBudget && clientBudget && (
                               <>
                                 <div className="flex justify-between text-sm">
-                                  <span>Company-to-Candidate Profit:</span>
+                                  <span>Client-to-Company Profit:</span>
                                   <span className="font-medium">
-                                    ${((parseFloat(internalBudget) * parseInt(companySplit)) / 100).toFixed(2)}/hr
+                                    ${(parseFloat(clientBudget) - parseFloat(internalBudget)).toFixed(2)}/hr
                                   </span>
                                 </div>
 
-                                <div className="flex justify-between text-sm">
-                                  <span>Total Profit:</span>
-                                  <span className="font-medium">
-                                    ${(
-                                      (parseFloat(clientBudget) - parseFloat(internalBudget)) +
-                                      ((parseFloat(internalBudget) * parseInt(companySplit)) / 100)
-                                    ).toFixed(2)}/hr
-                                  </span>
-                                </div>
+                                {showProfitDetails && (
+                                  <>
+                                    <div className="flex justify-between text-sm">
+                                      <span>Company-to-Candidate Profit:</span>
+                                      <span className="font-medium">
+                                        ${((parseFloat(internalBudget) * parseInt(companySplit)) / 100).toFixed(2)}/hr
+                                      </span>
+                                    </div>
 
-                                <div className="flex justify-between text-sm">
-                                  <span>Profit Margin:</span>
-                                  <span className="font-medium">
-                                    {(
-                                      ((parseFloat(clientBudget) - parseFloat(internalBudget)) +
-                                      ((parseFloat(internalBudget) * parseInt(companySplit)) / 100)) /
-                                      parseFloat(clientBudget) * 100
-                                    ).toFixed(2)}%
-                                  </span>
-                                </div>
+                                    <div className="flex justify-between text-sm">
+                                      <span>Total Profit:</span>
+                                      <span className="font-medium">
+                                        ${(
+                                          (parseFloat(clientBudget) - parseFloat(internalBudget)) +
+                                          ((parseFloat(internalBudget) * parseInt(companySplit)) / 100)
+                                        ).toFixed(2)}/hr
+                                      </span>
+                                    </div>
+
+                                    <div className="flex justify-between text-sm">
+                                      <span>Profit Margin:</span>
+                                      <span className="font-medium">
+                                        {(
+                                          ((parseFloat(clientBudget) - parseFloat(internalBudget)) +
+                                          ((parseFloat(internalBudget) * parseInt(companySplit)) / 100)) /
+                                          parseFloat(clientBudget) * 100
+                                        ).toFixed(2)}%
+                                      </span>
+                                    </div>
+                                  </>
+                                )}
                               </>
+                            )}
+
+                            {/* Scouts and Team Members only see company-to-candidate profit */}
+                            {!canSeeClientBudget && (
+                              <div className="flex justify-between text-sm">
+                                <span>Company Profit (from internal budget):</span>
+                                <span className="font-medium">
+                                  ${((parseFloat(internalBudget) * parseInt(companySplit)) / 100).toFixed(2)}/hr
+                                </span>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -653,7 +745,7 @@ const JobDescriptionPage = () => {
                   <div>
                     <p className="font-medium">Job Description Created</p>
                     <p className="text-sm">
-                      Your job description for {jobTitle} has been analyzed using AI matching
+                      Your job description for {jobTitle} has been analyzed using SmartMatch matching
                     </p>
                   </div>
                 </div>
@@ -832,8 +924,8 @@ const JobDescriptionPage = () => {
                     <p>{selectedJob.client}</p>
                   </div>
                   <div className="bg-muted p-4 rounded-lg">
-                    <h4 className="text-sm font-medium mb-1">Client Budget</h4>
-                    <p>${selectedJob.clientBudget}/hr</p>
+                    <h4 className="text-sm font-medium mb-1">{canSeeClientBudget ? 'Client Budget' : 'Internal Budget'}</h4>
+                    <p>${canSeeClientBudget ? selectedJob.clientBudget : selectedJob.internalBudget}/hr</p>
                   </div>
                   <div className="bg-muted p-4 rounded-lg">
                     <h4 className="text-sm font-medium mb-1">Applicants</h4>
@@ -844,73 +936,117 @@ const JobDescriptionPage = () => {
                 {/* Profit Configuration Details */}
                 <Card className="mb-6 border-dashed">
                   <CardHeader className="py-3">
-                    <CardTitle className="text-base">Profit Configuration</CardTitle>
-                    <CardDescription>Budget allocation and profit margins</CardDescription>
+                    <CardTitle className="text-base">
+                      {canSeeClientBudget ? 'Profit Configuration' : 'Profit Split'}
+                    </CardTitle>
+                    <CardDescription>
+                      {canSeeClientBudget ? 'Budget allocation and profit margins' : 'Internal budget allocation'}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="py-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <h4 className="text-sm font-medium mb-2">Budget Allocation</h4>
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">Client Budget:</span>
-                            <span className="font-medium">${selectedJob.clientBudget}/hr</span>
+                    {canSeeClientBudget ? (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <h4 className="text-sm font-medium mb-2">Budget Allocation</h4>
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm">Client Budget:</span>
+                                <span className="font-medium">${selectedJob.clientBudget}/hr</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm">Internal Budget:</span>
+                                <span className="font-medium">${selectedJob.internalBudget}/hr</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm">Client-to-Company Profit:</span>
+                                <span className="font-medium text-green-600">
+                                  ${(selectedJob.clientBudget - selectedJob.internalBudget).toFixed(2)}/hr
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">Internal Budget:</span>
-                            <span className="font-medium">${selectedJob.internalBudget}/hr</span>
+
+                          <div>
+                            <h4 className="text-sm font-medium mb-2">Internal Budget Split</h4>
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm">Candidate Share:</span>
+                                <span className="font-medium">{selectedJob.candidateSplit}% (${((selectedJob.internalBudget * selectedJob.candidateSplit) / 100).toFixed(2)}/hr)</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm">Company Share:</span>
+                                <span className="font-medium">{selectedJob.companySplit}% (${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr)</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm">Company-to-Candidate Profit:</span>
+                                <span className="font-medium text-green-600">
+                                  ${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr
+                                </span>
+                              </div>
+                            </div>
                           </div>
+                        </div>
+
+                        <div className="bg-muted p-3 rounded-md">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm">Client-to-Company Profit:</span>
+                            <span className="font-medium">Total Profit:</span>
                             <span className="font-medium text-green-600">
-                              ${(selectedJob.clientBudget - selectedJob.internalBudget).toFixed(2)}/hr
+                              ${(
+                                (selectedJob.clientBudget - selectedJob.internalBudget) +
+                                ((selectedJob.internalBudget * selectedJob.companySplit) / 100)
+                              ).toFixed(2)}/hr
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="font-medium">Profit Margin:</span>
+                            <span className="font-medium text-green-600">
+                              {(
+                                ((selectedJob.clientBudget - selectedJob.internalBudget) +
+                                ((selectedJob.internalBudget * selectedJob.companySplit) / 100)) /
+                                selectedJob.clientBudget * 100
+                              ).toFixed(2)}%
                             </span>
                           </div>
                         </div>
-                      </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Limited view for scouts and team members */}
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-sm font-medium mb-2">Internal Budget</h4>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm">Budget:</span>
+                              <span className="font-medium">${selectedJob.internalBudget}/hr</span>
+                            </div>
+                          </div>
 
-                      <div>
-                        <h4 className="text-sm font-medium mb-2">Internal Budget Split</h4>
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">Candidate Share:</span>
-                            <span className="font-medium">{selectedJob.candidateSplit}% (${((selectedJob.internalBudget * selectedJob.candidateSplit) / 100).toFixed(2)}/hr)</span>
+                          <div>
+                            <h4 className="text-sm font-medium mb-2">Budget Split</h4>
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm">Candidate Share:</span>
+                                <span className="font-medium">{selectedJob.candidateSplit}% (${((selectedJob.internalBudget * selectedJob.candidateSplit) / 100).toFixed(2)}/hr)</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm">Company Share:</span>
+                                <span className="font-medium">{selectedJob.companySplit}% (${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr)</span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">Company Share:</span>
-                            <span className="font-medium">{selectedJob.companySplit}% (${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr)</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">Company-to-Candidate Profit:</span>
-                            <span className="font-medium text-green-600">
-                              ${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr
-                            </span>
+
+                          <div className="bg-muted p-3 rounded-md">
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium">Company Profit:</span>
+                              <span className="font-medium text-green-600">
+                                ${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-muted p-3 rounded-md">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">Total Profit:</span>
-                        <span className="font-medium text-green-600">
-                          ${(
-                            (selectedJob.clientBudget - selectedJob.internalBudget) +
-                            ((selectedJob.internalBudget * selectedJob.companySplit) / 100)
-                          ).toFixed(2)}/hr
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="font-medium">Profit Margin:</span>
-                        <span className="font-medium text-green-600">
-                          {(
-                            ((selectedJob.clientBudget - selectedJob.internalBudget) +
-                            ((selectedJob.internalBudget * selectedJob.companySplit) / 100)) /
-                            selectedJob.clientBudget * 100
-                          ).toFixed(2)}%
-                        </span>
-                      </div>
-                    </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
 

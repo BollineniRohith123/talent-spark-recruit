@@ -21,7 +21,7 @@ export const DepartmentCard: React.FC<DepartmentCardProps> = ({ department, isAd
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [teamLead, setTeamLead] = useState<TeamMember | undefined>(getTeamLeadByDepartmentId(department.id));
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(getTeamMembersByDepartmentId(department.id));
-  
+
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [newMemberRole, setNewMemberRole] = useState('');
@@ -40,9 +40,10 @@ export const DepartmentCard: React.FC<DepartmentCardProps> = ({ department, isAd
     });
   };
 
+  // Admin users can add members to any department
   const handleAddMember = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!newMemberName.trim() || !newMemberEmail.trim() || !newMemberRole.trim()) {
       toast({
         title: "Error",
@@ -81,10 +82,10 @@ export const DepartmentCard: React.FC<DepartmentCardProps> = ({ department, isAd
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-6 w-6" 
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
               onClick={handleToggleExpand}
             >
               {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -137,7 +138,7 @@ export const DepartmentCard: React.FC<DepartmentCardProps> = ({ department, isAd
                 </form>
               </DialogContent>
             </Dialog>
-            
+
             <Dialog open={isAddMemberOpen} onOpenChange={setIsAddMemberOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" variant="outline" className="h-8">
@@ -210,7 +211,7 @@ export const DepartmentCard: React.FC<DepartmentCardProps> = ({ department, isAd
             <span>{department.memberCount} Team Members</span>
           </div>
         </div>
-        
+
         {isExpanded && (
           <div className="mt-4 space-y-4 animate-fade-in">
             {teamLead && (
@@ -228,7 +229,7 @@ export const DepartmentCard: React.FC<DepartmentCardProps> = ({ department, isAd
                 </div>
               </div>
             )}
-            
+
             {teamMembers.length > 0 && (
               <div>
                 <h4 className="text-sm font-medium mb-2">Team Members</h4>
@@ -248,13 +249,13 @@ export const DepartmentCard: React.FC<DepartmentCardProps> = ({ department, isAd
                 </div>
               </div>
             )}
-            
+
             {teamMembers.length === 0 && !teamLead && (
               <div className="text-center py-4 text-muted-foreground">
                 <p>No team members found for this department.</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="mt-2"
                   onClick={() => setIsAddMemberOpen(true)}
                 >

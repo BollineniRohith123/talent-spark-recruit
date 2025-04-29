@@ -27,9 +27,10 @@ export const LocationCard: React.FC<LocationCardProps> = ({ location, isAdmin })
     setIsExpanded(!isExpanded);
   };
 
+  // Admin users can add departments to any location
   const handleAddDepartment = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!newDepartmentName.trim()) {
       toast({
         title: "Error",
@@ -77,10 +78,10 @@ export const LocationCard: React.FC<LocationCardProps> = ({ location, isAdmin })
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-6 w-6" 
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
               onClick={handleToggleExpand}
             >
               {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -164,7 +165,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({ location, isAdmin })
                   </form>
                 </DialogContent>
               </Dialog>
-              
+
               <Dialog open={isAddDepartmentOpen} onOpenChange={setIsAddDepartmentOpen}>
                 <DialogTrigger asChild>
                   <Button size="sm" variant="outline" className="h-8">
@@ -228,24 +229,24 @@ export const LocationCard: React.FC<LocationCardProps> = ({ location, isAdmin })
             {location.hiringManagerIds.length} Hiring Manager{location.hiringManagerIds.length !== 1 ? 's' : ''}
           </div>
         </div>
-        
+
         {isExpanded && (
           <div className="mt-4 pl-6 space-y-4 animate-fade-in">
             {departments.map((department) => (
-              <DepartmentCard 
-                key={department.id} 
-                department={department} 
-                isAdmin={isAdmin} 
+              <DepartmentCard
+                key={department.id}
+                department={department}
+                isAdmin={isAdmin}
               />
             ))}
-            
+
             {departments.length === 0 && (
               <div className="text-center py-6 text-muted-foreground">
                 <p>No departments found for this location.</p>
                 {isAdmin && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="mt-2"
                     onClick={() => setIsAddDepartmentOpen(true)}
                   >

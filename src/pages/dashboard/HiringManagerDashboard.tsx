@@ -1,8 +1,8 @@
 
-import { DollarSign, Percent, Users, Calendar } from 'lucide-react';
+import { DollarSign, Percent, Users, Calendar, ArrowUpRight, ArrowDown, TrendingUp, Briefcase } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatsCard } from '@/components/ui/stats-card';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import {
   BarChart,
   Bar,
@@ -124,87 +124,153 @@ const HiringManagerDashboard = () => {
         </p>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard
-          title="Total Budget"
-          value="$325K"
-          description="Current month"
-          icon={<DollarSign className="h-6 w-6 text-primary" />}
-          trend={{ value: 5, isPositive: true }}
-        />
-        <StatsCard
-          title="Average Profit Margin"
-          value="32%"
-          description="Per placement"
-          icon={<Percent className="h-6 w-6 text-primary" />}
-          trend={{ value: 3, isPositive: true }}
-        />
-        <StatsCard
-          title="Open Positions"
-          value="8"
-          description="Across teams"
-          icon={<Users className="h-6 w-6 text-primary" />}
-        />
-        <StatsCard
-          title="Time to Fill"
-          value="25 days"
-          description="Average"
-          icon={<Calendar className="h-6 w-6 text-primary" />}
-          trend={{ value: 2, isPositive: false }}
-        />
+      {/* Profit Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Profit</p>
+                <p className="text-xl font-bold">$45,200</p>
+                <p className="text-xs text-muted-foreground mt-1">YTD Profit</p>
+              </div>
+              <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-xs">
+              <Badge variant="outline" className="bg-green-100 text-green-800 mr-2">
+                <ArrowUpRight className="h-3 w-3 mr-1" /> 8.3%
+              </Badge>
+              <span className="text-muted-foreground">from last year</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Client-to-Company</p>
+                <p className="text-xl font-bold">$32,500</p>
+                <p className="text-xs text-muted-foreground mt-1">Profit Margin</p>
+              </div>
+              <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-xs">
+              <Badge variant="outline" className="bg-blue-100 text-blue-800 mr-2">
+                24%
+              </Badge>
+              <span className="text-muted-foreground">of client budget</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Company-to-Candidate</p>
+                <p className="text-xl font-bold">$12,700</p>
+                <p className="text-xs text-muted-foreground mt-1">Average Split</p>
+              </div>
+              <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-xs">
+              <Badge variant="outline" className="bg-blue-100 text-blue-800 mr-2">
+                20%
+              </Badge>
+              <span className="text-muted-foreground">company / 80% candidate</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Budget & Profit Breakdown Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Budget & Profit Breakdown</CardTitle>
-          <CardDescription>Detailed budget and profit allocation by position</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart
-              data={budgetData}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="position" />
-              <YAxis />
-              <Tooltip
-                formatter={(value, name) => {
-                  const labels = {
-                    'clientBudget': 'Client Budget',
-                    'internalBudget': 'Internal Budget',
-                    'candidateShare': 'Candidate Share',
-                    'companyShare': 'Company Share',
-                    'totalProfit': 'Total Profit'
-                  };
-                  return [`$${value}/hr`, labels[name] || name];
-                }}
-              />
-              <Legend
-                payload={[
-                  { value: 'Client Budget', type: 'circle', color: '#8884d8' },
-                  { value: 'Internal Budget', type: 'circle', color: '#82ca9d' },
-                  { value: 'Candidate Share', type: 'circle', color: '#4ade80' },
-                  { value: 'Company Share', type: 'circle', color: '#f97316' },
-                  { value: 'Total Profit', type: 'circle', color: '#ec4899' }
-                ]}
-              />
-              <Bar dataKey="clientBudget" fill="#8884d8" />
-              <Bar dataKey="internalBudget" fill="#82ca9d" />
-              <Bar dataKey="candidateShare" fill="#4ade80" />
-              <Bar dataKey="companyShare" fill="#f97316" />
-              <Bar dataKey="totalProfit" fill="#ec4899" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      {/* Recruitment Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-muted-foreground">Total Budget</span>
+                <span className="text-lg font-bold">$325K</span>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-xs">
+              <Badge variant="outline" className="bg-green-100 text-green-800 mr-2">
+                <ArrowUpRight className="h-3 w-3 mr-1" /> 5%
+              </Badge>
+              <span className="text-muted-foreground">current month</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-muted-foreground">Average Profit Margin</span>
+                <span className="text-lg font-bold">32%</span>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Percent className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-xs">
+              <Badge variant="outline" className="bg-green-100 text-green-800 mr-2">
+                <ArrowUpRight className="h-3 w-3 mr-1" /> 3%
+              </Badge>
+              <span className="text-muted-foreground">per placement</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-muted-foreground">Open Positions</span>
+                <span className="text-lg font-bold">8</span>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Briefcase className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+            <div className="mt-2">
+              <span className="text-xs text-muted-foreground">across teams</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-muted-foreground">Time to Fill</span>
+                <span className="text-lg font-bold">25 days</span>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-xs">
+              <Badge variant="outline" className="bg-red-100 text-red-800 mr-2">
+                <ArrowDown className="h-3 w-3 mr-1" /> 2 days
+              </Badge>
+              <span className="text-muted-foreground">average</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+
 
       {/* Active Recruitments */}
       <Card>
@@ -287,6 +353,57 @@ const HiringManagerDashboard = () => {
               </tbody>
             </table>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Budget & Profit Breakdown Chart - Moved to bottom */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Budget & Profit Breakdown</CardTitle>
+          <CardDescription>Detailed budget and profit allocation by position</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart
+              data={budgetData}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="position" />
+              <YAxis />
+              <Tooltip
+                formatter={(value, name) => {
+                  const labels = {
+                    'clientBudget': 'Client Budget',
+                    'internalBudget': 'Internal Budget',
+                    'candidateShare': 'Candidate Share',
+                    'companyShare': 'Company Share',
+                    'totalProfit': 'Total Profit'
+                  };
+                  return [`$${value}/hr`, labels[name] || name];
+                }}
+              />
+              <Legend
+                payload={[
+                  { value: 'Client Budget', type: 'circle', color: '#8884d8' },
+                  { value: 'Internal Budget', type: 'circle', color: '#82ca9d' },
+                  { value: 'Candidate Share', type: 'circle', color: '#4ade80' },
+                  { value: 'Company Share', type: 'circle', color: '#f97316' },
+                  { value: 'Total Profit', type: 'circle', color: '#ec4899' }
+                ]}
+              />
+              <Bar dataKey="clientBudget" fill="#8884d8" />
+              <Bar dataKey="internalBudget" fill="#82ca9d" />
+              <Bar dataKey="candidateShare" fill="#4ade80" />
+              <Bar dataKey="companyShare" fill="#f97316" />
+              <Bar dataKey="totalProfit" fill="#ec4899" />
+            </BarChart>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
     </div>

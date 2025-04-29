@@ -85,6 +85,11 @@ const mockCandidates: Candidate[] = [
   },
 ];
 
+/**
+ * ResumeUploadPage - Handles resume uploads and candidate matching
+ * Admin users have full access to upload resumes, match with job descriptions,
+ * and manage the resume database across the entire organization
+ */
 const ResumeUploadPage = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [parsedResumes, setParsedResumes] = useState<ParsedResume[]>([]);

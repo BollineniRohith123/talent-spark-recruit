@@ -99,16 +99,22 @@ const LoginForm = () => {
             <p className="text-sm font-medium mb-2">Demo Accounts:</p>
             <div className="grid grid-cols-1 gap-2 text-xs">
               <p>
-                <strong>Company Admin:</strong> admin@talentspark.com
+                <strong>CEO:</strong> ceo@talentspark.com
               </p>
               <p>
-                <strong>Hiring Manager:</strong> manager@talentspark.com
+                <strong>Branch Manager:</strong> branch-manager@talentspark.com
               </p>
               <p>
-                <strong>Talent Scout:</strong> scout@talentspark.com
+                <strong>Marketing Head:</strong> marketing-head@talentspark.com
               </p>
               <p>
-                <strong>Team Member:</strong> member@talentspark.com
+                <strong>Marketing Supervisor:</strong> marketing-supervisor@talentspark.com
+              </p>
+              <p>
+                <strong>Marketing Recruiter:</strong> recruiter@talentspark.com
+              </p>
+              <p>
+                <strong>Marketing Associate:</strong> associate@talentspark.com
               </p>
               <p>
                 <strong>Applicant:</strong> applicant@example.com

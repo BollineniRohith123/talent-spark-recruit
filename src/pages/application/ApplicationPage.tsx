@@ -30,7 +30,7 @@ const applicationData = {
 
     This role offers competitive compensation, remote work flexibility, and opportunities for professional growth.
   `,
-  nextStep: 'Complete AI Screening',
+  nextStep: 'Complete SmartMatch Screening',
   screeningLink: 'https://screening.talentspark.com/abc123',
   screeningDeadline: '2025-04-30'
 };
@@ -41,7 +41,7 @@ const ApplicationPage = () => {
   const handleStartScreening = () => {
     toast({
       title: "Starting Screening",
-      description: "Redirecting to AI screening process",
+      description: "Redirecting to SmartMatch screening process",
     });
     window.open(applicationData.screeningLink, '_blank');
   };

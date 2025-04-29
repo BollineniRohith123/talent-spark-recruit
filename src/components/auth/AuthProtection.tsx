@@ -2,6 +2,7 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { UserRole } from '@/context/AuthContext';
+import { hasPermission } from '@/utils/adminPermissions';
 
 interface AuthProtectionProps {
   children: React.ReactNode;
@@ -16,8 +17,8 @@ const AuthProtection = ({ children, allowedRoles = [] }: AuthProtectionProps) =>
     return <Navigate to="/login" replace />;
   }
 
-  // If no specific roles are required, or user has an allowed role, allow access
-  if (allowedRoles.length === 0 || allowedRoles.includes(user.role)) {
+  // Check if user has permission (admin always has permission)
+  if (hasPermission(user.role, allowedRoles)) {
     return <>{children}</>;
   }
 

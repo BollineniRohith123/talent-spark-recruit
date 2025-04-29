@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Briefcase, 
-  Plus, 
-  Search, 
-  Filter, 
-  ArrowUpDown, 
+import {
+  Briefcase,
+  Plus,
+  Search,
+  Filter,
+  ArrowUpDown,
   MoreHorizontal,
   Bell,
   UserPlus,
@@ -43,13 +43,15 @@ import {
 } from "@/components/ui/table";
 import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { 
-  JobListing, 
-  JobStatus, 
-  mockJobListings, 
+import { isAdmin } from '@/utils/adminPermissions';
+import {
+  JobListing,
+  JobStatus,
+  mockJobListings,
   getStatusColor,
   getPriorityColor,
-  getJobListingsByLocationId
+  getJobListingsByLocationId,
+  getStatusLabel
 } from '@/types/jobs';
 import { mockLocations } from '@/types/organization';
 import { AssignJobDialog } from '@/components/jobs/AssignJobDialog';
@@ -57,11 +59,11 @@ import { AssignJobDialog } from '@/components/jobs/AssignJobDialog';
 const JobListingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'company-admin';
-  const isHiringManager = user?.role === 'hiring-manager';
-  const isScout = user?.role === 'talent-scout';
-  const isTeamMember = user?.role === 'team-member';
-  
+  const adminUser = isAdmin(user?.role);
+  const isHiringManager = user?.role === 'branch-manager' || user?.role === 'marketing-head' || user?.role === 'marketing-supervisor';
+  const isScout = user?.role === 'marketing-recruiter';
+  const isTeamMember = user?.role === 'marketing-associate';
+
   // State for job listings
   const [jobListings, setJobListings] = useState<JobListing[]>([]);
   const [filteredListings, setFilteredListings] = useState<JobListing[]>([]);
@@ -69,7 +71,7 @@ const JobListingsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<JobStatus | 'all'>('all');
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [assignedFilter, setAssignedFilter] = useState<string>('all');
-  
+
   // State for assign job dialog
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<JobListing | null>(null);
@@ -77,8 +79,8 @@ const JobListingsPage: React.FC = () => {
   // Load job listings based on user role
   useEffect(() => {
     let jobs: JobListing[] = [];
-    
-    if (isAdmin) {
+
+    if (adminUser) {
       // Admin sees all jobs
       jobs = [...mockJobListings];
     } else if (isHiringManager) {
@@ -90,42 +92,44 @@ const JobListingsPage: React.FC = () => {
       // Scouts and team members see jobs assigned to them
       jobs = mockJobListings.filter(job => job.assignedTo === user?.id);
     }
-    
+
     setJobListings(jobs);
     setFilteredListings(jobs);
-  }, [user, isAdmin, isHiringManager, isScout, isTeamMember]);
+  }, [user, adminUser, isHiringManager, isScout, isTeamMember]);
 
   // Filter job listings based on search query and filters
   useEffect(() => {
     let filtered = [...jobListings];
-    
+
     // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(job => 
-        job.title.toLowerCase().includes(query) || 
+      filtered = filtered.filter(job =>
+        job.id.toLowerCase().includes(query) ||
+        job.title.toLowerCase().includes(query) ||
+        (job.clientName && job.clientName.toLowerCase().includes(query)) ||
         job.department.toLowerCase().includes(query) ||
         job.location.toLowerCase().includes(query)
       );
     }
-    
+
     // Apply status filter
     if (statusFilter !== 'all') {
       filtered = filtered.filter(job => job.status === statusFilter);
     }
-    
+
     // Apply location filter
     if (locationFilter !== 'all') {
       filtered = filtered.filter(job => job.locationId === locationFilter);
     }
-    
+
     // Apply assigned filter
     if (assignedFilter === 'assigned') {
       filtered = filtered.filter(job => job.assignedTo !== null);
     } else if (assignedFilter === 'unassigned') {
       filtered = filtered.filter(job => job.assignedTo === null);
     }
-    
+
     setFilteredListings(filtered);
   }, [jobListings, searchQuery, statusFilter, locationFilter, assignedFilter]);
 
@@ -149,9 +153,9 @@ const JobListingsPage: React.FC = () => {
       }
       return job;
     });
-    
+
     setJobListings(updatedListings);
-    
+
     toast({
       title: "Job Assigned",
       description: `Job has been assigned to ${userName}`,
@@ -173,7 +177,7 @@ const JobListingsPage: React.FC = () => {
     // In a real app, this would be an API call
     const updatedListings = jobListings.filter(job => job.id !== jobId);
     setJobListings(updatedListings);
-    
+
     toast({
       title: "Job Deleted",
       description: "Job listing has been deleted",
@@ -191,15 +195,15 @@ const JobListingsPage: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold">Job Listings</h1>
           <p className="text-muted-foreground mt-2">
-            {isAdmin 
-              ? "Manage all job listings across locations" 
-              : isHiringManager 
-                ? "Manage job listings for your location" 
+            {adminUser
+              ? "Manage all job listings across locations"
+              : isHiringManager
+                ? "Manage job listings for your location"
                 : "Manage your assigned job listings"}
           </p>
         </div>
-        
-        {(isAdmin || isHiringManager) && (
+
+        {(adminUser || isHiringManager) && (
           <Button onClick={handleCreateJob}>
             <Plus className="mr-2 h-4 w-4" /> Create Job
           </Button>
@@ -221,7 +225,7 @@ const JobListingsPage: React.FC = () => {
                 />
               </div>
             </div>
-            
+
             <div className="flex flex-wrap gap-2">
               <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as JobStatus | 'all')}>
                 <SelectTrigger className="w-[150px]">
@@ -238,8 +242,8 @@ const JobListingsPage: React.FC = () => {
                   <SelectItem value="closed">Closed</SelectItem>
                 </SelectContent>
               </Select>
-              
-              {isAdmin && (
+
+              {adminUser && (
                 <Select value={locationFilter} onValueChange={setLocationFilter}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Location" />
@@ -254,7 +258,7 @@ const JobListingsPage: React.FC = () => {
                   </SelectContent>
                 </Select>
               )}
-              
+
               <Select value={assignedFilter} onValueChange={setAssignedFilter}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Assignment" />
@@ -275,18 +279,24 @@ const JobListingsPage: React.FC = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[300px]">
+              <TableHead>
+                <div className="flex items-center">
+                  Job ID
+                  <ArrowUpDown className="ml-2 h-4 w-4" />
+                </div>
+              </TableHead>
+              <TableHead className="w-[200px]">
                 <div className="flex items-center">
                   Job Title
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </div>
               </TableHead>
+              <TableHead className="w-[200px]">Client Name</TableHead>
               <TableHead>Department</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Priority</TableHead>
               <TableHead>Assigned To</TableHead>
-              <TableHead className="text-center">Applicants</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -294,12 +304,14 @@ const JobListingsPage: React.FC = () => {
             {filteredListings.length > 0 ? (
               filteredListings.map((job) => (
                 <TableRow key={job.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleViewJob(job.id)}>
-                  <TableCell className="font-medium">{job.title}</TableCell>
+                  <TableCell className="font-medium">{job.id}</TableCell>
+                  <TableCell>{job.title}</TableCell>
+                  <TableCell>{job.clientName || 'Internal'}</TableCell>
                   <TableCell>{job.department}</TableCell>
                   <TableCell>{job.location}</TableCell>
                   <TableCell>
                     <Badge className={`${getStatusColor(job.status)}`}>
-                      {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                      {getStatusLabel(job.status)}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -321,12 +333,6 @@ const JobListingsPage: React.FC = () => {
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex items-center justify-center">
-                      <Users className="h-4 w-4 mr-1" />
-                      <span>{job.applicantsCount}</span>
-                    </div>
-                  </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -344,19 +350,22 @@ const JobListingsPage: React.FC = () => {
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        
-                        {(isAdmin || isHiringManager || job.assignedTo === user?.id) && (
+
+                        {/* Admin can always reassign jobs */}
+                        {(adminUser || isHiringManager || isScout || job.assignedTo === user?.id) && (
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            handleAssignJob(job);
+                          }}>
+                            <UserPlus className="mr-2 h-4 w-4" />
+                            {job.assignedTo ? 'Reassign Job' : 'Assign Job'}
+                          </DropdownMenuItem>
+                        )}
+
+                        {(adminUser || isHiringManager || job.assignedTo === user?.id) && (
                           <>
-                            <DropdownMenuItem onClick={(e) => {
-                              e.stopPropagation();
-                              handleAssignJob(job);
-                            }}>
-                              <UserPlus className="mr-2 h-4 w-4" />
-                              Assign Job
-                            </DropdownMenuItem>
-                            
                             <DropdownMenuSeparator />
-                            
+
                             <DropdownMenuItem onClick={(e) => {
                               e.stopPropagation();
                               handleEditJob(job.id);
@@ -366,9 +375,9 @@ const JobListingsPage: React.FC = () => {
                             </DropdownMenuItem>
                           </>
                         )}
-                        
-                        {(isAdmin || isHiringManager) && (
-                          <DropdownMenuItem 
+
+                        {(adminUser || isHiringManager) && (
+                          <DropdownMenuItem
                             className="text-red-600"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -386,7 +395,7 @@ const JobListingsPage: React.FC = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
+                <TableCell colSpan={9} className="h-24 text-center">
                   No job listings found.
                 </TableCell>
               </TableRow>

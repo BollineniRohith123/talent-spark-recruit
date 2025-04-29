@@ -4,18 +4,20 @@ This document outlines the detailed user flows for each role in the TalentSpark 
 
 ## Table of Contents
 
-1. [Company Admin Flows](#company-admin-flows)
-2. [Hiring Manager Flows](#hiring-manager-flows)
-3. [Talent Scout Flows](#talent-scout-flows)
-4. [Team Member Flows](#team-member-flows)
-5. [Applicant Flows](#applicant-flows)
-6. [Cross-Role Workflows](#cross-role-workflows)
+1. [CEO Flows](#ceo-flows)
+2. [Branch Manager Flows](#branch-manager-flows)
+3. [Marketing Head Flows](#marketing-head-flows)
+4. [Marketing Supervisor Flows](#marketing-supervisor-flows)
+5. [Marketing Recruiter Flows](#marketing-recruiter-flows)
+6. [Marketing Associate Flows](#marketing-associate-flows)
+7. [Applicant Flows](#applicant-flows)
+8. [Cross-Role Workflows](#cross-role-workflows)
 
 ---
 
-## Company Admin Flows
+## CEO Flows
 
-Company Admins have the highest level of access and are responsible for managing the entire recruitment platform, including teams, budgets, and profit configurations.
+CEOs have the highest level of access and are responsible for managing the entire recruitment platform, including teams, budgets, and profit configurations.
 
 ### Dashboard Overview Flow
 
@@ -467,29 +469,41 @@ These workflows involve multiple roles working together through the hiring proce
 
 Below are the login credentials for each role in the TalentSpark Recruit application:
 
-### Company Admin
-- **Email:** admin@talentspark.com
+### CEO
+- **Email:** ceo@talentspark.com
 - **Password:** admin123
 - **Access Level:** Full access to all features and data
-- **Dashboard URL:** /dashboard/company-admin
+- **Dashboard URL:** /dashboard/ceo
 
-### Hiring Manager
-- **Email:** manager@talentspark.com
+### Branch Manager
+- **Email:** branch-manager@talentspark.com
 - **Password:** manager123
-- **Access Level:** Team-specific access with budget control
-- **Dashboard URL:** /dashboard/hiring-manager
+- **Access Level:** Branch-specific access with budget control
+- **Dashboard URL:** /dashboard/branch-manager
 
-### Talent Scout
-- **Email:** scout@talentspark.com
+### Marketing Head
+- **Email:** marketing-head@talentspark.com
+- **Password:** manager123
+- **Access Level:** Marketing department access with budget control
+- **Dashboard URL:** /dashboard/marketing-head
+
+### Marketing Supervisor
+- **Email:** marketing-supervisor@talentspark.com
+- **Password:** manager123
+- **Access Level:** Marketing team supervision with budget visibility
+- **Dashboard URL:** /dashboard/marketing-supervisor
+
+### Marketing Recruiter
+- **Email:** recruiter@talentspark.com
 - **Password:** scout123
 - **Access Level:** Resume and candidate management
-- **Dashboard URL:** /dashboard/talent-scout
+- **Dashboard URL:** /dashboard/marketing-recruiter
 
-### Team Member
-- **Email:** member@talentspark.com
+### Marketing Associate
+- **Email:** associate@talentspark.com
 - **Password:** member123
 - **Access Level:** Interview and feedback access
-- **Dashboard URL:** /dashboard/team-member
+- **Dashboard URL:** /dashboard/marketing-associate
 
 ### Applicant
 - **Email:** applicant@example.com

@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
+import { isAdmin } from '@/utils/adminPermissions';
 import {
   Tabs,
   TabsContent,
@@ -65,7 +67,14 @@ const mockScreenings = [
   },
 ];
 
+/**
+ * ScreeningsPage - Manages candidate screening processes
+ * Admin users have full access to all screenings across the organization
+ * and can initiate, reschedule, or view results for any candidate
+ */
 const ScreeningsPage = () => {
+  const { user } = useAuth();
+  const adminUser = isAdmin(user?.role);
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [positionFilter, setPositionFilter] = useState('all');
@@ -75,13 +84,13 @@ const ScreeningsPage = () => {
     return mockScreenings.filter(screening => {
       // Filter by tab (status)
       if (activeTab !== 'all' && screening.status !== activeTab) return false;
-      
+
       // Filter by search term
       if (searchTerm && !screening.candidate.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-      
+
       // Filter by position
       if (positionFilter !== 'all' && screening.position !== positionFilter) return false;
-      
+
       return true;
     });
   };
@@ -89,8 +98,9 @@ const ScreeningsPage = () => {
   // Get unique positions for filter
   const positions = ['all', ...new Set(mockScreenings.map(s => s.position))];
 
-  // Handle actions
+  // Handle actions - Admin can always send screenings for any candidate
   const handleSendScreening = (id: string, email: string) => {
+    // Admin users can bypass any workflow restrictions here
     toast({
       title: "Screening Link Sent",
       description: `Screening link sent to ${email}`,
@@ -130,8 +140,8 @@ const ScreeningsPage = () => {
     switch (screening.status) {
       case 'pending':
         return (
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             onClick={() => handleSendScreening(screening.id, screening.email)}
           >
             <Play className="h-3 w-3 mr-1" /> Send Link
@@ -139,8 +149,8 @@ const ScreeningsPage = () => {
         );
       case 'scheduled':
         return (
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             variant="outline"
             onClick={() => handleReschedule(screening.id)}
           >
@@ -149,8 +159,8 @@ const ScreeningsPage = () => {
         );
       case 'completed':
         return (
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             variant="secondary"
             onClick={() => handleViewResults(screening.id)}
           >
@@ -204,7 +214,7 @@ const ScreeningsPage = () => {
       {/* Screenings List */}
       <Card>
         <CardHeader>
-          <CardTitle>AI Screenings</CardTitle>
+          <CardTitle>SmartMatch Screenings</CardTitle>
           <CardDescription>Manage voice-based candidate screenings</CardDescription>
         </CardHeader>
         <CardContent>
@@ -215,7 +225,7 @@ const ScreeningsPage = () => {
               <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
               <TabsTrigger value="completed">Completed</TabsTrigger>
             </TabsList>
-            
+
             {filteredScreenings.length === 0 ? (
               <div className="text-center py-10 text-muted-foreground">
                 No screenings found for the current filters
@@ -239,9 +249,9 @@ const ScreeningsPage = () => {
                         <td className="py-3 px-4">
                           <div className="flex items-center">
                             <div className="h-8 w-8 rounded-full overflow-hidden mr-3">
-                              <img 
-                                src={screening.avatarUrl} 
-                                alt={screening.candidate} 
+                              <img
+                                src={screening.avatarUrl}
+                                alt={screening.candidate}
                                 className="h-full w-full object-cover"
                               />
                             </div>
@@ -286,11 +296,11 @@ const ScreeningsPage = () => {
           </Tabs>
         </CardContent>
       </Card>
-      
+
       {/* How It Works */}
       <Card>
         <CardHeader>
-          <CardTitle>How AI Screening Works</CardTitle>
+          <CardTitle>How SmartMatch Screening Works</CardTitle>
           <CardDescription>Understanding the voice-based screening process</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -304,17 +314,17 @@ const ScreeningsPage = () => {
                 Send a screening link to candidates via email or WhatsApp. They can complete it on their own time.
               </p>
             </div>
-            
+
             <div className="bg-muted p-4 rounded-lg">
               <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center mb-4">
                 <BarChart3 className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="font-medium mb-2">Step 2: AI Analysis</h3>
+              <h3 className="font-medium mb-2">Step 2: SmartMatch Analysis</h3>
               <p className="text-sm text-muted-foreground">
-                Ultravox AI analyzes responses for technical accuracy, communication skills, and problem-solving ability.
+                TalentPulse analyzes responses for technical accuracy, communication skills, and problem-solving ability.
               </p>
             </div>
-            
+
             <div className="bg-muted p-4 rounded-lg">
               <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center mb-4">
                 <FileCheck className="h-5 w-5 text-primary" />

@@ -2,14 +2,14 @@
 
 ## Project Overview
 
-TalentSpark Recruit is an advanced AI-powered recruitment platform specifically designed for US-based recruiting consultancies. The platform streamlines the hiring process while maximizing profits through a sophisticated two-level profit tracking system.
+TalentSpark Recruit is an advanced SmartMatch-powered recruitment platform specifically designed for US-based recruiting consultancies. The platform streamlines the hiring process while maximizing profits through a sophisticated two-level profit tracking system.
 
 ### Key Features
 
-- **Role-Based Access Control**: Tailored dashboards and permissions for Company Admins, Hiring Managers, Talent Scouts, Team Members, and Applicants
+- **Role-Based Access Control**: Tailored dashboards and permissions for CEO, Branch Managers, Marketing Heads, Marketing Supervisors, Marketing Recruiters, Marketing Associates, and Applicants
 - **Profit Optimization**: Two-level profit tracking (client-to-company and company-to-candidate) with configurable splits
-- **AI-Powered Matching**: Resume parsing and semantic matching using Retrieval-Augmented Generation (RAG)
-- **Automated Screening**: Integration with Ultravox AI for voice-based candidate screening
+- **SmartMatch-Powered Matching**: Resume parsing and semantic matching using Retrieval-Augmented Generation (RAG)
+- **Automated Screening**: Integration with TalentPulse for voice-based candidate screening
 - **Comprehensive Analytics**: Detailed profit metrics, hiring efficiency, and team performance tracking
 - **Hierarchical Organization Structure**: Branch-based management with locations, departments, and teams
 
@@ -56,10 +56,12 @@ The application will be available at http://localhost:8080
 
 You can access different role-specific dashboards using these credentials:
 
-- **Company Admin**: admin@talentspark.com / admin123
-- **Hiring Manager**: manager@talentspark.com / manager123
-- **Talent Scout**: scout@talentspark.com / scout123
-- **Team Member**: member@talentspark.com / member123
+- **CEO**: ceo@talentspark.com / admin123
+- **Branch Manager**: branch-manager@talentspark.com / manager123
+- **Marketing Head**: marketing-head@talentspark.com / manager123
+- **Marketing Supervisor**: marketing-supervisor@talentspark.com / manager123
+- **Marketing Recruiter**: recruiter@talentspark.com / scout123
+- **Marketing Associate**: associate@talentspark.com / member123
 - **Applicant**: applicant@example.com / applicant123
 
 ## Technology Stack

@@ -30,13 +30,15 @@ import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { isAdmin } from '@/utils/adminPermissions';
 import {
   JobListing,
   JobCandidate,
   getJobListingById,
   getJobCandidatesByJobId,
   getStatusColor,
-  getPriorityColor
+  getPriorityColor,
+  getStatusLabel
 } from '@/types/jobs';
 import { AssignJobDialog } from '@/components/jobs/AssignJobDialog';
 
@@ -44,8 +46,12 @@ const JobDetailsPage: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'company-admin';
-  const isHiringManager = user?.role === 'hiring-manager';
+  const adminUser = isAdmin(user?.role);
+  const isHiringManager = user?.role === 'branch-manager' || user?.role === 'marketing-head' || user?.role === 'marketing-supervisor';
+  const isScout = user?.role === 'marketing-recruiter';
+  const isTeamMember = user?.role === 'marketing-associate';
+  // Admin can always see client budget
+  const canSeeClientBudget = adminUser || isHiringManager;
 
   const [job, setJob] = useState<JobListing | null>(null);
   const [candidates, setCandidates] = useState<JobCandidate[]>([]);
@@ -199,8 +205,19 @@ const JobDetailsPage: React.FC = () => {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold">{job.title}</h1>
+            <div className="flex items-center">
+              <h1 className="text-3xl font-bold">{job.title}</h1>
+              <Badge variant="outline" className="ml-3 text-sm">
+                {job.id}
+              </Badge>
+            </div>
             <div className="flex items-center text-muted-foreground mt-1 space-x-4">
+              {job.clientName && (
+                <span className="flex items-center font-medium">
+                  <Briefcase className="h-4 w-4 mr-1" />
+                  {job.clientName}
+                </span>
+              )}
               <span className="flex items-center">
                 <Building2 className="h-4 w-4 mr-1" />
                 {job.department}
@@ -210,7 +227,7 @@ const JobDetailsPage: React.FC = () => {
                 {job.location}
               </span>
               <Badge className={getStatusColor(job.status)}>
-                {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                {getStatusLabel ? getStatusLabel(job.status) : job.status.charAt(0).toUpperCase() + job.status.slice(1)}
               </Badge>
               <Badge className={getPriorityColor(job.priority)}>
                 {job.priority.charAt(0).toUpperCase() + job.priority.slice(1)}
@@ -219,17 +236,20 @@ const JobDetailsPage: React.FC = () => {
           </div>
         </div>
         <div className="flex gap-2">
-          {(isAdmin || isHiringManager || job.assignedTo === user?.id) && (
-            <>
-              <Button variant="outline" onClick={handleAssignJob}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                {job.assignedTo ? 'Reassign' : 'Assign'}
-              </Button>
-              <Button onClick={handleEditJob}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Job
-              </Button>
-            </>
+          {/* Admin can always reassign jobs, others have conditional access */}
+          {(adminUser || isHiringManager || isScout || job.assignedTo === user?.id) && (
+            <Button variant="outline" onClick={handleAssignJob}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              {job.assignedTo ? 'Reassign' : 'Assign'}
+            </Button>
+          )}
+
+          {/* Admin can always edit jobs, others have conditional access */}
+          {(adminUser || isHiringManager || job.assignedTo === user?.id) && (
+            <Button onClick={handleEditJob}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Job
+            </Button>
           )}
         </div>
       </div>
@@ -252,6 +272,22 @@ const JobDetailsPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <FileText className="h-4 w-4 mr-2 text-primary" />
+                      <span>Job ID</span>
+                    </div>
+                    <span className="font-medium">{job.id}</span>
+                  </div>
+                  {job.clientName && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Briefcase className="h-4 w-4 mr-2 text-primary" />
+                        <span>Client</span>
+                      </div>
+                      <span className="font-medium">{job.clientName}</span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-2 text-primary" />
@@ -312,8 +348,8 @@ const JobDetailsPage: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Profit Optimization - Only for Admin and Hiring Manager */}
-            {(isAdmin || isHiringManager) && job.clientBudget && (
+            {/* Profit Optimization - Admin always has access */}
+            {(adminUser || isHiringManager) && job.clientBudget && (
               <Card>
                 <CardHeader>
                   <CardTitle>Profit Optimization</CardTitle>
@@ -390,13 +426,16 @@ const JobDetailsPage: React.FC = () => {
                       <p className="text-sm text-muted-foreground">
                         {user?.role === 'talent-scout' ? 'Talent Scout' : 'Team Member'}
                       </p>
-                      <Button
-                        variant="link"
-                        className="p-0 h-auto text-sm"
-                        onClick={handleAssignJob}
-                      >
-                        Reassign
-                      </Button>
+                      {/* Admin can always reassign jobs */}
+                      {(adminUser || isHiringManager || isScout || job.assignedTo === user?.id) && (
+                        <Button
+                          variant="link"
+                          className="p-0 h-auto text-sm"
+                          onClick={handleAssignJob}
+                        >
+                          Reassign
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -668,7 +707,7 @@ const JobDetailsPage: React.FC = () => {
                   </div>
                   <div className="flex items-center mt-2 md:mt-0">
                     <Badge className={getStatusColor(job.status)}>
-                      {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                      {getStatusLabel(job.status)}
                     </Badge>
                     <span className="mx-2">•</span>
                     <Badge className={getPriorityColor(job.priority)}>

@@ -85,7 +85,7 @@ This document provides a comprehensive overview of all tasks and subtasks for th
 ## 2. Authentication & Authorization
 
 ### Completed ✅
-- Mock authentication system with different user roles (Company Admin, Hiring Manager, Talent Scout, Team Member, Applicant)
+- Mock authentication system with different user roles (CEO, Branch Manager, Marketing Head, Marketing Supervisor, Marketing Recruiter, Marketing Associate, Applicant)
 - Role-based access control for different pages and features
 - Login page with demo credentials for each role
 - Protected routes that redirect unauthorized users
@@ -520,15 +520,15 @@ This document provides a comprehensive overview of all tasks and subtasks for th
 
 ---
 
-## 14. AI Integration
+## 14. SmartMatch Integration
 
 ### Completed ✅
-- UI placeholders for AI features throughout the application
-- Mock implementations of AI functionality:
+- UI placeholders for SmartMatch features throughout the application
+- Mock implementations of SmartMatch functionality:
   - Resume parsing simulation
   - Candidate matching simulation
   - Screening process UI
-- Basic structure for AI integration
+- Basic structure for SmartMatch integration
 - File upload and processing UI for resume parsing
 - Match score visualization in candidate cards
 - Screening results review interface
@@ -557,8 +557,8 @@ This document provides a comprehensive overview of all tasks and subtasks for th
   - [ ] Add skill gap analysis between candidates and job requirements
   - [ ] Implement continuous learning from matching feedback
 
-- [ ] 🚩 **Ultravox AI Screening Integration**
-  - [ ] Integrate with Ultravox AI for voice-based screening
+- [ ] 🚩 **TalentPulse Screening Integration**
+  - [ ] Integrate with TalentPulse for voice-based screening
   - [ ] Implement screening question generation from job descriptions
   - [ ] Create transcript generation and storage
   - [ ] Add automated evaluation of responses

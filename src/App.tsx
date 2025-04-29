@@ -15,6 +15,9 @@ import LoginPage from "./pages/auth/LoginPage";
 // Dashboard Pages
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
 
+// Admin Pages
+import AdminPanelPage from "./pages/admin/AdminPanelPage";
+
 // Resume Pages
 import ResumeUploadPage from "./pages/resume/ResumeUploadPage";
 import JobDescriptionPage from "./pages/resume/JobDescriptionPage";
@@ -49,8 +52,7 @@ import JobListingsPage from "./pages/jobs/JobListingsPage";
 import JobDetailsPage from "./pages/jobs/JobDetailsPage";
 import JobCreatePage from "./pages/jobs/JobCreatePage";
 
-// Feedback Page
-import FeedbackPage from "./pages/feedback/FeedbackPage";
+// Feedback Page has been removed and integrated into ProfileDetailsPage
 
 // Landing Page
 import LandingPage from "./pages/LandingPage";
@@ -88,11 +90,23 @@ const App = () => (
               }
             />
 
-            {/* Teams - For Company Admin & Hiring Manager */}
+            {/* Admin Panel - For CEO Only */}
+            <Route
+              path="/admin"
+              element={
+                <AuthProtection allowedRoles={['ceo']}>
+                  <MainLayout>
+                    <AdminPanelPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Teams - For CEO, Branch Manager, Marketing Head, Marketing Supervisor */}
             <Route
               path="/teams"
               element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor']}>
                   <MainLayout>
                     <TeamsPage />
                   </MainLayout>
@@ -100,11 +114,11 @@ const App = () => (
               }
             />
 
-            {/* Team Details - For Company Admin & Hiring Manager */}
+            {/* Team Details - For CEO, Branch Manager, Marketing Head, Marketing Supervisor */}
             <Route
               path="/teams/:teamId"
               element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor']}>
                   <MainLayout>
                     <TeamDetailsPage />
                   </MainLayout>
@@ -112,11 +126,11 @@ const App = () => (
               }
             />
 
-            {/* Profiles - For Company Admin & Hiring Manager */}
+            {/* Profiles - For All Roles except Applicant */}
             <Route
               path="/profiles"
               element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate']}>
                   <MainLayout>
                     <ProfilesPage />
                   </MainLayout>
@@ -124,11 +138,11 @@ const App = () => (
               }
             />
 
-            {/* Profile Details - For Company Admin & Hiring Manager */}
+            {/* Profile Details - For All Roles except Applicant */}
             <Route
               path="/profiles/:profileId"
               element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate']}>
                   <MainLayout>
                     <ProfileDetailsPage />
                   </MainLayout>
@@ -136,11 +150,11 @@ const App = () => (
               }
             />
 
-            {/* Resume Management - For Talent Scout & Hiring Manager */}
+            {/* Resume Management - For Marketing Recruiter & Marketing Associate */}
             <Route
               path="/resume-upload"
               element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout']}>
+                <AuthProtection allowedRoles={['ceo', 'marketing-recruiter', 'marketing-associate']}>
                   <MainLayout>
                     <ResumeUploadPage />
                   </MainLayout>
@@ -148,11 +162,11 @@ const App = () => (
               }
             />
 
-            {/* Job Descriptions - For Talent Scout & Hiring Manager */}
+            {/* Job Descriptions - For All Roles except Applicant */}
             <Route
               path="/job-descriptions"
               element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate']}>
                   <MainLayout>
                     <JobDescriptionPage />
                   </MainLayout>
@@ -160,11 +174,11 @@ const App = () => (
               }
             />
 
-            {/* Screenings - For Talent Scout & Hiring Manager */}
+            {/* Screenings - For CEO, Marketing Recruiter */}
             <Route
               path="/screenings"
               element={
-                <AuthProtection>
+                <AuthProtection allowedRoles={['ceo', 'marketing-recruiter']}>
                   <MainLayout>
                     <ScreeningsPage />
                   </MainLayout>
@@ -176,7 +190,7 @@ const App = () => (
             <Route
               path="/candidates"
               element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout', 'team-member']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate']}>
                   <MainLayout>
                     <CandidatesPage />
                   </MainLayout>
@@ -188,7 +202,7 @@ const App = () => (
             <Route
               path="/candidates/:candidateId"
               element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout', 'team-member']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate']}>
                   <MainLayout>
                     <CandidateDetailsPage />
                   </MainLayout>
@@ -196,11 +210,11 @@ const App = () => (
               }
             />
 
-            {/* Interviews - For Team Members & Talent Scouts */}
+            {/* Interviews - For CEO, Marketing Associate */}
             <Route
               path="/interviews"
               element={
-                <AuthProtection>
+                <AuthProtection allowedRoles={['ceo', 'marketing-associate']}>
                   <MainLayout>
                     <InterviewsPage />
                   </MainLayout>
@@ -208,17 +222,7 @@ const App = () => (
               }
             />
 
-            {/* Feedback - For Team Members & Talent Scouts */}
-            <Route
-              path="/feedback"
-              element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout', 'team-member']}>
-                  <MainLayout>
-                    <FeedbackPage />
-                  </MainLayout>
-                </AuthProtection>
-              }
-            />
+            {/* Feedback has been integrated into Profile Details page */}
 
             {/* Application - For Applicants */}
             <Route
@@ -232,11 +236,11 @@ const App = () => (
               }
             />
 
-            {/* Reports - For Company Admin & Hiring Manager */}
+            {/* Reports - For CEO, Branch Manager, Marketing Head, Marketing Supervisor */}
             <Route
               path="/reports"
               element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor']}>
                   <MainLayout>
                     <ReportsPage />
                   </MainLayout>
@@ -248,7 +252,7 @@ const App = () => (
             <Route
               path="/jobs"
               element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout', 'team-member']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate']}>
                   <MainLayout>
                     <JobListingsPage />
                   </MainLayout>
@@ -260,7 +264,7 @@ const App = () => (
             <Route
               path="/jobs/:jobId"
               element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager', 'talent-scout', 'team-member']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate']}>
                   <MainLayout>
                     <JobDetailsPage />
                   </MainLayout>
@@ -268,11 +272,11 @@ const App = () => (
               }
             />
 
-            {/* Create Job - For Admin and Hiring Manager */}
+            {/* Create Job - For CEO, Branch Manager, Marketing Head */}
             <Route
               path="/jobs/create"
               element={
-                <AuthProtection allowedRoles={['company-admin', 'hiring-manager']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head']}>
                   <MainLayout>
                     <JobCreatePage />
                   </MainLayout>

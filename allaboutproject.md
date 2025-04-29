@@ -1,6 +1,6 @@
-RecruitAI Platform Documentation
+TalentSpark Recruit Platform Documentation
 Version 1.1
-AI-Powered Recruitment Platform for Consulting Companies
+SmartMatch-Powered Recruitment Platform for Consulting Companies
 Updated: April 26, 2025
 
 Table of Contents
@@ -22,17 +22,17 @@ Key Citations & Technologies
 
 
 1. Introduction
-RecruitAI is an advanced AI-powered recruitment platform tailored for consulting companies in the US. It streamlines the hiring process by integrating cutting-edge technologies such as Ultravox AI for voice-based candidate screening, n8n.io for workflow automation, and a secure on-premise deployment model. The platform maximizes profits for consulting agencies by efficiently managing client budgets and candidate offers, offering role-specific dashboards for transparency, and ensuring robust security through subscription-based licensing.
+TalentSpark Recruit is an advanced SmartMatch-powered recruitment platform tailored for consulting companies in the US. It streamlines the hiring process by integrating cutting-edge technologies such as TalentPulse for voice-based candidate screening, n8n.io for workflow automation, and a secure on-premise deployment model. The platform maximizes profits for consulting agencies by efficiently managing client budgets and candidate offers, offering role-specific dashboards for transparency, and ensuring robust security through subscription-based licensing.
 Key Objectives
 
 Profit Optimization: Maximize agency margins through configurable budget splits (e.g., client budget of $100/hour, candidate offered $65/hour, agency retains $35/hour).
-Automation: Automate hiring with AI-driven voice screening and detailed feedback collection.
+Automation: Automate hiring with SmartMatch-driven voice screening and detailed feedback collection.
 Visibility: Provide end-to-end transparency via role-specific dashboards.
 Security: Ensure secure, on-premise deployment with subscription-based licensing.
 
 
 2. User Roles & Access Control
-RecruitAI employs Role-Based Access Control (RBAC) with clearly defined roles tailored to the needs of consulting companies. Each role has specific responsibilities and permissions to ensure secure and efficient operation.
+TalentSpark Recruit employs Role-Based Access Control (RBAC) with clearly defined roles tailored to the needs of consulting companies. Each role has specific responsibilities and permissions to ensure secure and efficient operation.
 Roles and Responsibilities
 
 
@@ -42,19 +42,27 @@ Description
 
 
 
-Company Admin
+CEO
 Manages platform settings, adds teams/users, monitors hiring, budgets, and profits.
 
 
-Hiring Manager
-Oversees budgets, sets profit splits, tracks hiring progress within their team.
+Branch Manager
+Oversees branch operations, budgets, sets profit splits, tracks hiring progress within their branch.
 
 
-Talent Scout
+Marketing Head
+Oversees marketing department, manages budgets, tracks hiring progress within marketing teams.
+
+
+Marketing Supervisor
+Supervises marketing teams, manages team assignments, tracks team performance.
+
+
+Marketing Recruiter
 Uploads resumes/JDs, initiates screening, shortlists candidates, tracks progress.
 
 
-Team Member
+Marketing Associate
 Conducts interviews, provides feedback, views assigned candidate details.
 
 
@@ -67,10 +75,12 @@ Access Control Matrix
 
 
 Action
-Company Admin
-Hiring Manager
-Talent Scout
-Team Member
+CEO
+Branch Manager
+Marketing Head
+Marketing Supervisor
+Marketing Recruiter
+Marketing Associate
 Applicant
 
 
@@ -204,7 +214,7 @@ Scenario: Receives email link, completes screening, sees "Interview scheduled," 
 
 
 3. Resume Management
-RecruitAI efficiently manages resume and job description (JD) uploads to prepare for candidate screening and matching.
+TalentSpark Recruit efficiently manages resume and job description (JD) uploads to prepare for candidate screening and matching.
 Features
 
 Upload & Storage: Talent Scouts upload resumes and JDs, stored in PostgreSQL with metadata (e.g., uploader's ID, timestamp).
@@ -264,9 +274,9 @@ Result: System flags "Invalid file format," prompts re-upload.
 
 
 4. Candidate Matching with Agentic RAG and n8n
-RecruitAI leverages Retrieval-Augmented Generation (RAG) and n8n workflows to match resumes to JDs semantically, providing scored candidate profiles.
+TalentSpark Recruit leverages Retrieval-Augmented Generation (RAG) and n8n workflows to match resumes to JDs semantically, providing scored candidate profiles.
 What is Agentic RAG?
-Agentic RAG enhances traditional RAG by combining retrieval-based methods with generative AI, enabling context-aware, semantic matching of resumes to JDs beyond keyword searches. It uses vector embeddings to capture meaning and intent.
+Agentic RAG enhances traditional RAG by combining retrieval-based methods with generative SmartMatch, enabling context-aware, semantic matching of resumes to JDs beyond keyword searches. It uses vector embeddings to capture meaning and intent.
 Features
 
 Resume Indexing: Parses and indexes resumes using vector embeddings for semantic search.
@@ -328,14 +338,14 @@ Result: n8n sends WhatsApp message: "5 candidates matched for Software Engineer 
 
 
 5. Hiring Process Automation
-RecruitAI automates the hiring process from resume upload to offer acceptance, integrating AI screening and feedback loops.
+TalentSpark Recruit automates the hiring process from resume upload to offer acceptance, integrating SmartMatch screening and feedback loops.
 Features
 
-AI Screening: Ultravox AI conducts voice-based screening, generates transcripts and feedback.
+SmartMatch Screening: TalentPulse conducts voice-based screening, generates transcripts and feedback.
 Screening Link: Unique links sent via email/WhatsApp.
-Shortlisting: Talent Scouts review AI feedback to shortlist candidates.
+Shortlisting: Marketing Recruiters review SmartMatch feedback to shortlist candidates.
 Interview Scheduling: Automated Zoom link generation and notifications.
-Feedback Collection: Mandatory at each rejection point (AI, Talent Scout, interview).
+Feedback Collection: Mandatory at each rejection point (SmartMatch, Marketing Recruiter, interview).
 Offer Management: Configures profit splits and sends offers.
 Multi-Round Interviews: Supports multiple interview stages (e.g., technical, HR).
 
@@ -384,9 +394,9 @@ Flow: Screening → Technical Interview ("Solid coding") → HR Interview ("Cult
 Result: Two feedback entries logged, hired.
 
 
-Rejection at AI:
+Rejection at SmartMatch:
 
-Flow: Screening (AI: "Weak communication") → Rejected → Feedback recorded.
+Flow: Screening (SmartMatch: "Weak communication") → Rejected → Feedback recorded.
 Result: Applicant notified via email.
 
 
@@ -403,7 +413,7 @@ Automation reduces manual effort through seamless integrations.
 Features
 
 Notifications: Email/WhatsApp for screening links, interviews, rejections.
-Ultravox Integration: AI screening with transcript/feedback generation.
+TalentPulse Integration: SmartMatch screening with transcript/feedback generation.
 n8n Workflows: Triggers actions based on events (e.g., onScreeningCompleted).
 
 Technical Details
@@ -432,7 +442,7 @@ Result: Zoom link sent to Applicant and Team Member via WhatsApp.
 
 Rejection:
 
-Trigger: AI rejects Applicant.
+Trigger: SmartMatch rejects Applicant.
 Result: Email sent: "Thank you for applying, unfortunately…"
 
 
@@ -547,7 +557,7 @@ Tech Stack
 Frontend: Next.js (React)
 Backend: Node.js (Express)
 Database: PostgreSQL (with pgvector for embeddings)
-AI: Ultravox API
+SmartMatch: TalentPulse API
 Automation: n8n.io
 Deployment: Docker
 
@@ -556,7 +566,7 @@ Architecture
 Frontend: Interactive UI for role-based access.
 Backend: Manages APIs, licensing, data flow.
 Database: Stores resumes, JDs, transcripts, embeddings.
-AI: Ultravox handles screening.
+SmartMatch: TalentPulse handles screening.
 Automation: n8n orchestrates workflows.
 
 
@@ -612,7 +622,7 @@ Hiring Manager:
 - Monitors active recruitments with profit metrics (e.g., Senior React Developer at 45.5% margin)
 - Tracks team performance with profit contribution by recruiter
 
-Talent Scout:
+Marketing Recruiter:
 - Tracks 10 candidates in pipeline with 3 completed screenings
 - Reviews match scores (85%, 78%) with budget and profit targets
 - Monitors candidate progress through hiring stages
@@ -644,11 +654,11 @@ Advanced analytics.
 
 
 13. Conclusion
-RecruitAI Version 1.1 empowers consulting companies with profit optimization, automation, transparency, and security.
+TalentSpark Recruit Version 1.1 empowers consulting companies with profit optimization, automation, transparency, and security.
 
 14. Key Citations & Technologies
 
-Ultravox AI API
+TalentPulse API
 n8n.io
 Next.js
 Node.js
@@ -656,4 +666,4 @@ PostgreSQL
 Docker
 
 
-RecruitAI Platform Documentation v1.1 | © 2025
+TalentSpark Recruit Platform Documentation v1.1 | © 2025

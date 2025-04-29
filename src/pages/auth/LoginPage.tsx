@@ -63,7 +63,7 @@ const LoginPage = () => {
                 <div>
                   <h3 className="font-medium">Role-Based Dashboards</h3>
                   <p className="text-sm opacity-80">
-                    Customized views for Company Admin, Hiring Manager, Talent Scout, Team Member, and Applicant
+                    Customized views for CEO, Branch Manager, Marketing Head, Marketing Supervisor, Marketing Recruiter, Marketing Associate, and Applicant
                   </p>
                 </div>
               </div>

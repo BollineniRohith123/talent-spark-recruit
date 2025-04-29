@@ -485,18 +485,18 @@ export function EnhancedFeatures() {
     },
     {
       icon: <Zap className="h-6 w-6" />,
-      title: "AI-Powered Insights",
-      description: "Gain valuable insights into your recruitment process with our AI-powered analytics dashboard.",
+      title: "SmartMatch-Powered Insights",
+      description: "Gain valuable insights into your recruitment process with our SmartMatch-powered analytics dashboard.",
     },
     {
       icon: <Brain className="h-6 w-6" />,
       title: "Intelligent Screening",
-      description: "Automate initial candidate screening with AI to save time and improve quality of hires.",
+      description: "Automate initial candidate screening with SmartMatch to save time and improve quality of hires.",
     },
     {
       icon: <Target className="h-6 w-6" />,
       title: "Precision Targeting",
-      description: "Target the right candidates with AI-powered job posting optimization and candidate sourcing.",
+      description: "Target the right candidates with SmartMatch-powered job posting optimization and candidate sourcing.",
     },
     {
       icon: <BarChart3 className="h-6 w-6" />,
@@ -512,28 +512,28 @@ export function EnhancedFeatures() {
 
   return (
     <section className="py-20 relative overflow-hidden" ref={containerRef}>
-      <motion.div 
+      <motion.div
         className="absolute inset-0 bg-gradient-to-br from-recruit-primary/5 via-transparent to-recruit-secondary/5 blur-xl"
         style={{ opacity, y }}
       />
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="mb-12 text-center">
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="mb-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-recruit-primary to-recruit-secondary"
           >
-            AI-Powered Recruitment
+            SmartMatch-Powered Recruitment
           </motion.h2>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mx-auto max-w-2xl text-muted-foreground"
           >
-            TalentSpark uses cutting-edge AI technology to streamline your recruitment process and find the perfect candidates faster.
+            TalentSpark uses cutting-edge SmartMatch technology to streamline your recruitment process and find the perfect candidates faster.
           </motion.p>
         </div>
 
@@ -608,7 +608,7 @@ export function EnhancedFeatures() {
                           />
                         </svg>
                         <span className="relative -top-1 left-3 rounded-3xl bg-recruit-primary px-2 py-1 text-xs text-primary-foreground">
-                          AI
+                          SmartMatch
                         </span>
                       </div>
                     </div>

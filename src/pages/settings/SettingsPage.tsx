@@ -67,7 +67,7 @@ const SettingsPage = () => {
               Company
             </TabsTrigger>
           )}
-          {user?.role === "company-admin" && (
+          {user?.role === "ceo" && (
             <>
               <TabsTrigger value="billing" className="data-[state=active]:bg-background">
                 <CreditCard className="h-4 w-4 mr-2" />
@@ -259,7 +259,7 @@ const SettingsPage = () => {
         </TabsContent>
 
         {/* Company Settings */}
-        {(user?.role === "company-admin" || user?.role === "hiring-manager") && (
+        {(user?.role === "ceo" || user?.role === "branch-manager" || user?.role === "marketing-head" || user?.role === "marketing-supervisor") && (
           <TabsContent value="company" className="space-y-4">
             <Card>
               <CardHeader>
@@ -294,7 +294,7 @@ const SettingsPage = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <h4 className="text-sm font-medium">Default Profit Split</h4>
-                    {user?.role === "company-admin" && (
+                    {user?.role === "ceo" && (
                       <Button variant="outline" size="sm">
                         Edit Split
                       </Button>
@@ -325,7 +325,7 @@ const SettingsPage = () => {
         )}
 
         {/* Billing Settings */}
-        {user?.role === "company-admin" && (
+        {user?.role === "ceo" && (
           <TabsContent value="billing" className="space-y-4">
             <Card>
               <CardHeader>
@@ -413,7 +413,7 @@ const SettingsPage = () => {
         )}
 
         {/* System Settings */}
-        {user?.role === "company-admin" && (
+        {user?.role === "ceo" && (
           <TabsContent value="system" className="space-y-4">
             <Card>
               <CardHeader>
@@ -441,14 +441,14 @@ const SettingsPage = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <h4 className="text-sm font-medium">AI Voice Screening</h4>
+                  <h4 className="text-sm font-medium">SmartMatch Voice Screening</h4>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm">
-                        Ultravox AI Integration Status
+                        TalentPulse Integration Status
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Enable or disable AI voice screening functionality
+                        Enable or disable SmartMatch voice screening functionality
                       </p>
                     </div>
                     <div className="flex items-center">

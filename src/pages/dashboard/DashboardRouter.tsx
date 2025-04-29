@@ -13,13 +13,17 @@ const DashboardRouter = () => {
 
   // Render the appropriate dashboard based on the user's role
   switch (user.role) {
-    case 'company-admin':
+    case 'ceo':
       return <CompanyAdminDashboard />;
-    case 'hiring-manager':
+    case 'branch-manager':
       return <HiringManagerDashboard />;
-    case 'talent-scout':
+    case 'marketing-head':
+      return <HiringManagerDashboard />;
+    case 'marketing-supervisor':
+      return <HiringManagerDashboard />;
+    case 'marketing-recruiter':
       return <TalentScoutDashboard />;
-    case 'team-member':
+    case 'marketing-associate':
       return <TeamMemberDashboard />;
     case 'applicant':
       return <ApplicantDashboard />;

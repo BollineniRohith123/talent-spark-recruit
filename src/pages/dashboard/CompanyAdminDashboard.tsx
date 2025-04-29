@@ -3,6 +3,7 @@ import { BarChart3, Users, ClipboardCheck, Award, DollarSign, TrendingUp, Percen
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatsCard } from '@/components/ui/stats-card';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { MetricsTable } from '@/components/dashboard/MetricsTable';
 import {
   Area,
@@ -50,71 +51,44 @@ const profitBreakdownData = [
 ];
 
 const positionProfitData = [
-  { position: 'Software Engineer', clientBudget: 120, internalBudget: 85, profit: 52 },
-  { position: 'Data Scientist', clientBudget: 130, internalBudget: 90, profit: 62.5 },
-  { position: 'UX/UI Designer', clientBudget: 95, internalBudget: 70, profit: 35.5 },
-  { position: 'Project Manager', clientBudget: 110, internalBudget: 80, profit: 46 },
-  { position: 'Sales Representative', clientBudget: 85, internalBudget: 65, profit: 33 },
+  { positionId: 'SE-2023-001', position: 'Software Engineer', clientName: 'TechCorp Inc.', clientBudget: 120, internalBudget: 85, profit: 52 },
+  { positionId: 'DS-2023-002', position: 'Data Scientist', clientName: 'Analytics Solutions', clientBudget: 130, internalBudget: 90, profit: 62.5 },
+  { positionId: 'UX-2023-003', position: 'UX/UI Designer', clientName: 'Creative Designs LLC', clientBudget: 95, internalBudget: 70, profit: 35.5 },
+  { positionId: 'PM-2023-004', position: 'Project Manager', clientName: 'Global Systems', clientBudget: 110, internalBudget: 80, profit: 46 },
+  { positionId: 'SR-2023-005', position: 'Sales Representative', clientName: 'Revenue Boosters', clientBudget: 85, internalBudget: 65, profit: 33 },
 ];
 
 const CompanyAdminDashboard = () => {
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold">Company Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="text-2xl font-bold">Company Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Overview of company-wide recruitment metrics and financial data
         </p>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard
-          title="Total Employees"
-          value="128"
-          description="Across all teams"
-          icon={<Users className="h-6 w-6 text-primary" />}
-        />
-        <StatsCard
-          title="Monthly Hires"
-          value="24"
-          description="This month"
-          icon={<Award className="h-6 w-6 text-primary" />}
-          trend={{ value: 8, isPositive: true }}
-        />
-        <StatsCard
-          title="Monthly Revenue"
-          value="$110,000"
-          description="From placements"
-          icon={<DollarSign className="h-6 w-6 text-primary" />}
-          trend={{ value: 28, isPositive: true }}
-        />
-        <StatsCard
-          title="Monthly Profit"
-          value="$42,500"
-          description="38.6% margin"
-          icon={<TrendingUp className="h-6 w-6 text-primary" />}
-          trend={{ value: 15, isPositive: true }}
-        />
-      </div>
+
 
       {/* Profit Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-muted-foreground">Total Profit</span>
-                <span className="text-2xl font-bold">$87,500</span>
+                <span className="text-xs font-medium text-muted-foreground">Total Profit</span>
+                <span className="text-lg font-bold">$87,500</span>
               </div>
-              <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-green-600" />
+              <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-green-600" />
               </div>
             </div>
-            <div className="mt-4">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-muted-foreground">YTD Profit</span>
-                <span className="text-xs font-medium text-green-600">+12.5% from last year</span>
+            <div className="mt-2">
+              <div className="flex items-center text-xs">
+                <span className="text-xs text-muted-foreground mr-1">YTD Profit</span>
+                <Badge variant="outline" className="bg-green-100 text-green-800">
+                  +12.5% from last year
+                </Badge>
               </div>
             </div>
           </CardContent>
@@ -124,17 +98,19 @@ const CompanyAdminDashboard = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-muted-foreground">Client-to-Company</span>
-                <span className="text-2xl font-bold">$65,000</span>
+                <span className="text-xs font-medium text-muted-foreground">Client-to-Company</span>
+                <span className="text-lg font-bold">$65,000</span>
               </div>
-              <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                <ArrowUpRight className="h-6 w-6 text-blue-600" />
+              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <ArrowUpRight className="h-5 w-5 text-blue-600" />
               </div>
             </div>
-            <div className="mt-4">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-muted-foreground">Profit Margin</span>
-                <span className="text-xs font-medium">26% of client budget</span>
+            <div className="mt-2">
+              <div className="flex items-center text-xs">
+                <span className="text-xs text-muted-foreground mr-1">Profit Margin</span>
+                <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                  26% of client budget
+                </Badge>
               </div>
             </div>
           </CardContent>
@@ -144,66 +120,109 @@ const CompanyAdminDashboard = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-muted-foreground">Company-to-Candidate</span>
-                <span className="text-2xl font-bold">$22,500</span>
+                <span className="text-xs font-medium text-muted-foreground">Company-to-Candidate</span>
+                <span className="text-lg font-bold">$22,500</span>
               </div>
-              <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
-                <Percent className="h-6 w-6 text-purple-600" />
+              <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                <Percent className="h-5 w-5 text-purple-600" />
               </div>
             </div>
-            <div className="mt-4">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-muted-foreground">Average Split</span>
-                <span className="text-xs font-medium">20% company / 80% candidate</span>
+            <div className="mt-2">
+              <div className="flex items-center text-xs">
+                <span className="text-xs text-muted-foreground mr-1">Average Split</span>
+                <Badge variant="outline" className="bg-purple-100 text-purple-800">
+                  20% company / 80% candidate
+                </Badge>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+
+      {/* Recruitment Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Hiring Funnel</CardTitle>
-            <CardDescription>Screening to hire conversion rates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={hiringData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Area type="monotone" dataKey="screenings" stackId="1" stroke="#8884d8" fill="#8884d8" />
-                <Area type="monotone" dataKey="interviews" stackId="2" stroke="#82ca9d" fill="#82ca9d" />
-                <Area type="monotone" dataKey="hires" stackId="3" stroke="#ffc658" fill="#ffc658" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-xs font-medium text-muted-foreground">Total Employees</span>
+                <span className="text-lg font-bold">128</span>
+              </div>
+              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                <Users className="h-4 w-4 text-primary" />
+              </div>
+            </div>
+            <div className="mt-1">
+              <span className="text-xs text-muted-foreground">Across all teams</span>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Revenue & Profit</CardTitle>
-            <CardDescription>Monthly revenue and profit from placements</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={revenueData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip formatter={(value) => `$${value}`} />
-                <Legend />
-                <Line type="monotone" dataKey="revenue" name="Revenue" stroke="#9b87f5" strokeWidth={2} />
-                <Line type="monotone" dataKey="profit" name="Profit" stroke="#4ade80" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-xs font-medium text-muted-foreground">Monthly Hires</span>
+                <span className="text-lg font-bold">24</span>
+              </div>
+              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                <Award className="h-4 w-4 text-primary" />
+              </div>
+            </div>
+            <div className="mt-1 flex items-center text-xs">
+              <Badge variant="outline" className="bg-green-100 text-green-800 mr-2">
+                <ArrowUpRight className="h-3 w-3 mr-1" /> 8%
+              </Badge>
+              <span className="text-xs text-muted-foreground">vs previous month</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-xs font-medium text-muted-foreground">Monthly Revenue</span>
+                <span className="text-lg font-bold">$110,000</span>
+              </div>
+              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                <DollarSign className="h-4 w-4 text-primary" />
+              </div>
+            </div>
+            <div className="mt-1 flex items-center text-xs">
+              <Badge variant="outline" className="bg-green-100 text-green-800 mr-2">
+                <ArrowUpRight className="h-3 w-3 mr-1" /> 28%
+              </Badge>
+              <span className="text-xs text-muted-foreground">from placements</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-xs font-medium text-muted-foreground">Monthly Profit</span>
+                <span className="text-lg font-bold">$42,500</span>
+              </div>
+              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                <TrendingUp className="h-4 w-4 text-primary" />
+              </div>
+            </div>
+            <div className="mt-1 flex items-center text-xs">
+              <Badge variant="outline" className="bg-green-100 text-green-800 mr-2">
+                <ArrowUpRight className="h-3 w-3 mr-1" /> 15%
+              </Badge>
+              <span className="text-xs text-muted-foreground">38.6% margin</span>
+            </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Detailed Metrics Table with Filters */}
+      <MetricsTable />
 
       {/* Team Performance Table */}
       <Card>
@@ -254,7 +273,9 @@ const CompanyAdminDashboard = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
+                  <th className="text-left py-3 px-4">Position ID</th>
                   <th className="text-left py-3 px-4">Position</th>
+                  <th className="text-left py-3 px-4">Client Name</th>
                   <th className="text-left py-3 px-4">Client Budget</th>
                   <th className="text-left py-3 px-4">Internal Budget</th>
                   <th className="text-left py-3 px-4">Client-to-Company</th>
@@ -272,7 +293,9 @@ const CompanyAdminDashboard = () => {
 
                   return (
                     <tr key={i} className="border-b hover:bg-muted/50">
-                      <td className="py-3 px-4 font-medium">{position.position}</td>
+                      <td className="py-3 px-4 font-medium">{position.positionId}</td>
+                      <td className="py-3 px-4">{position.position}</td>
+                      <td className="py-3 px-4">{position.clientName}</td>
                       <td className="py-3 px-4">${position.clientBudget}/hr</td>
                       <td className="py-3 px-4">${position.internalBudget}/hr</td>
                       <td className="py-3 px-4 text-green-600">${clientToCompany}/hr</td>
@@ -288,8 +311,49 @@ const CompanyAdminDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Detailed Metrics Table with Filters */}
-      <MetricsTable />
+      {/* Charts - Moved to bottom */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Hiring Funnel</CardTitle>
+            <CardDescription>Screening to hire conversion rates</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={hiringData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Area type="monotone" dataKey="screenings" stackId="1" stroke="#8884d8" fill="#8884d8" />
+                <Area type="monotone" dataKey="interviews" stackId="2" stroke="#82ca9d" fill="#82ca9d" />
+                <Area type="monotone" dataKey="hires" stackId="3" stroke="#ffc658" fill="#ffc658" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Revenue & Profit</CardTitle>
+            <CardDescription>Monthly revenue and profit from placements</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value) => `$${value}`} />
+                <Legend />
+                <Line type="monotone" dataKey="revenue" name="Revenue" stroke="#9b87f5" strokeWidth={2} />
+                <Line type="monotone" dataKey="profit" name="Profit" stroke="#4ade80" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

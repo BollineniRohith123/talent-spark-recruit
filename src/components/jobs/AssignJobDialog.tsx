@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { UserPlus, Search, Check } from 'lucide-react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
   DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog';
@@ -19,36 +19,36 @@ const mockUsers = [
   {
     id: 'user-3',
     name: 'Jamie Garcia',
-    email: 'scout@talentspark.com',
-    role: 'talent-scout',
+    email: 'recruiter@talentspark.com',
+    role: 'marketing-recruiter',
     avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   {
     id: 'user-4',
     name: 'Robin Taylor',
-    email: 'member@talentspark.com',
-    role: 'team-member',
+    email: 'associate@talentspark.com',
+    role: 'marketing-associate',
     avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   {
     id: 'user-6',
     name: 'Jordan Lee',
     email: 'jordan@talentspark.com',
-    role: 'talent-scout',
+    role: 'marketing-recruiter',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   {
     id: 'user-7',
     name: 'Taylor Smith',
     email: 'taylor@talentspark.com',
-    role: 'team-member',
+    role: 'marketing-associate',
     avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   {
     id: 'user-8',
     name: 'Casey Wilson',
     email: 'casey@talentspark.com',
-    role: 'talent-scout',
+    role: 'marketing-recruiter',
     avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   }
 ];
@@ -60,42 +60,42 @@ interface AssignJobDialogProps {
   onAssign: (jobId: string, userId: string, userName: string) => void;
 }
 
-export const AssignJobDialog: React.FC<AssignJobDialogProps> = ({ 
-  isOpen, 
-  onClose, 
-  job, 
-  onAssign 
+export const AssignJobDialog: React.FC<AssignJobDialogProps> = ({
+  isOpen,
+  onClose,
+  job,
+  onAssign
 }) => {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(job.assignedTo);
-  
+
   // Filter users based on search query
   const filteredUsers = mockUsers.filter(user => {
     const query = searchQuery.toLowerCase();
     return (
-      user.name.toLowerCase().includes(query) || 
+      user.name.toLowerCase().includes(query) ||
       user.email.toLowerCase().includes(query) ||
       user.role.toLowerCase().includes(query)
     );
   });
-  
+
   // Handle user selection
   const handleSelectUser = (userId: string) => {
     setSelectedUserId(userId);
   };
-  
+
   // Handle assignment
   const handleAssign = () => {
     if (!selectedUserId) return;
-    
+
     const selectedUser = mockUsers.find(user => user.id === selectedUserId);
     if (selectedUser) {
       onAssign(job.id, selectedUser.id, selectedUser.name);
       onClose();
     }
   };
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -105,14 +105,14 @@ export const AssignJobDialog: React.FC<AssignJobDialogProps> = ({
             Assign this job to a scout or team member
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="py-4">
           <div className="mb-4">
             <div className="font-medium mb-1">Job</div>
             <div className="text-sm">{job.title}</div>
             <div className="text-xs text-muted-foreground">{job.department} • {job.location}</div>
           </div>
-          
+
           <div className="relative mb-4">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -122,12 +122,12 @@ export const AssignJobDialog: React.FC<AssignJobDialogProps> = ({
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          
+
           <div className="border rounded-md overflow-hidden">
             <div className="max-h-[240px] overflow-y-auto">
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user) => (
-                  <div 
+                  <div
                     key={user.id}
                     className={`flex items-center justify-between p-3 hover:bg-muted/50 cursor-pointer ${
                       selectedUserId === user.id ? 'bg-muted' : ''
@@ -142,11 +142,11 @@ export const AssignJobDialog: React.FC<AssignJobDialogProps> = ({
                       <div>
                         <div className="font-medium">{user.name}</div>
                         <div className="text-xs text-muted-foreground">
-                          {user.role === 'talent-scout' ? 'Talent Scout' : 'Team Member'}
+                          {user.role === 'marketing-recruiter' ? 'Marketing Recruiter' : 'Marketing Associate'}
                         </div>
                       </div>
                     </div>
-                    
+
                     {selectedUserId === user.id && (
                       <Check className="h-4 w-4 text-primary" />
                     )}
@@ -160,15 +160,15 @@ export const AssignJobDialog: React.FC<AssignJobDialogProps> = ({
             </div>
           </div>
         </div>
-        
+
         <DialogFooter className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            {selectedUserId 
+            {selectedUserId
               ? `Assigning to ${mockUsers.find(u => u.id === selectedUserId)?.name}`
               : 'Select a user to assign'
             }
           </div>
-          <Button 
+          <Button
             onClick={handleAssign}
             disabled={!selectedUserId}
           >

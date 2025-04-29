@@ -74,8 +74,8 @@ const mockUsers = [
 const JobCreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'company-admin';
-  const isHiringManager = user?.role === 'hiring-manager';
+  const isAdmin = user?.role === 'ceo';
+  const isHiringManager = user?.role === 'branch-manager' || user?.role === 'marketing-head' || user?.role === 'marketing-supervisor';
 
   // Form state
   const [title, setTitle] = useState('');

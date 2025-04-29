@@ -111,10 +111,10 @@ interface TalentSparkHeroProps {
 }
 
 export function TalentSparkHero({
-  badge = "AI-Powered Recruitment",
+  badge = "SmartMatch-Powered Recruitment",
   title = "TalentSpark",
   subtitle = "Revolutionizing Recruitment",
-  description = "Our AI-powered platform streamlines your hiring process with intelligent resume parsing, candidate matching, and profit optimization.",
+  description = "Our SmartMatch-powered platform streamlines your hiring process with intelligent resume parsing, candidate matching, and profit optimization.",
 }: TalentSparkHeroProps) {
   const textVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -260,30 +260,30 @@ export function TalentSparkHero({
             className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto"
           >
             <div className="flex flex-col items-center gap-3 p-4 rounded-lg bg-white/[0.03] border border-white/[0.08]">
-              <FeatureIcon 
-                icon={FileText} 
-                gradient="from-recruit-primary/[0.2]" 
-                delay={1.2} 
+              <FeatureIcon
+                icon={FileText}
+                gradient="from-recruit-primary/[0.2]"
+                delay={1.2}
               />
               <h3 className="text-lg font-medium text-white/90">Resume Parsing</h3>
               <p className="text-sm text-white/60">Extract key information from resumes automatically</p>
             </div>
-            
+
             <div className="flex flex-col items-center gap-3 p-4 rounded-lg bg-white/[0.03] border border-white/[0.08]">
-              <FeatureIcon 
-                icon={Cpu} 
-                gradient="from-recruit-secondary/[0.2]" 
-                delay={1.4} 
+              <FeatureIcon
+                icon={Cpu}
+                gradient="from-recruit-secondary/[0.2]"
+                delay={1.4}
               />
               <h3 className="text-lg font-medium text-white/90">Candidate Matching</h3>
-              <p className="text-sm text-white/60">Find the perfect fit with AI-powered matching</p>
+              <p className="text-sm text-white/60">Find the perfect fit with SmartMatch-powered matching</p>
             </div>
-            
+
             <div className="flex flex-col items-center gap-3 p-4 rounded-lg bg-white/[0.03] border border-white/[0.08]">
-              <FeatureIcon 
-                icon={PieChart} 
-                gradient="from-recruit-tertiary/[0.2]" 
-                delay={1.6} 
+              <FeatureIcon
+                icon={PieChart}
+                gradient="from-recruit-tertiary/[0.2]"
+                delay={1.6}
               />
               <h3 className="text-lg font-medium text-white/90">Profit Optimization</h3>
               <p className="text-sm text-white/60">Maximize ROI with data-driven insights</p>

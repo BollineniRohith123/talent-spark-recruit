@@ -1,21 +1,22 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  Calendar, 
-  Download, 
-  Filter, 
-  BarChart3, 
-  Users, 
-  ClipboardCheck, 
-  Award, 
-  DollarSign, 
-  TrendingUp 
+import {
+  Calendar,
+  Download,
+  Filter,
+  BarChart3,
+  Users,
+  ClipboardCheck,
+  Award,
+  DollarSign,
+  TrendingUp,
+  Info
 } from 'lucide-react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -56,20 +57,20 @@ import {
 const generateDailyData = () => {
   const days = 30; // Last 30 days
   const result = [];
-  
+
   const today = new Date();
-  
+
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
-    
+
     // Generate random but somewhat realistic metrics
     const screenings = Math.floor(Math.random() * 8) + 1;
     const interviews = Math.floor(screenings * 0.7);
     const hires = Math.floor(interviews * 0.3);
     const revenue = hires * (Math.floor(Math.random() * 5000) + 5000);
     const profit = Math.floor(revenue * 0.35);
-    
+
     result.push({
       date: date.toISOString().split('T')[0],
       day: date.toLocaleDateString('en-US', { weekday: 'short' }),
@@ -83,21 +84,21 @@ const generateDailyData = () => {
       conversionRate: Math.floor((hires / screenings) * 100)
     });
   }
-  
+
   return result;
 };
 
 // Aggregate daily data to weekly
 const aggregateToWeekly = (dailyData) => {
   const weeks = {};
-  
+
   dailyData.forEach(day => {
     const date = new Date(day.date);
     // Get the week number (approximate)
     const weekNum = Math.floor(date.getDate() / 7) + 1;
     const monthName = date.toLocaleDateString('en-US', { month: 'short' });
     const weekKey = `${monthName} W${weekNum}`;
-    
+
     if (!weeks[weekKey]) {
       weeks[weekKey] = {
         weekKey,
@@ -110,7 +111,7 @@ const aggregateToWeekly = (dailyData) => {
         days: 0
       };
     }
-    
+
     weeks[weekKey].screenings += day.screenings;
     weeks[weekKey].interviews += day.interviews;
     weeks[weekKey].hires += day.hires;
@@ -119,7 +120,7 @@ const aggregateToWeekly = (dailyData) => {
     weeks[weekKey].days += 1;
     weeks[weekKey].endDate = day.date;
   });
-  
+
   return Object.values(weeks).map(week => ({
     ...week,
     profitMargin: Math.floor((week.profit / week.revenue) * 100),
@@ -131,11 +132,11 @@ const aggregateToWeekly = (dailyData) => {
 // Aggregate daily data to monthly
 const aggregateToMonthly = (dailyData) => {
   const months = {};
-  
+
   dailyData.forEach(day => {
     const date = new Date(day.date);
     const monthKey = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-    
+
     if (!months[monthKey]) {
       months[monthKey] = {
         monthKey,
@@ -147,7 +148,7 @@ const aggregateToMonthly = (dailyData) => {
         days: 0
       };
     }
-    
+
     months[monthKey].screenings += day.screenings;
     months[monthKey].interviews += day.interviews;
     months[monthKey].hires += day.hires;
@@ -155,7 +156,7 @@ const aggregateToMonthly = (dailyData) => {
     months[monthKey].profit += day.profit;
     months[monthKey].days += 1;
   });
-  
+
   return Object.values(months).map(month => ({
     ...month,
     profitMargin: Math.floor((month.profit / month.revenue) * 100),
@@ -171,13 +172,12 @@ interface MetricsTableProps {
 export const MetricsTable: React.FC<MetricsTableProps> = ({ className }) => {
   const [timeRange, setTimeRange] = useState('weekly');
   const [viewMode, setViewMode] = useState('table');
-  const [metricType, setMetricType] = useState('recruitment');
-  
+
   // Generate and memoize data
   const dailyData = useMemo(() => generateDailyData(), []);
   const weeklyData = useMemo(() => aggregateToWeekly(dailyData), [dailyData]);
   const monthlyData = useMemo(() => aggregateToMonthly(dailyData), [dailyData]);
-  
+
   // Get the appropriate data based on selected time range
   const getData = () => {
     switch (timeRange) {
@@ -191,9 +191,9 @@ export const MetricsTable: React.FC<MetricsTableProps> = ({ className }) => {
         return weeklyData;
     }
   };
-  
+
   const data = getData();
-  
+
   // Format currency
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', {
@@ -202,44 +202,39 @@ export const MetricsTable: React.FC<MetricsTableProps> = ({ className }) => {
       maximumFractionDigits: 0
     }).format(value);
   };
-  
+
   // Handle export
   const handleExport = () => {
     // In a real app, this would generate a CSV file
     alert('Exporting data as CSV...');
   };
-  
-  // Get chart data based on metric type
+
+  // Get chart data
   const getChartData = () => {
-    if (metricType === 'recruitment') {
-      return data.map(item => ({
-        name: timeRange === 'daily' ? item.day : timeRange === 'weekly' ? item.weekKey : item.monthKey,
-        Screenings: item.screenings,
-        Interviews: item.interviews,
-        Hires: item.hires
-      }));
-    } else {
-      return data.map(item => ({
-        name: timeRange === 'daily' ? item.day : timeRange === 'weekly' ? item.weekKey : item.monthKey,
-        Revenue: item.revenue,
-        Profit: item.profit
-      }));
-    }
+    return data.map(item => ({
+      name: timeRange === 'daily' ? item.day : timeRange === 'weekly' ? item.weekKey : item.monthKey,
+      Screenings: item.screenings,
+      Interviews: item.interviews,
+      Hires: item.hires
+    }));
   };
-  
+
   const chartData = getChartData();
-  
+
   return (
     <Card className={className}>
       <CardHeader>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <CardTitle>Recruitment Metrics</CardTitle>
-            <CardDescription>
-              Track screenings, hires, and financial performance
+          <div className="flex items-center">
+            <CardTitle className="text-lg mr-2">Recruitment Metrics</CardTitle>
+            <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full">
+              <Info className="h-4 w-4 text-muted-foreground" />
+            </Button>
+            <CardDescription className="text-xs ml-1">
+              Track screenings and hires performance
             </CardDescription>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             <Select value={timeRange} onValueChange={setTimeRange}>
               <SelectTrigger className="w-[140px]">
@@ -252,25 +247,16 @@ export const MetricsTable: React.FC<MetricsTableProps> = ({ className }) => {
                 <SelectItem value="monthly">Monthly</SelectItem>
               </SelectContent>
             </Select>
-            
-            <Select value={metricType} onValueChange={setMetricType}>
-              <SelectTrigger className="w-[160px]">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Metric Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recruitment">Recruitment</SelectItem>
-                <SelectItem value="financial">Financial</SelectItem>
-              </SelectContent>
-            </Select>
-            
+
+
+
             <Button variant="outline" size="icon" onClick={handleExport}>
               <Download className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         <Tabs value={viewMode} onValueChange={setViewMode} className="w-full">
           <TabsList className="mb-4">
@@ -283,43 +269,67 @@ export const MetricsTable: React.FC<MetricsTableProps> = ({ className }) => {
               Chart
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="table" className="w-full">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>
-                      {timeRange === 'daily' ? 'Date' : 
-                       timeRange === 'weekly' ? 'Week' : 'Month'}
+                      <div className="flex items-center">
+                        {timeRange === 'daily' ? 'Date' :
+                         timeRange === 'weekly' ? 'Week' : 'Month'}
+                        <Button variant="ghost" size="icon" className="h-5 w-5 ml-1">
+                          <Info className="h-3 w-3 text-muted-foreground" />
+                        </Button>
+                      </div>
                     </TableHead>
-                    <TableHead>Screenings</TableHead>
-                    <TableHead>Interviews</TableHead>
-                    <TableHead>Hires</TableHead>
-                    <TableHead>Conversion Rate</TableHead>
-                    <TableHead>Revenue</TableHead>
-                    <TableHead>Profit</TableHead>
-                    <TableHead>Margin</TableHead>
-                    <TableHead>Time to Hire</TableHead>
+                    <TableHead>
+                      <div className="flex items-center">
+                        Screenings
+                        <Button variant="ghost" size="icon" className="h-5 w-5 ml-1">
+                          <Info className="h-3 w-3 text-muted-foreground" />
+                        </Button>
+                      </div>
+                    </TableHead>
+                    <TableHead>
+                      <div className="flex items-center">
+                        Interviews
+                        <Button variant="ghost" size="icon" className="h-5 w-5 ml-1">
+                          <Info className="h-3 w-3 text-muted-foreground" />
+                        </Button>
+                      </div>
+                    </TableHead>
+                    <TableHead>
+                      <div className="flex items-center">
+                        Hires
+                        <Button variant="ghost" size="icon" className="h-5 w-5 ml-1">
+                          <Info className="h-3 w-3 text-muted-foreground" />
+                        </Button>
+                      </div>
+                    </TableHead>
+
+                    <TableHead>
+                      <div className="flex items-center">
+                        Time to Hire
+                        <Button variant="ghost" size="icon" className="h-5 w-5 ml-1">
+                          <Info className="h-3 w-3 text-muted-foreground" />
+                        </Button>
+                      </div>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.map((item, index) => (
                     <TableRow key={index}>
                       <TableCell className="font-medium">
-                        {timeRange === 'daily' ? item.date : 
-                         timeRange === 'weekly' ? `${item.startDate} to ${item.endDate}` : 
+                        {timeRange === 'daily' ? item.date :
+                         timeRange === 'weekly' ? `${item.startDate} to ${item.endDate}` :
                          item.monthKey}
                       </TableCell>
                       <TableCell>{item.screenings}</TableCell>
                       <TableCell>{item.interviews}</TableCell>
                       <TableCell>{item.hires}</TableCell>
-                      <TableCell>{item.conversionRate}%</TableCell>
-                      <TableCell>{formatCurrency(item.revenue)}</TableCell>
-                      <TableCell className="text-green-600 font-medium">
-                        {formatCurrency(item.profit)}
-                      </TableCell>
-                      <TableCell>{item.profitMargin}%</TableCell>
                       <TableCell>{item.timeToHire} days</TableCell>
                     </TableRow>
                   ))}
@@ -327,78 +337,44 @@ export const MetricsTable: React.FC<MetricsTableProps> = ({ className }) => {
               </Table>
             </div>
           </TabsContent>
-          
+
           <TabsContent value="chart">
-            <div className="h-[400px] w-full">
-              {metricType === 'recruitment' ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="Screenings" fill="#8884d8" />
-                    <Bar dataKey="Interviews" fill="#82ca9d" />
-                    <Bar dataKey="Hires" fill="#ffc658" />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => formatCurrency(value)} />
-                    <Legend />
-                    <Line type="monotone" dataKey="Revenue" stroke="#8884d8" strokeWidth={2} />
-                    <Line type="monotone" dataKey="Profit" stroke="#82ca9d" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="Screenings" fill="#8884d8" />
+                  <Bar dataKey="Interviews" fill="#82ca9d" />
+                  <Bar dataKey="Hires" fill="#ffc658" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </TabsContent>
         </Tabs>
-        
+
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          <div className="bg-muted/50 p-4 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div className="bg-muted/50 p-3 rounded-lg">
             <div className="flex items-center">
-              <Users className="h-5 w-5 text-primary mr-2" />
-              <span className="text-sm font-medium">Total Screenings</span>
+              <Users className="h-4 w-4 text-primary mr-2" />
+              <span className="text-xs font-medium">Total Screenings</span>
             </div>
-            <div className="mt-2 text-2xl font-bold">
+            <div className="mt-1 text-lg font-bold">
               {data.reduce((sum, item) => sum + item.screenings, 0)}
             </div>
           </div>
-          
-          <div className="bg-muted/50 p-4 rounded-lg">
+
+          <div className="bg-muted/50 p-3 rounded-lg">
             <div className="flex items-center">
-              <Award className="h-5 w-5 text-primary mr-2" />
-              <span className="text-sm font-medium">Total Hires</span>
+              <Award className="h-4 w-4 text-primary mr-2" />
+              <span className="text-xs font-medium">Total Hires</span>
             </div>
-            <div className="mt-2 text-2xl font-bold">
+            <div className="mt-1 text-lg font-bold">
               {data.reduce((sum, item) => sum + item.hires, 0)}
-            </div>
-          </div>
-          
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <div className="flex items-center">
-              <DollarSign className="h-5 w-5 text-primary mr-2" />
-              <span className="text-sm font-medium">Total Revenue</span>
-            </div>
-            <div className="mt-2 text-2xl font-bold">
-              {formatCurrency(data.reduce((sum, item) => sum + item.revenue, 0))}
-            </div>
-          </div>
-          
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <div className="flex items-center">
-              <TrendingUp className="h-5 w-5 text-primary mr-2" />
-              <span className="text-sm font-medium">Total Profit</span>
-            </div>
-            <div className="mt-2 text-2xl font-bold text-green-600">
-              {formatCurrency(data.reduce((sum, item) => sum + item.profit, 0))}
             </div>
           </div>
         </div>

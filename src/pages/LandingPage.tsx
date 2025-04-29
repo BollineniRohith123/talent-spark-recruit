@@ -266,7 +266,7 @@ const LandingPage = () => {
                 </li>
                 <li className="flex items-center text-sm">
                   <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
-                  <span>AI screening administration</span>
+                  <span>SmartMatch screening administration</span>
                 </li>
                 <li className="flex items-center text-sm">
                   <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />

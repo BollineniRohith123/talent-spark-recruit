@@ -20,47 +20,73 @@ import {
   DollarSign,
   PieChart,
   Upload,
-  Briefcase
+  Briefcase,
+  Shield
 } from 'lucide-react';
 
 // Define menu items per role
 const menuItems: Record<UserRole, { title: string; path: string; icon: React.ElementType }[]> = {
-  'company-admin': [
+  'ceo': [
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
+    { title: 'Admin Panel', path: '/admin', icon: Shield },
     { title: 'Teams', path: '/teams', icon: Users },
     { title: 'Profiles', path: '/profiles', icon: UserPlus },
     { title: 'Job Listings', path: '/jobs', icon: Briefcase },
+    { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
+    { title: 'Resume Upload', path: '/resume-upload', icon: Upload },
     { title: 'Candidates', path: '/candidates', icon: ClipboardCheck },
+    { title: 'Screenings', path: '/screenings', icon: FileSearch },
+    { title: 'Interviews', path: '/interviews', icon: Calendar },
     { title: 'Reports', path: '/reports', icon: PieChart },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
-  'hiring-manager': [
+  'branch-manager': [
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
     { title: 'Teams', path: '/teams', icon: Users },
     { title: 'Profiles', path: '/profiles', icon: UserPlus },
     { title: 'Job Listings', path: '/jobs', icon: Briefcase },
+    { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
     { title: 'Candidates', path: '/candidates', icon: Users },
     { title: 'Reports', path: '/reports', icon: PieChart },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
-  'talent-scout': [
+  'marketing-head': [
+    { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
+    { title: 'Teams', path: '/teams', icon: Users },
+    { title: 'Profiles', path: '/profiles', icon: UserPlus },
+    { title: 'Job Listings', path: '/jobs', icon: Briefcase },
+    { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
+    { title: 'Candidates', path: '/candidates', icon: Users },
+    { title: 'Reports', path: '/reports', icon: PieChart },
+    { title: 'Settings', path: '/settings', icon: Settings },
+  ],
+  'marketing-supervisor': [
+    { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
+    { title: 'Teams', path: '/teams', icon: Users },
+    { title: 'Job Listings', path: '/jobs', icon: Briefcase },
+    { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
+    { title: 'Candidates', path: '/candidates', icon: Users },
+    { title: 'Reports', path: '/reports', icon: PieChart },
+    { title: 'Settings', path: '/settings', icon: Settings },
+  ],
+  'marketing-recruiter': [
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
     { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
     { title: 'Job Listings', path: '/jobs', icon: Briefcase },
     { title: 'Resume Upload', path: '/resume-upload', icon: Upload },
     { title: 'Candidates', path: '/candidates', icon: Users },
     { title: 'Screenings', path: '/screenings', icon: FileSearch },
-    { title: 'Feedback', path: '/feedback', icon: MessageSquare },
+    { title: 'Profiles', path: '/profiles', icon: UserPlus },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
-  'team-member': [
+  'marketing-associate': [
     { title: 'Dashboard', path: '/dashboard', icon: BarChart3 },
     { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
     { title: 'Job Listings', path: '/jobs', icon: Briefcase },
     { title: 'Resume Upload', path: '/resume-upload', icon: Upload },
     { title: 'Interviews', path: '/interviews', icon: Calendar },
     { title: 'Candidates', path: '/candidates', icon: Users },
-    { title: 'Feedback', path: '/feedback', icon: MessageSquare },
+    { title: 'Profiles', path: '/profiles', icon: UserPlus },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
   'applicant': [
