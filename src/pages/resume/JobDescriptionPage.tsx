@@ -144,6 +144,7 @@ const JobDescriptionPage = () => {
   const [jobTitle, setJobTitle] = useState('');
   const [location, setLocation] = useState('');
   const [client, setClient] = useState('');
+  const [clientBudget, setClientBudget] = useState('');
   const [internalBudget, setInternalBudget] = useState('');
   const [candidateSplit, setCandidateSplit] = useState('80'); // Default 80%
   const [companySplit, setCompanySplit] = useState('20'); // Default 20%
@@ -187,10 +188,29 @@ const JobDescriptionPage = () => {
 
     // Budget validation only for admin and hiring manager
     if (canSeeClientBudget) {
+      if (!clientBudget.trim()) {
+        toast({
+          title: "Missing Information",
+          description: "Please enter the client budget",
+          variant: "destructive",
+        });
+        return;
+      }
+
       if (!internalBudget.trim()) {
         toast({
           title: "Missing Information",
           description: "Please enter the internal budget",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate that client budget is greater than or equal to internal budget
+      if (parseFloat(clientBudget) < parseFloat(internalBudget)) {
+        toast({
+          title: "Invalid Budget",
+          description: "Client budget must be greater than or equal to internal budget",
           variant: "destructive",
         });
         return;
@@ -228,11 +248,17 @@ const JobDescriptionPage = () => {
 
       // Log profit information (in a real app, this would be saved to the database)
       if (canSeeClientBudget) {
+        const clientToCompanyProfit = parseFloat(clientBudget) - parseFloat(internalBudget);
+        const totalProfit = clientToCompanyProfit + companyProfit;
+
         console.log('Profit Configuration (Admin/Manager):', {
+          clientBudget: parseFloat(clientBudget),
           internalBudget: parseFloat(internalBudget),
+          clientToCompanyProfit,
           candidateSplit: parseInt(candidateSplit),
           companySplit: parseInt(companySplit),
-          companyProfit
+          companyToCandidate: companyProfit,
+          totalProfit
         });
       } else {
         console.log('Profit Configuration (Scout/Team Member):', {
@@ -497,6 +523,22 @@ const JobDescriptionPage = () => {
                         </div>
 
                         <div className="space-y-2">
+                          <Label htmlFor="clientBudget">Client Budget ($/hr)</Label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="clientBudget"
+                              type="number"
+                              placeholder="e.g. 100"
+                              value={clientBudget}
+                              onChange={(e) => setClientBudget(e.target.value)}
+                              className="pl-8"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground">Amount charged to client</p>
+                        </div>
+
+                        <div className="space-y-2">
                           <Label htmlFor="internalBudget">Internal Budget ($/hr)</Label>
                           <div className="relative">
                             <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -579,12 +621,33 @@ const JobDescriptionPage = () => {
                           </div>
 
                           <div className="space-y-2">
+                            {clientBudget && (
+                              <div className="flex justify-between text-sm">
+                                <span>Client-to-Company Profit:</span>
+                                <span className="font-medium text-green-600">
+                                  ${(parseFloat(clientBudget) - parseFloat(internalBudget)).toFixed(2)}/hr
+                                </span>
+                              </div>
+                            )}
+
                             <div className="flex justify-between text-sm">
-                              <span>Company Profit:</span>
+                              <span>Company-to-Candidate Profit:</span>
                               <span className="font-medium">
                                 ${((parseFloat(internalBudget) * parseInt(companySplit)) / 100).toFixed(2)}/hr
                               </span>
                             </div>
+
+                            {clientBudget && (
+                              <div className="flex justify-between text-sm">
+                                <span>Total Profit:</span>
+                                <span className="font-medium text-green-600">
+                                  ${(
+                                    (parseFloat(clientBudget) - parseFloat(internalBudget)) +
+                                    ((parseFloat(internalBudget) * parseInt(companySplit)) / 100)
+                                  ).toFixed(2)}/hr
+                                </span>
+                              </div>
+                            )}
 
                             {showProfitDetails && (
                               <>
@@ -666,6 +729,7 @@ const JobDescriptionPage = () => {
                       setJobTitle('');
                       setLocation('');
                       setClient('');
+                      setClientBudget('');
                       setInternalBudget('');
                       setCandidateSplit('80');
                       setCompanySplit('20');
