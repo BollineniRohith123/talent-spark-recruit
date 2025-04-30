@@ -392,50 +392,58 @@ const JobDescriptionPage = () => {
     : null;
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-bold">Job Descriptions</h1>
-        <p className="text-muted-foreground mt-2">
+    <div className="space-y-5 animate-fade-in">
+      <div className="border-b pb-4 mb-2">
+        <h1 className="text-3xl font-bold text-recruit-primary">Job Descriptions</h1>
+        <p className="text-muted-foreground mt-1">
           Create, manage, and match candidates to job descriptions
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="create">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Job
-          </TabsTrigger>
-          <TabsTrigger value="saved">
-            <FileText className="h-4 w-4 mr-2" />
-            Saved Jobs
-          </TabsTrigger>
-          {selectedJobId && (
-            <TabsTrigger value="view">
-              <FileText className="h-4 w-4 mr-2" />
-              View Job
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <div className="bg-muted/50 p-1 rounded-lg">
+          <TabsList className="bg-transparent">
+            <TabsTrigger value="create" className="data-[state=active]:bg-white data-[state=active]:text-recruit-primary">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Job
             </TabsTrigger>
-          )}
-        </TabsList>
+            <TabsTrigger value="saved" className="data-[state=active]:bg-white data-[state=active]:text-recruit-primary">
+              <FileText className="h-4 w-4 mr-2" />
+              Saved Jobs
+            </TabsTrigger>
+            {selectedJobId && (
+              <TabsTrigger value="view" className="data-[state=active]:bg-white data-[state=active]:text-recruit-primary">
+                <FileText className="h-4 w-4 mr-2" />
+                View Job
+              </TabsTrigger>
+            )}
+          </TabsList>
+        </div>
 
         <TabsContent value="create" className="space-y-6">
           {!showMatches ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Create Job Description</CardTitle>
+            <Card className="border-recruit-primary/20">
+              <CardHeader className="bg-gradient-to-r from-recruit-primary/5 to-transparent">
+                <div className="flex items-center gap-2">
+                  <Plus className="h-5 w-5 text-recruit-primary" />
+                  <CardTitle>Create Job Description</CardTitle>
+                </div>
                 <CardDescription>Enter details about the position to find matching candidates</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="space-y-5 pt-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {/* Basic Information */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Basic Information</h3>
+                    <div className="flex items-center gap-2 border-b pb-2">
+                      <Briefcase className="h-5 w-5 text-recruit-primary" />
+                      <h3 className="text-lg font-medium">Basic Information</h3>
+                    </div>
 
                     {/* File Upload Section */}
-                    <div className="border border-dashed border-muted-foreground/50 rounded-lg p-4 mb-4">
+                    <div className="border-2 border-dashed border-recruit-primary/20 rounded-lg p-5 bg-recruit-primary/5 hover:bg-recruit-primary/10 transition-colors">
                       <div className="flex flex-col items-center justify-center gap-2">
-                        <Upload className="h-8 w-8 text-muted-foreground" />
-                        <h4 className="font-medium">Upload Job Description</h4>
+                        <Upload className="h-10 w-10 text-recruit-primary/70" />
+                        <h4 className="font-medium text-recruit-primary">Upload Job Description</h4>
                         <p className="text-sm text-muted-foreground text-center">
                           Upload a PDF or DOC file to automatically extract job details
                         </p>
@@ -446,11 +454,11 @@ const JobDescriptionPage = () => {
                           className="hidden"
                           accept=".pdf,.doc,.docx"
                         />
-                        <div className="flex gap-2 mt-2">
+                        <div className="flex gap-2 mt-3">
                           <Button
                             variant="outline"
                             onClick={() => fileInputRef.current?.click()}
-                            className="text-xs"
+                            className="text-xs border-recruit-primary/30 hover:bg-recruit-primary/10"
                           >
                             <File className="h-4 w-4 mr-1" />
                             Select File
@@ -459,7 +467,7 @@ const JobDescriptionPage = () => {
                             <Button
                               variant="default"
                               onClick={handleFileUpload}
-                              className="text-xs"
+                              className="text-xs bg-recruit-primary hover:bg-recruit-primary/90"
                               disabled={uploading}
                             >
                               <FileUp className="h-4 w-4 mr-1" />
@@ -468,9 +476,10 @@ const JobDescriptionPage = () => {
                           )}
                         </div>
                         {selectedFile && (
-                          <p className="text-xs text-muted-foreground mt-2">
-                            Selected: {selectedFile.name}
-                          </p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2 bg-background p-2 rounded-md border">
+                            <FileText className="h-4 w-4 text-recruit-primary" />
+                            <span>Selected: {selectedFile.name}</span>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -605,59 +614,112 @@ const JobDescriptionPage = () => {
                       </div>
                     )}
 
-                      {/* Profit Calculation Preview - Only for higher roles */}
-                      {canSeeClientBudget && internalBudget && (
-                        <div className="mt-2 p-3 bg-muted rounded-md">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm font-medium">Profit Preview</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setShowProfitDetails(!showProfitDetails)}
-                              className="h-6 px-2 text-xs"
-                            >
-                              {showProfitDetails ? 'Hide Details' : 'Show Details'}
-                            </Button>
+                      {/* Profit Calculator - Only for higher roles */}
+                      {canSeeClientBudget && (
+                        <div className="mt-4 border-2 border-recruit-primary/20 rounded-md overflow-hidden">
+                          <div className="bg-recruit-primary/10 p-3 border-b border-recruit-primary/20">
+                            <div className="flex justify-between items-center">
+                              <h3 className="font-medium text-recruit-primary">Profit Calculator</h3>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowProfitDetails(!showProfitDetails)}
+                                className="h-6 px-2 text-xs"
+                              >
+                                {showProfitDetails ? 'Hide Details' : 'Show Details'}
+                              </Button>
+                            </div>
                           </div>
 
-                          <div className="space-y-2">
-                            {clientBudget && (
-                              <div className="flex justify-between text-sm">
-                                <span>Client-to-Company Profit:</span>
-                                <span className="font-medium text-green-600">
-                                  ${(parseFloat(clientBudget) - parseFloat(internalBudget)).toFixed(2)}/hr
-                                </span>
-                              </div>
-                            )}
+                          <div className="p-4 space-y-4">
+                            {/* Client-to-Company Profit */}
+                            <div className="space-y-3">
+                              <h4 className="text-sm font-medium">Client-to-Company Profit</h4>
+                              <div className="grid grid-cols-3 gap-2 items-center">
+                                <div className="col-span-1 text-sm text-muted-foreground">Client Budget:</div>
+                                <div className="col-span-2 font-medium">
+                                  ${clientBudget ? parseFloat(clientBudget).toFixed(2) : '0.00'}/hr
+                                </div>
 
-                            <div className="flex justify-between text-sm">
-                              <span>Company-to-Candidate Profit:</span>
-                              <span className="font-medium">
-                                ${((parseFloat(internalBudget) * parseInt(companySplit)) / 100).toFixed(2)}/hr
-                              </span>
+                                <div className="col-span-1 text-sm text-muted-foreground">Internal Budget:</div>
+                                <div className="col-span-2 font-medium">
+                                  ${internalBudget ? parseFloat(internalBudget).toFixed(2) : '0.00'}/hr
+                                </div>
+
+                                <div className="col-span-1 text-sm text-muted-foreground">Client-to-Company Profit:</div>
+                                <div className="col-span-2 font-medium text-green-600">
+                                  ${clientBudget && internalBudget ?
+                                    (parseFloat(clientBudget) - parseFloat(internalBudget)).toFixed(2) :
+                                    '0.00'}/hr
+                                </div>
+                              </div>
                             </div>
 
-                            {clientBudget && (
-                              <div className="flex justify-between text-sm">
-                                <span>Total Profit:</span>
+                            {/* Company-to-Candidate Profit */}
+                            <div className="space-y-3">
+                              <h4 className="text-sm font-medium">Company-to-Candidate Profit</h4>
+                              <div className="grid grid-cols-3 gap-2 items-center">
+                                <div className="col-span-1 text-sm text-muted-foreground">Internal Budget:</div>
+                                <div className="col-span-2 font-medium">
+                                  ${internalBudget ? parseFloat(internalBudget).toFixed(2) : '0.00'}/hr
+                                </div>
+
+                                <div className="col-span-1 text-sm text-muted-foreground">Company Share:</div>
+                                <div className="col-span-2 font-medium">
+                                  {companySplit}%
+                                </div>
+
+                                <div className="col-span-1 text-sm text-muted-foreground">Company-to-Candidate Profit:</div>
+                                <div className="col-span-2 font-medium text-green-600">
+                                  ${internalBudget ?
+                                    ((parseFloat(internalBudget) * parseInt(companySplit)) / 100).toFixed(2) :
+                                    '0.00'}/hr
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Total Profit Summary */}
+                            <div className="bg-muted p-3 rounded-md space-y-2">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium">Total Profit:</span>
                                 <span className="font-medium text-green-600">
-                                  ${(
-                                    (parseFloat(clientBudget) - parseFloat(internalBudget)) +
-                                    ((parseFloat(internalBudget) * parseInt(companySplit)) / 100)
-                                  ).toFixed(2)}/hr
+                                  ${clientBudget && internalBudget ?
+                                    ((parseFloat(clientBudget) - parseFloat(internalBudget)) +
+                                    ((parseFloat(internalBudget) * parseInt(companySplit)) / 100)).toFixed(2) :
+                                    '0.00'}/hr
                                 </span>
                               </div>
-                            )}
 
-                            {showProfitDetails && (
-                              <>
-                                <div className="flex justify-between text-sm">
-                                  <span>Candidate Payment:</span>
-                                  <span className="font-medium">
-                                    ${((parseFloat(internalBudget) * parseInt(candidateSplit)) / 100).toFixed(2)}/hr
+                              {clientBudget && (
+                                <div className="flex justify-between items-center">
+                                  <span className="font-medium">Profit Margin:</span>
+                                  <span className="font-medium text-green-600">
+                                    {(((parseFloat(clientBudget) - parseFloat(internalBudget)) +
+                                    ((parseFloat(internalBudget) * parseInt(companySplit)) / 100)) /
+                                    parseFloat(clientBudget) * 100).toFixed(2)}%
                                   </span>
                                 </div>
-                              </>
+                              )}
+                            </div>
+
+                            {/* Additional Details */}
+                            {showProfitDetails && (
+                              <div className="space-y-3 border-t pt-3">
+                                <h4 className="text-sm font-medium">Additional Details</h4>
+                                <div className="grid grid-cols-3 gap-2 items-center">
+                                  <div className="col-span-1 text-sm text-muted-foreground">Candidate Share:</div>
+                                  <div className="col-span-2 font-medium">
+                                    {candidateSplit}%
+                                  </div>
+
+                                  <div className="col-span-1 text-sm text-muted-foreground">Candidate Payment:</div>
+                                  <div className="col-span-2 font-medium">
+                                    ${internalBudget ?
+                                      ((parseFloat(internalBudget) * parseInt(candidateSplit)) / 100).toFixed(2) :
+                                      '0.00'}/hr
+                                  </div>
+                                </div>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -667,87 +729,129 @@ const JobDescriptionPage = () => {
 
                   {/* Detailed Description */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Job Details</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="jobDescription">Job Description *</Label>
+                    <div className="flex items-center gap-2 border-b pb-2">
+                      <FileText className="h-5 w-5 text-recruit-primary" />
+                      <h3 className="text-lg font-medium">Job Details</h3>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="jobDescription" className="font-medium">Job Description *</Label>
+                        <span className="text-xs text-muted-foreground">{jobDescription.length} characters</span>
+                      </div>
                       <Textarea
                         id="jobDescription"
                         placeholder="Enter a general overview of the position..."
                         rows={6}
                         value={jobDescription}
                         onChange={(e) => setJobDescription(e.target.value)}
+                        className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="responsibilities">Key Responsibilities</Label>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="responsibilities" className="font-medium">Key Responsibilities</Label>
+                        <span className="text-xs text-muted-foreground">{responsibilities.length} characters</span>
+                      </div>
                       <Textarea
                         id="responsibilities"
                         placeholder="Enter job responsibilities..."
                         rows={4}
                         value={responsibilities}
                         onChange={(e) => setResponsibilities(e.target.value)}
+                        className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30"
                       />
                     </div>
                   </div>
 
                   {/* Requirements and Benefits */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="requirements">Requirements & Qualifications</Label>
-                      <Textarea
-                        id="requirements"
-                        placeholder="Enter required skills, experience, education..."
-                        rows={5}
-                        value={requirements}
-                        onChange={(e) => setRequirements(e.target.value)}
-                      />
+                  <div className="border-t pt-4 mt-2">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Users className="h-5 w-5 text-recruit-primary" />
+                      <h3 className="text-lg font-medium">Requirements & Benefits</h3>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="benefits">Benefits & Perks</Label>
-                      <Textarea
-                        id="benefits"
-                        placeholder="Enter benefits, perks, work environment details..."
-                        rows={5}
-                        value={benefits}
-                        onChange={(e) => setBenefits(e.target.value)}
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="space-y-3 bg-muted/30 p-4 rounded-lg border border-border/50">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="requirements" className="font-medium flex items-center">
+                            <Check className="h-4 w-4 mr-1 text-recruit-primary" />
+                            Requirements & Qualifications
+                          </Label>
+                          <span className="text-xs text-muted-foreground">{requirements.length} characters</span>
+                        </div>
+                        <Textarea
+                          id="requirements"
+                          placeholder="Enter required skills, experience, education..."
+                          rows={5}
+                          value={requirements}
+                          onChange={(e) => setRequirements(e.target.value)}
+                          className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30 bg-white"
+                        />
+                      </div>
+                      <div className="space-y-3 bg-muted/30 p-4 rounded-lg border border-border/50">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="benefits" className="font-medium flex items-center">
+                            <DollarSign className="h-4 w-4 mr-1 text-recruit-primary" />
+                            Benefits & Perks
+                          </Label>
+                          <span className="text-xs text-muted-foreground">{benefits.length} characters</span>
+                        </div>
+                        <Textarea
+                          id="benefits"
+                          placeholder="Enter benefits, perks, work environment details..."
+                          rows={5}
+                          value={benefits}
+                          onChange={(e) => setBenefits(e.target.value)}
+                          className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30 bg-white"
+                        />
+                      </div>
                     </div>
                   </div>
 
                   {uploading && (
-                    <div className="space-y-2">
+                    <div className="space-y-2 bg-muted p-4 rounded-lg border animate-pulse">
                       <div className="flex justify-between text-sm">
-                        <span>Processing job description...</span>
-                        <span>{uploadProgress}%</span>
+                        <span className="flex items-center">
+                          <FileUp className="h-4 w-4 mr-2 text-recruit-primary animate-bounce" />
+                          Processing job description...
+                        </span>
+                        <span className="font-medium">{uploadProgress}%</span>
                       </div>
-                      <Progress value={uploadProgress} />
+                      <Progress value={uploadProgress} className="h-2" />
                     </div>
                   )}
 
-                  <div className="flex justify-end gap-3">
-                    <Button variant="outline" onClick={() => {
-                      setJobTitle('');
-                      setLocation('');
-                      setClient('');
-                      setClientBudget('');
-                      setInternalBudget('');
-                      setCandidateSplit('80');
-                      setCompanySplit('20');
-                      setShowProfitDetails(false);
-                      setJobDescription('');
-                      setResponsibilities('');
-                      setRequirements('');
-                      setBenefits('');
-                    }}>
+                  <div className="flex justify-end gap-3 border-t pt-5 mt-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setJobTitle('');
+                        setLocation('');
+                        setClient('');
+                        setClientBudget('');
+                        setInternalBudget('');
+                        setCandidateSplit('80');
+                        setCompanySplit('20');
+                        setShowProfitDetails(false);
+                        setJobDescription('');
+                        setResponsibilities('');
+                        setRequirements('');
+                        setBenefits('');
+                      }}
+                      className="border-recruit-primary/30 hover:bg-recruit-primary/10"
+                    >
+                      <File className="mr-2 h-4 w-4" />
                       Clear Form
                     </Button>
                     <Button
                       onClick={handleCreateJob}
                       disabled={uploading}
-                      className="bg-recruit-primary hover:bg-recruit-primary/90"
+                      className="bg-recruit-primary hover:bg-recruit-primary/90 transition-all duration-200"
                     >
                       {uploading ? (
-                        <>Processing...</>
+                        <div className="flex items-center">
+                          <span className="h-4 w-4 mr-2 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                          Processing...
+                        </div>
                       ) : (
                         <>
                           <FileUp className="mr-2 h-4 w-4" />
@@ -856,76 +960,116 @@ const JobDescriptionPage = () => {
         </TabsContent>
 
         <TabsContent value="saved" className="space-y-6">
-          <div className="flex flex-wrap items-center gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search job titles..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[150px]">
-                  <SelectValue placeholder="Status Filter" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="closed">Closed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <Card className="mb-4">
+            <CardContent className="p-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search job titles..."
+                    className="pl-8"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[150px]">
+                      <SelectValue placeholder="Status Filter" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="closed">Closed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {filteredJobs.length === 0 ? (
-            <div className="text-center py-12">
-              <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-              <h3 className="text-lg font-medium mb-1">No job descriptions found</h3>
-              <p className="text-muted-foreground">
-                Try changing your search or filter criteria
-              </p>
-            </div>
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <FileText className="h-12 w-12 text-muted-foreground mb-3" />
+                <h3 className="text-lg font-medium mb-1">No job descriptions found</h3>
+                <p className="text-muted-foreground">
+                  Try changing your search or filter criteria
+                </p>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-3">
               {filteredJobs.map((job) => (
-                <Card key={job.id} className="hover:border-primary/50 transition-colors">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
+                <Card
+                  key={job.id}
+                  className="hover:border-recruit-primary/50 hover:shadow-sm transition-all duration-200"
+                >
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="space-y-2 flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-medium text-lg hover:text-primary cursor-pointer" onClick={() => handleViewJob(job.id)}>
+                          <h3
+                            className="font-medium text-lg hover:text-recruit-primary cursor-pointer transition-colors"
+                            onClick={() => handleViewJob(job.id)}
+                          >
                             {job.title}
                           </h3>
-                          <Badge variant={job.status === 'active' ? 'default' : 'secondary'}>
+                          <Badge
+                            variant={job.status === 'active' ? 'default' : 'secondary'}
+                            className={job.status === 'active' ? 'bg-green-100 text-green-800 hover:bg-green-100' : ''}
+                          >
                             {job.status === 'active' ? 'Active' : 'Closed'}
                           </Badge>
                         </div>
-                        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-muted-foreground">
                           <div className="flex items-center">
-                            <Building className="h-4 w-4 mr-1" />
-                            {job.department}
+                            <Building className="h-4 w-4 mr-1 flex-shrink-0" />
+                            <span className="truncate">{job.department}</span>
                           </div>
                           <div className="flex items-center">
-                            <Briefcase className="h-4 w-4 mr-1" />
-                            {job.client}
+                            <Briefcase className="h-4 w-4 mr-1 flex-shrink-0" />
+                            <span className="truncate">{job.client}</span>
                           </div>
                           <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1" />
-                            Posted: {new Date(job.postedDate).toLocaleDateString()}
+                            <Clock className="h-4 w-4 mr-1 flex-shrink-0" />
+                            <span className="truncate">Posted: {new Date(job.postedDate).toLocaleDateString()}</span>
                           </div>
                           <div className="flex items-center">
-                            <Users className="h-4 w-4 mr-1" />
-                            {job.applicants} applicants
+                            <Users className="h-4 w-4 mr-1 flex-shrink-0" />
+                            <span className="truncate">{job.applicants} applicants</span>
                           </div>
                         </div>
-                        <p className="text-sm line-clamp-2 mt-2">
+
+                        <p className="text-sm line-clamp-2 text-muted-foreground">
                           {job.description}
                         </p>
+
+                        {canSeeClientBudget && (
+                          <div className="flex items-center gap-4 text-sm mt-1">
+                            <div className="flex items-center text-green-600">
+                              <DollarSign className="h-4 w-4 mr-1" />
+                              Client: ${job.clientBudget}/hr
+                            </div>
+                            <div className="flex items-center">
+                              <DollarSign className="h-4 w-4 mr-1" />
+                              Internal: ${job.internalBudget}/hr
+                            </div>
+                            <div className="flex items-center text-green-600 font-medium">
+                              <Percent className="h-4 w-4 mr-1" />
+                              Profit: ${(job.clientBudget - job.internalBudget).toFixed(2)}/hr
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <Button onClick={() => handleViewJob(job.id)}>View Details</Button>
+
+                      <Button
+                        onClick={() => handleViewJob(job.id)}
+                        className="bg-recruit-primary hover:bg-recruit-primary/90"
+                      >
+                        View Details
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -936,98 +1080,146 @@ const JobDescriptionPage = () => {
 
         {selectedJob && (
           <TabsContent value="view" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between">
+            <Card className="border-recruit-primary/20">
+              <CardHeader className="bg-gradient-to-r from-recruit-primary/5 to-transparent">
+                <div className="flex justify-between items-start">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <CardTitle>{selectedJob.title}</CardTitle>
-                      <Badge variant={selectedJob.status === 'active' ? 'default' : 'secondary'}>
+                      <CardTitle className="text-recruit-primary">{selectedJob.title}</CardTitle>
+                      <Badge
+                        variant={selectedJob.status === 'active' ? 'default' : 'secondary'}
+                        className={selectedJob.status === 'active' ? 'bg-green-100 text-green-800 hover:bg-green-100' : ''}
+                      >
                         {selectedJob.status === 'active' ? 'Active' : 'Closed'}
                       </Badge>
                     </div>
-                    <CardDescription>
-                      {selectedJob.department} · {selectedJob.location} · Posted {new Date(selectedJob.postedDate).toLocaleDateString()}
+                    <CardDescription className="flex flex-wrap gap-2 items-center">
+                      <span className="flex items-center">
+                        <Building className="h-4 w-4 mr-1" />
+                        {selectedJob.department}
+                      </span>
+                      <span>·</span>
+                      <span className="flex items-center">
+                        <Briefcase className="h-4 w-4 mr-1" />
+                        {selectedJob.location}
+                      </span>
+                      <span>·</span>
+                      <span className="flex items-center">
+                        <Clock className="h-4 w-4 mr-1" />
+                        Posted {new Date(selectedJob.postedDate).toLocaleDateString()}
+                      </span>
                     </CardDescription>
                   </div>
                   <div className="space-x-2">
-                    <Button variant="outline">Edit</Button>
-                    <Button onClick={handleFindMatches}>Find Matches</Button>
+                    <Button variant="outline" size="sm">
+                      <FileText className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button onClick={handleFindMatches} size="sm" className="bg-recruit-primary hover:bg-recruit-primary/90">
+                      <Users className="h-4 w-4 mr-1" />
+                      Find Matches
+                    </Button>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-muted p-4 rounded-lg">
-                    <h4 className="text-sm font-medium mb-1">Client</h4>
-                    <p>{selectedJob.client}</p>
+                  <div className="bg-muted p-4 rounded-lg border border-border/50 hover:border-recruit-primary/30 transition-colors">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Briefcase className="h-4 w-4 text-recruit-primary" />
+                      <h4 className="text-sm font-medium">Client</h4>
+                    </div>
+                    <p className="font-medium">{selectedJob.client}</p>
                   </div>
-                  <div className="bg-muted p-4 rounded-lg">
-                    <h4 className="text-sm font-medium mb-1">{canSeeClientBudget ? 'Client Budget' : 'Internal Budget'}</h4>
-                    <p>${canSeeClientBudget ? selectedJob.clientBudget : selectedJob.internalBudget}/hr</p>
+                  <div className="bg-muted p-4 rounded-lg border border-border/50 hover:border-recruit-primary/30 transition-colors">
+                    <div className="flex items-center gap-2 mb-1">
+                      <DollarSign className="h-4 w-4 text-recruit-primary" />
+                      <h4 className="text-sm font-medium">{canSeeClientBudget ? 'Client Budget' : 'Internal Budget'}</h4>
+                    </div>
+                    <p className="font-medium">${canSeeClientBudget ? selectedJob.clientBudget : selectedJob.internalBudget}/hr</p>
                   </div>
-                  <div className="bg-muted p-4 rounded-lg">
-                    <h4 className="text-sm font-medium mb-1">Applicants</h4>
-                    <p>{selectedJob.applicants} total applications</p>
+                  <div className="bg-muted p-4 rounded-lg border border-border/50 hover:border-recruit-primary/30 transition-colors">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Users className="h-4 w-4 text-recruit-primary" />
+                      <h4 className="text-sm font-medium">Applicants</h4>
+                    </div>
+                    <p className="font-medium">{selectedJob.applicants} total applications</p>
                   </div>
                 </div>
 
-                {/* Profit Configuration Details */}
-                <Card className="mb-6 border-dashed">
-                  <CardHeader className="py-3">
-                    <CardTitle className="text-base">
-                      {canSeeClientBudget ? 'Profit Configuration' : 'Profit Split'}
-                    </CardTitle>
-                    <CardDescription>
-                      {canSeeClientBudget ? 'Budget allocation and profit margins' : 'Internal budget allocation'}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="py-3">
+                {/* Profit Calculator */}
+                <div className="mb-6 border-2 border-recruit-primary/20 rounded-md overflow-hidden">
+                  <div className="bg-recruit-primary/10 p-3 border-b border-recruit-primary/20">
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-medium text-recruit-primary">
+                        {canSeeClientBudget ? 'Profit Calculator' : 'Profit Split'}
+                      </h3>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6">
+                              <Info className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm">
+                            <p>
+                              {canSeeClientBudget
+                                ? 'Complete profit breakdown including client-to-company and company-to-candidate calculations.'
+                                : 'Internal budget allocation between company and candidate.'}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+
+                  <div className="p-4 space-y-4">
                     {canSeeClientBudget ? (
                       <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <h4 className="text-sm font-medium mb-2">Budget Allocation</h4>
-                            <div className="space-y-3">
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm">Client Budget:</span>
-                                <span className="font-medium">${selectedJob.clientBudget}/hr</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm">Internal Budget:</span>
-                                <span className="font-medium">${selectedJob.internalBudget}/hr</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm">Client-to-Company Profit:</span>
-                                <span className="font-medium text-green-600">
-                                  ${(selectedJob.clientBudget - selectedJob.internalBudget).toFixed(2)}/hr
-                                </span>
-                              </div>
+                        {/* Client-to-Company Profit */}
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-medium">Client-to-Company Profit</h4>
+                          <div className="grid grid-cols-3 gap-2 items-center">
+                            <div className="col-span-1 text-sm text-muted-foreground">Client Budget:</div>
+                            <div className="col-span-2 font-medium">
+                              ${selectedJob.clientBudget.toFixed(2)}/hr
                             </div>
-                          </div>
 
-                          <div>
-                            <h4 className="text-sm font-medium mb-2">Internal Budget Split</h4>
-                            <div className="space-y-3">
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm">Candidate Share:</span>
-                                <span className="font-medium">{selectedJob.candidateSplit}% (${((selectedJob.internalBudget * selectedJob.candidateSplit) / 100).toFixed(2)}/hr)</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm">Company Share:</span>
-                                <span className="font-medium">{selectedJob.companySplit}% (${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr)</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm">Company-to-Candidate Profit:</span>
-                                <span className="font-medium text-green-600">
-                                  ${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr
-                                </span>
-                              </div>
+                            <div className="col-span-1 text-sm text-muted-foreground">Internal Budget:</div>
+                            <div className="col-span-2 font-medium">
+                              ${selectedJob.internalBudget.toFixed(2)}/hr
+                            </div>
+
+                            <div className="col-span-1 text-sm text-muted-foreground">Client-to-Company Profit:</div>
+                            <div className="col-span-2 font-medium text-green-600">
+                              ${(selectedJob.clientBudget - selectedJob.internalBudget).toFixed(2)}/hr
                             </div>
                           </div>
                         </div>
 
-                        <div className="bg-muted p-3 rounded-md">
+                        {/* Company-to-Candidate Profit */}
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-medium">Company-to-Candidate Profit</h4>
+                          <div className="grid grid-cols-3 gap-2 items-center">
+                            <div className="col-span-1 text-sm text-muted-foreground">Internal Budget:</div>
+                            <div className="col-span-2 font-medium">
+                              ${selectedJob.internalBudget.toFixed(2)}/hr
+                            </div>
+
+                            <div className="col-span-1 text-sm text-muted-foreground">Company Share:</div>
+                            <div className="col-span-2 font-medium">
+                              {selectedJob.companySplit}%
+                            </div>
+
+                            <div className="col-span-1 text-sm text-muted-foreground">Company-to-Candidate Profit:</div>
+                            <div className="col-span-2 font-medium text-green-600">
+                              ${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Total Profit Summary */}
+                        <div className="bg-muted p-3 rounded-md space-y-2">
                           <div className="flex justify-between items-center">
                             <span className="font-medium">Total Profit:</span>
                             <span className="font-medium text-green-600">
@@ -1037,7 +1229,8 @@ const JobDescriptionPage = () => {
                               ).toFixed(2)}/hr
                             </span>
                           </div>
-                          <div className="flex justify-between items-center mt-1">
+
+                          <div className="flex justify-between items-center">
                             <span className="font-medium">Profit Margin:</span>
                             <span className="font-medium text-green-600">
                               {(
@@ -1048,29 +1241,48 @@ const JobDescriptionPage = () => {
                             </span>
                           </div>
                         </div>
+
+                        {/* Additional Details */}
+                        <div className="space-y-3 border-t pt-3">
+                          <h4 className="text-sm font-medium">Additional Details</h4>
+                          <div className="grid grid-cols-3 gap-2 items-center">
+                            <div className="col-span-1 text-sm text-muted-foreground">Candidate Share:</div>
+                            <div className="col-span-2 font-medium">
+                              {selectedJob.candidateSplit}%
+                            </div>
+
+                            <div className="col-span-1 text-sm text-muted-foreground">Candidate Payment:</div>
+                            <div className="col-span-2 font-medium">
+                              ${((selectedJob.internalBudget * selectedJob.candidateSplit) / 100).toFixed(2)}/hr
+                            </div>
+                          </div>
+                        </div>
                       </>
                     ) : (
                       <>
                         {/* Limited view for scouts and team members */}
                         <div className="space-y-4">
-                          <div>
-                            <h4 className="text-sm font-medium mb-2">Internal Budget</h4>
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm">Budget:</span>
-                              <span className="font-medium">${selectedJob.internalBudget}/hr</span>
+                          <div className="space-y-3">
+                            <h4 className="text-sm font-medium">Internal Budget</h4>
+                            <div className="grid grid-cols-3 gap-2 items-center">
+                              <div className="col-span-1 text-sm text-muted-foreground">Budget:</div>
+                              <div className="col-span-2 font-medium">
+                                ${selectedJob.internalBudget.toFixed(2)}/hr
+                              </div>
                             </div>
                           </div>
 
-                          <div>
-                            <h4 className="text-sm font-medium mb-2">Budget Split</h4>
-                            <div className="space-y-3">
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm">Candidate Share:</span>
-                                <span className="font-medium">{selectedJob.candidateSplit}% (${((selectedJob.internalBudget * selectedJob.candidateSplit) / 100).toFixed(2)}/hr)</span>
+                          <div className="space-y-3">
+                            <h4 className="text-sm font-medium">Budget Split</h4>
+                            <div className="grid grid-cols-3 gap-2 items-center">
+                              <div className="col-span-1 text-sm text-muted-foreground">Candidate Share:</div>
+                              <div className="col-span-2 font-medium">
+                                {selectedJob.candidateSplit}% (${((selectedJob.internalBudget * selectedJob.candidateSplit) / 100).toFixed(2)}/hr)
                               </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm">Company Share:</span>
-                                <span className="font-medium">{selectedJob.companySplit}% (${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr)</span>
+
+                              <div className="col-span-1 text-sm text-muted-foreground">Company Share:</div>
+                              <div className="col-span-2 font-medium">
+                                {selectedJob.companySplit}% (${((selectedJob.internalBudget * selectedJob.companySplit) / 100).toFixed(2)}/hr)
                               </div>
                             </div>
                           </div>
@@ -1086,37 +1298,48 @@ const JobDescriptionPage = () => {
                         </div>
                       </>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
                 <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">Job Description</h3>
-                    <p className="text-muted-foreground whitespace-pre-line">
-                      {selectedJob.description}
-                    </p>
+                  <div className="bg-white border rounded-lg p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <FileText className="h-5 w-5 text-recruit-primary" />
+                      <h3 className="text-lg font-medium">Job Description</h3>
+                    </div>
+                    <div className="prose max-w-none">
+                      <p className="text-muted-foreground whitespace-pre-line">
+                        {selectedJob.description}
+                      </p>
+                    </div>
                   </div>
 
                   {uploading && (
-                    <div className="space-y-2">
+                    <div className="space-y-2 bg-muted p-4 rounded-lg border animate-pulse">
                       <div className="flex justify-between text-sm">
-                        <span>Searching for matching candidates...</span>
-                        <span>{uploadProgress}%</span>
+                        <span className="flex items-center">
+                          <Users className="h-4 w-4 mr-2 text-recruit-primary animate-spin" />
+                          Searching for matching candidates...
+                        </span>
+                        <span className="font-medium">{uploadProgress}%</span>
                       </div>
-                      <Progress value={uploadProgress} />
+                      <Progress value={uploadProgress} className="h-2" />
                     </div>
                   )}
 
                   {showMatches && (
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <h3 className="text-lg font-medium">Matching Candidates</h3>
+                    <div className="space-y-4 bg-white border rounded-lg p-5">
+                      <div className="flex justify-between items-center border-b pb-3">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-5 w-5 text-recruit-primary" />
+                          <h3 className="text-lg font-medium">Matching Candidates</h3>
+                        </div>
                         <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
                           {matchedCandidates.length} matches found
                         </Badge>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {matchedCandidates.map((candidate) => (
                           <CandidateCard
                             key={candidate.id}
