@@ -431,7 +431,7 @@ const JobDescriptionPage = () => {
                 <CardDescription>Enter details about the position to find matching candidates</CardDescription>
               </CardHeader>
               <CardContent className="space-y-5 pt-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-5">
                   {/* Basic Information */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 border-b pb-2">
@@ -440,82 +440,90 @@ const JobDescriptionPage = () => {
                     </div>
 
                     {/* File Upload Section */}
-                    <div className="border-2 border-dashed border-recruit-primary/20 rounded-lg p-5 bg-recruit-primary/5 hover:bg-recruit-primary/10 transition-colors">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <Upload className="h-10 w-10 text-recruit-primary/70" />
-                        <h4 className="font-medium text-recruit-primary">Upload Job Description</h4>
-                        <p className="text-sm text-muted-foreground text-center">
-                          Upload a PDF or DOC file to automatically extract job details
-                        </p>
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          onChange={handleFileChange}
-                          className="hidden"
-                          accept=".pdf,.doc,.docx"
-                        />
-                        <div className="flex gap-2 mt-3">
-                          <Button
-                            variant="outline"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="text-xs border-recruit-primary/30 hover:bg-recruit-primary/10"
-                          >
-                            <File className="h-4 w-4 mr-1" />
-                            Select File
-                          </Button>
-                          {selectedFile && (
+                    <div className="border-2 border-dashed border-recruit-primary/20 rounded-lg p-4 bg-recruit-primary/5 hover:bg-recruit-primary/10 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="flex-shrink-0 flex flex-col items-center">
+                          <Upload className="h-10 w-10 text-recruit-primary/70" />
+                        </div>
+                        <div className="flex-grow">
+                          <h4 className="font-medium text-recruit-primary">Upload Job Description</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Upload a PDF or DOC file to automatically extract job details
+                          </p>
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            className="hidden"
+                            accept=".pdf,.doc,.docx"
+                          />
+                          <div className="flex gap-2 mt-2">
                             <Button
-                              variant="default"
-                              onClick={handleFileUpload}
-                              className="text-xs bg-recruit-primary hover:bg-recruit-primary/90"
-                              disabled={uploading}
+                              variant="outline"
+                              onClick={() => fileInputRef.current?.click()}
+                              className="text-xs border-recruit-primary/30 hover:bg-recruit-primary/10"
+                              size="sm"
                             >
-                              <FileUp className="h-4 w-4 mr-1" />
-                              Parse Job Description
+                              <File className="h-4 w-4 mr-1" />
+                              Select File
                             </Button>
+                            {selectedFile && (
+                              <Button
+                                variant="default"
+                                onClick={handleFileUpload}
+                                className="text-xs bg-recruit-primary hover:bg-recruit-primary/90"
+                                disabled={uploading}
+                                size="sm"
+                              >
+                                <FileUp className="h-4 w-4 mr-1" />
+                                Parse Job Description
+                              </Button>
+                            )}
+                          </div>
+                          {selectedFile && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2 bg-background p-2 rounded-md border">
+                              <FileText className="h-4 w-4 text-recruit-primary" />
+                              <span>Selected: {selectedFile.name}</span>
+                            </div>
                           )}
                         </div>
-                        {selectedFile && (
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2 bg-background p-2 rounded-md border">
-                            <FileText className="h-4 w-4 text-recruit-primary" />
-                            <span>Selected: {selectedFile.name}</span>
-                          </div>
-                        )}
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="jobTitle">Job Title *</Label>
-                      <Input
-                        id="jobTitle"
-                        placeholder="e.g. Senior Software Engineer"
-                        value={jobTitle}
-                        onChange={(e) => setJobTitle(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        id="location"
-                        placeholder="e.g. Remote, New York, NY"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="client">Client</Label>
-                      <Input
-                        id="client"
-                        placeholder="e.g. TechCorp Inc."
-                        value={client}
-                        onChange={(e) => setClient(e.target.value)}
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="jobTitle">Job Title *</Label>
+                        <Input
+                          id="jobTitle"
+                          placeholder="e.g. Senior Software Engineer"
+                          value={jobTitle}
+                          onChange={(e) => setJobTitle(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="location">Location</Label>
+                        <Input
+                          id="location"
+                          placeholder="e.g. Remote, New York, NY"
+                          value={location}
+                          onChange={(e) => setLocation(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="client">Client</Label>
+                        <Input
+                          id="client"
+                          placeholder="e.g. TechCorp Inc."
+                          value={client}
+                          onChange={(e) => setClient(e.target.value)}
+                        />
+                      </div>
                     </div>
 
                     {/* Profit Configuration - Only visible to CEO, Branch Manager, Marketing Head */}
                     {canSeeClientBudget && (
-                      <div className="space-y-4 border p-4 rounded-md bg-muted/30">
-                        <div className="flex items-center justify-between">
+                      <div className="border p-4 rounded-md bg-muted/30">
+                        <div className="flex items-center justify-between mb-4">
                           <h4 className="text-sm font-medium">Profit Configuration</h4>
                           <TooltipProvider>
                             <Tooltip>
@@ -531,40 +539,42 @@ const JobDescriptionPage = () => {
                           </TooltipProvider>
                         </div>
 
-                        <div className="space-y-2">
-                          <Label htmlFor="clientBudget">Client Budget ($/hr)</Label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              id="clientBudget"
-                              type="number"
-                              placeholder="e.g. 100"
-                              value={clientBudget}
-                              onChange={(e) => setClientBudget(e.target.value)}
-                              className="pl-8"
-                            />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="clientBudget">Client Budget ($/hr)</Label>
+                            <div className="relative">
+                              <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="clientBudget"
+                                type="number"
+                                placeholder="e.g. 100"
+                                value={clientBudget}
+                                onChange={(e) => setClientBudget(e.target.value)}
+                                className="pl-8"
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground">Amount charged to client</p>
                           </div>
-                          <p className="text-xs text-muted-foreground">Amount charged to client</p>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="internalBudget">Internal Budget ($/hr)</Label>
+                            <div className="relative">
+                              <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="internalBudget"
+                                type="number"
+                                placeholder="e.g. 70"
+                                value={internalBudget}
+                                onChange={(e) => setInternalBudget(e.target.value)}
+                                className="pl-8"
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground">Visible to employees</p>
+                          </div>
                         </div>
 
-                        <div className="space-y-2">
-                          <Label htmlFor="internalBudget">Internal Budget ($/hr)</Label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              id="internalBudget"
-                              type="number"
-                              placeholder="e.g. 70"
-                              value={internalBudget}
-                              onChange={(e) => setInternalBudget(e.target.value)}
-                              className="pl-8"
-                            />
-                          </div>
-                          <p className="text-xs text-muted-foreground">Visible to employees</p>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Internal Budget Split</Label>
+                        <div className="mt-4">
+                          <Label className="mb-2 block">Internal Budget Split</Label>
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                               <Label htmlFor="candidateSplit" className="text-xs">Candidate (%)</Label>
@@ -728,7 +738,7 @@ const JobDescriptionPage = () => {
                   </div>
 
                   {/* Detailed Description */}
-                  <div className="space-y-4">
+                  <div className="space-y-4 border-t pt-4">
                     <div className="flex items-center gap-2 border-b pb-2">
                       <FileText className="h-5 w-5 text-recruit-primary" />
                       <h3 className="text-lg font-medium">Job Details</h3>
@@ -744,7 +754,7 @@ const JobDescriptionPage = () => {
                         rows={6}
                         value={jobDescription}
                         onChange={(e) => setJobDescription(e.target.value)}
-                        className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30"
+                        className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30 w-full"
                       />
                     </div>
                     <div className="space-y-3">
@@ -758,7 +768,7 @@ const JobDescriptionPage = () => {
                         rows={4}
                         value={responsibilities}
                         onChange={(e) => setResponsibilities(e.target.value)}
-                        className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30"
+                        className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30 w-full"
                       />
                     </div>
                   </div>
@@ -784,7 +794,7 @@ const JobDescriptionPage = () => {
                           rows={5}
                           value={requirements}
                           onChange={(e) => setRequirements(e.target.value)}
-                          className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30 bg-white"
+                          className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30 bg-white w-full"
                         />
                       </div>
                       <div className="space-y-3 bg-muted/30 p-4 rounded-lg border border-border/50">
@@ -801,7 +811,7 @@ const JobDescriptionPage = () => {
                           rows={5}
                           value={benefits}
                           onChange={(e) => setBenefits(e.target.value)}
-                          className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30 bg-white"
+                          className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30 bg-white w-full"
                         />
                       </div>
                     </div>
