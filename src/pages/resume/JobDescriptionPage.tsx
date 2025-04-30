@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { Search, FileUp, Check, AlertCircle, FileText, Building, Clock, Briefcase, Plus, Users, DollarSign, Percent, Info } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Search, FileUp, Check, AlertCircle, FileText, Building, Clock, Briefcase, Plus, Users, DollarSign, Percent, Info, Upload, File } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { CandidateCard, Candidate } from '@/components/ui/candidate-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import {
   Select,
@@ -131,6 +132,9 @@ const matchedCandidates: Candidate[] = [
  */
 const JobDescriptionPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const isAdmin = user?.role === 'ceo';
   const isHiringManager = user?.role === 'branch-manager' || user?.role === 'marketing-head' || user?.role === 'marketing-supervisor';
   const isScout = user?.role === 'marketing-recruiter';
@@ -139,10 +143,8 @@ const JobDescriptionPage = () => {
 
   const [activeTab, setActiveTab] = useState('create');
   const [jobTitle, setJobTitle] = useState('');
-  const [department, setDepartment] = useState('');
   const [location, setLocation] = useState('');
   const [client, setClient] = useState('');
-  const [clientBudget, setClientBudget] = useState('');
   const [internalBudget, setInternalBudget] = useState('');
   const [candidateSplit, setCandidateSplit] = useState('80'); // Default 80%
   const [companySplit, setCompanySplit] = useState('20'); // Default 20%
@@ -157,6 +159,7 @@ const JobDescriptionPage = () => {
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const filteredJobs = savedJobDescriptions.filter(job => {
     if (statusFilter !== 'all' && job.status !== statusFilter) return false;
@@ -185,29 +188,10 @@ const JobDescriptionPage = () => {
 
     // Budget validation only for admin and hiring manager
     if (canSeeClientBudget) {
-      if (!clientBudget.trim()) {
-        toast({
-          title: "Missing Information",
-          description: "Please enter the client budget",
-          variant: "destructive",
-        });
-        return;
-      }
-
       if (!internalBudget.trim()) {
         toast({
           title: "Missing Information",
           description: "Please enter the internal budget",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Validate that internal budget is less than client budget
-      if (parseFloat(internalBudget) >= parseFloat(clientBudget)) {
-        toast({
-          title: "Invalid Budget Configuration",
-          description: "Internal budget must be less than client budget",
           variant: "destructive",
         });
         return;
@@ -237,41 +221,28 @@ const JobDescriptionPage = () => {
     setUploading(true);
 
     // Calculate profit margins for reporting
-    let clientToCompanyProfit = 0;
-    let companyToCandidateProfit = 0;
-    let totalProfit = 0;
-    let profitMargin = 0;
+    let companyProfit = 0;
 
-    if (canSeeClientBudget && clientBudget && internalBudget) {
-      // Full profit calculation for admin and hiring manager
-      clientToCompanyProfit = parseFloat(clientBudget) - parseFloat(internalBudget);
-      companyToCandidateProfit = (parseFloat(internalBudget) * parseInt(companySplit)) / 100;
-      totalProfit = clientToCompanyProfit + companyToCandidateProfit;
-      profitMargin = (totalProfit / parseFloat(clientBudget)) * 100;
+    if (internalBudget) {
+      // Calculate company profit based on internal budget and company split
+      companyProfit = (parseFloat(internalBudget) * parseInt(companySplit)) / 100;
 
-      // Log complete profit information (in a real app, this would be saved to the database)
-      console.log('Profit Configuration (Admin/Manager):', {
-        clientBudget: parseFloat(clientBudget),
-        internalBudget: parseFloat(internalBudget),
-        candidateSplit: parseInt(candidateSplit),
-        companySplit: parseInt(companySplit),
-        clientToCompanyProfit,
-        companyToCandidateProfit,
-        totalProfit,
-        profitMargin
-      });
-    } else if (internalBudget) {
-      // Limited profit calculation for scouts and team members
-      // They only see company-to-candidate profit based on internal budget
-      companyToCandidateProfit = (parseFloat(internalBudget) * parseInt(companySplit)) / 100;
-
-      // Log limited profit information
-      console.log('Profit Configuration (Scout/Team Member):', {
-        internalBudget: parseFloat(internalBudget),
-        candidateSplit: parseInt(candidateSplit),
-        companySplit: parseInt(companySplit),
-        companyToCandidateProfit
-      });
+      // Log profit information (in a real app, this would be saved to the database)
+      if (canSeeClientBudget) {
+        console.log('Profit Configuration (Admin/Manager):', {
+          internalBudget: parseFloat(internalBudget),
+          candidateSplit: parseInt(candidateSplit),
+          companySplit: parseInt(companySplit),
+          companyProfit
+        });
+      } else {
+        console.log('Profit Configuration (Scout/Team Member):', {
+          internalBudget: parseFloat(internalBudget),
+          candidateSplit: parseInt(candidateSplit),
+          companySplit: parseInt(companySplit),
+          companyProfit
+        });
+      }
     }
 
     // Simulate upload progress
@@ -297,6 +268,56 @@ const JobDescriptionPage = () => {
     setActiveTab('view');
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      toast({
+        title: "File Selected",
+        description: `${file.name} selected. Click "Parse Job Description" to extract content.`,
+      });
+    }
+  };
+
+  const handleFileUpload = () => {
+    if (!selectedFile) {
+      toast({
+        title: "No File Selected",
+        description: "Please select a file to upload",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+
+    // Simulate file parsing
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 5;
+      setUploadProgress(progress);
+
+      if (progress >= 100) {
+        clearInterval(interval);
+        setUploading(false);
+
+        // Simulate extracted content
+        setJobTitle("Senior Marketing Specialist");
+        setLocation("Remote / New York");
+        setClient("Global Marketing Inc.");
+        setJobDescription("We are seeking a Senior Marketing Specialist with experience in digital marketing campaigns, content strategy, and analytics. The ideal candidate will have 5+ years of experience in marketing with a focus on B2B strategies.");
+        setResponsibilities("- Develop and execute marketing campaigns\n- Analyze campaign performance and provide insights\n- Collaborate with cross-functional teams\n- Manage social media presence and content calendar");
+        setRequirements("- Bachelor's degree in Marketing or related field\n- 5+ years of experience in marketing\n- Proficiency in marketing analytics tools\n- Strong communication and project management skills");
+        setBenefits("- Competitive salary and benefits package\n- Remote work options\n- Professional development opportunities\n- Collaborative and innovative work environment");
+
+        toast({
+          title: "File Parsed Successfully",
+          description: "Job description content has been extracted from the file",
+        });
+      }
+    }, 100);
+  };
+
   const handleFindMatches = () => {
     setUploading(true);
 
@@ -309,7 +330,16 @@ const JobDescriptionPage = () => {
       if (progress >= 100) {
         clearInterval(interval);
         setUploading(false);
-        setShowMatches(true);
+
+        // Navigate to a new page for matching results
+        navigate('/job-matching-results', {
+          state: {
+            jobTitle,
+            jobDescription,
+            matchedCandidates
+          }
+        });
+
         toast({
           title: "Candidates Matched",
           description: `Found ${matchedCandidates.length} matching candidates for this job description`,
@@ -375,6 +405,51 @@ const JobDescriptionPage = () => {
                   {/* Basic Information */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-medium">Basic Information</h3>
+
+                    {/* File Upload Section */}
+                    <div className="border border-dashed border-muted-foreground/50 rounded-lg p-4 mb-4">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <Upload className="h-8 w-8 text-muted-foreground" />
+                        <h4 className="font-medium">Upload Job Description</h4>
+                        <p className="text-sm text-muted-foreground text-center">
+                          Upload a PDF or DOC file to automatically extract job details
+                        </p>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          className="hidden"
+                          accept=".pdf,.doc,.docx"
+                        />
+                        <div className="flex gap-2 mt-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="text-xs"
+                          >
+                            <File className="h-4 w-4 mr-1" />
+                            Select File
+                          </Button>
+                          {selectedFile && (
+                            <Button
+                              variant="default"
+                              onClick={handleFileUpload}
+                              className="text-xs"
+                              disabled={uploading}
+                            >
+                              <FileUp className="h-4 w-4 mr-1" />
+                              Parse Job Description
+                            </Button>
+                          )}
+                        </div>
+                        {selectedFile && (
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Selected: {selectedFile.name}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="jobTitle">Job Title *</Label>
                       <Input
@@ -384,25 +459,14 @@ const JobDescriptionPage = () => {
                         onChange={(e) => setJobTitle(e.target.value)}
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="department">Department</Label>
-                        <Input
-                          id="department"
-                          placeholder="e.g. Engineering"
-                          value={department}
-                          onChange={(e) => setDepartment(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="location">Location</Label>
-                        <Input
-                          id="location"
-                          placeholder="e.g. Remote, New York, NY"
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
-                        />
-                      </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="location">Location</Label>
+                      <Input
+                        id="location"
+                        placeholder="e.g. Remote, New York, NY"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="client">Client</Label>
@@ -414,74 +478,25 @@ const JobDescriptionPage = () => {
                       />
                     </div>
 
-                    {/* Budget and Profit Configuration */}
-                    <div className="space-y-4 border p-4 rounded-md bg-muted/30">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-medium">
-                          {canSeeClientBudget ? 'Budget & Profit Configuration' : 'Profit Configuration'}
-                        </h4>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-6 w-6">
-                                <Info className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent className="max-w-sm">
-                              {canSeeClientBudget ? (
-                                <p>Configure client budget, internal budget (visible to employees), and profit splits between candidate and company.</p>
-                              ) : (
-                                <p>Configure internal budget and profit splits between candidate and company. Client budget is managed by admins and hiring managers.</p>
-                              )}
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-
-                      {/* Admin and Hiring Manager see full budget configuration */}
-                      {canSeeClientBudget && (
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="clientBudget">Client Budget ($/hr)</Label>
-                            <div className="relative">
-                              <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                id="clientBudget"
-                                type="number"
-                                placeholder="e.g. 100"
-                                value={clientBudget}
-                                onChange={(e) => {
-                                  setClientBudget(e.target.value);
-                                  // Auto-calculate internal budget as 70% of client budget if not set
-                                  if (!internalBudget && e.target.value) {
-                                    setInternalBudget((parseFloat(e.target.value) * 0.7).toFixed(2));
-                                  }
-                                }}
-                                className="pl-8"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="internalBudget">Internal Budget ($/hr)</Label>
-                            <div className="relative">
-                              <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                id="internalBudget"
-                                type="number"
-                                placeholder="e.g. 70"
-                                value={internalBudget}
-                                onChange={(e) => setInternalBudget(e.target.value)}
-                                className="pl-8"
-                              />
-                            </div>
-                            <p className="text-xs text-muted-foreground">Visible to employees</p>
-                          </div>
+                    {/* Profit Configuration - Only visible to CEO, Branch Manager, Marketing Head */}
+                    {canSeeClientBudget && (
+                      <div className="space-y-4 border p-4 rounded-md bg-muted/30">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-medium">Profit Configuration</h4>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-6 w-6">
+                                  <Info className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-sm">
+                                <p>Configure internal budget and profit splits between candidate and company.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
-                      )}
 
-                      {/* Scouts and Team Members only see internal budget */}
-                      {!canSeeClientBudget && (
                         <div className="space-y-2">
                           <Label htmlFor="internalBudget">Internal Budget ($/hr)</Label>
                           <div className="relative">
@@ -495,129 +510,92 @@ const JobDescriptionPage = () => {
                               className="pl-8"
                             />
                           </div>
-                          <p className="text-xs text-muted-foreground">Budget allocated for this position</p>
+                          <p className="text-xs text-muted-foreground">Visible to employees</p>
                         </div>
-                      )}
 
-                      <div className="space-y-2">
-                        <Label>Internal Budget Split</Label>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="candidateSplit" className="text-xs">Candidate (%)</Label>
-                            <div className="relative">
-                              <Percent className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                id="candidateSplit"
-                                type="number"
-                                min="0"
-                                max="100"
-                                value={candidateSplit}
-                                onChange={(e) => {
-                                  const value = parseInt(e.target.value);
-                                  setCandidateSplit(e.target.value);
-                                  if (!isNaN(value) && value >= 0 && value <= 100) {
-                                    setCompanySplit((100 - value).toString());
-                                  }
-                                }}
-                                className="pl-8"
-                              />
+                        <div className="space-y-2">
+                          <Label>Internal Budget Split</Label>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="candidateSplit" className="text-xs">Candidate (%)</Label>
+                              <div className="relative">
+                                <Percent className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                  id="candidateSplit"
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={candidateSplit}
+                                  onChange={(e) => {
+                                    const value = parseInt(e.target.value);
+                                    setCandidateSplit(e.target.value);
+                                    if (!isNaN(value) && value >= 0 && value <= 100) {
+                                      setCompanySplit((100 - value).toString());
+                                    }
+                                  }}
+                                  className="pl-8"
+                                />
+                              </div>
                             </div>
-                          </div>
 
-                          <div className="space-y-2">
-                            <Label htmlFor="companySplit" className="text-xs">Company (%)</Label>
-                            <div className="relative">
-                              <Percent className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                id="companySplit"
-                                type="number"
-                                min="0"
-                                max="100"
-                                value={companySplit}
-                                onChange={(e) => {
-                                  const value = parseInt(e.target.value);
-                                  setCompanySplit(e.target.value);
-                                  if (!isNaN(value) && value >= 0 && value <= 100) {
-                                    setCandidateSplit((100 - value).toString());
-                                  }
-                                }}
-                                className="pl-8"
-                              />
+                            <div className="space-y-2">
+                              <Label htmlFor="companySplit" className="text-xs">Company (%)</Label>
+                              <div className="relative">
+                                <Percent className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                  id="companySplit"
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={companySplit}
+                                  onChange={(e) => {
+                                    const value = parseInt(e.target.value);
+                                    setCompanySplit(e.target.value);
+                                    if (!isNaN(value) && value >= 0 && value <= 100) {
+                                      setCandidateSplit((100 - value).toString());
+                                    }
+                                  }}
+                                  className="pl-8"
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
+                    )}
 
-                      {/* Profit Calculation Preview - Different for each role */}
-                      {internalBudget && (
+                      {/* Profit Calculation Preview - Only for higher roles */}
+                      {canSeeClientBudget && internalBudget && (
                         <div className="mt-2 p-3 bg-muted rounded-md">
                           <div className="flex justify-between items-center mb-2">
                             <span className="text-sm font-medium">Profit Preview</span>
-                            {canSeeClientBudget && clientBudget && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setShowProfitDetails(!showProfitDetails)}
-                                className="h-6 px-2 text-xs"
-                              >
-                                {showProfitDetails ? 'Hide Details' : 'Show Details'}
-                              </Button>
-                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setShowProfitDetails(!showProfitDetails)}
+                              className="h-6 px-2 text-xs"
+                            >
+                              {showProfitDetails ? 'Hide Details' : 'Show Details'}
+                            </Button>
                           </div>
 
                           <div className="space-y-2">
-                            {/* Admin and Hiring Manager see full profit details */}
-                            {canSeeClientBudget && clientBudget && (
+                            <div className="flex justify-between text-sm">
+                              <span>Company Profit:</span>
+                              <span className="font-medium">
+                                ${((parseFloat(internalBudget) * parseInt(companySplit)) / 100).toFixed(2)}/hr
+                              </span>
+                            </div>
+
+                            {showProfitDetails && (
                               <>
                                 <div className="flex justify-between text-sm">
-                                  <span>Client-to-Company Profit:</span>
+                                  <span>Candidate Payment:</span>
                                   <span className="font-medium">
-                                    ${(parseFloat(clientBudget) - parseFloat(internalBudget)).toFixed(2)}/hr
+                                    ${((parseFloat(internalBudget) * parseInt(candidateSplit)) / 100).toFixed(2)}/hr
                                   </span>
                                 </div>
-
-                                {showProfitDetails && (
-                                  <>
-                                    <div className="flex justify-between text-sm">
-                                      <span>Company-to-Candidate Profit:</span>
-                                      <span className="font-medium">
-                                        ${((parseFloat(internalBudget) * parseInt(companySplit)) / 100).toFixed(2)}/hr
-                                      </span>
-                                    </div>
-
-                                    <div className="flex justify-between text-sm">
-                                      <span>Total Profit:</span>
-                                      <span className="font-medium">
-                                        ${(
-                                          (parseFloat(clientBudget) - parseFloat(internalBudget)) +
-                                          ((parseFloat(internalBudget) * parseInt(companySplit)) / 100)
-                                        ).toFixed(2)}/hr
-                                      </span>
-                                    </div>
-
-                                    <div className="flex justify-between text-sm">
-                                      <span>Profit Margin:</span>
-                                      <span className="font-medium">
-                                        {(
-                                          ((parseFloat(clientBudget) - parseFloat(internalBudget)) +
-                                          ((parseFloat(internalBudget) * parseInt(companySplit)) / 100)) /
-                                          parseFloat(clientBudget) * 100
-                                        ).toFixed(2)}%
-                                      </span>
-                                    </div>
-                                  </>
-                                )}
                               </>
-                            )}
-
-                            {/* Scouts and Team Members only see company-to-candidate profit */}
-                            {!canSeeClientBudget && (
-                              <div className="flex justify-between text-sm">
-                                <span>Company Profit (from internal budget):</span>
-                                <span className="font-medium">
-                                  ${((parseFloat(internalBudget) * parseInt(companySplit)) / 100).toFixed(2)}/hr
-                                </span>
-                              </div>
                             )}
                           </div>
                         </div>
@@ -688,10 +666,8 @@ const JobDescriptionPage = () => {
                 <div className="flex justify-end gap-3">
                   <Button variant="outline" onClick={() => {
                     setJobTitle('');
-                    setDepartment('');
                     setLocation('');
                     setClient('');
-                    setClientBudget('');
                     setInternalBudget('');
                     setCandidateSplit('80');
                     setCompanySplit('20');
@@ -706,13 +682,14 @@ const JobDescriptionPage = () => {
                   <Button
                     onClick={handleCreateJob}
                     disabled={uploading}
+                    className="bg-recruit-primary hover:bg-recruit-primary/90"
                   >
                     {uploading ? (
                       <>Processing...</>
                     ) : (
                       <>
                         <FileUp className="mr-2 h-4 w-4" />
-                        Create & Find Matches
+                        Create & Find Matching Candidates
                       </>
                     )}
                   </Button>

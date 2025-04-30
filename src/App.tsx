@@ -21,6 +21,7 @@ import AdminPanelPage from "./pages/admin/AdminPanelPage";
 // Resume Pages
 import ResumeUploadPage from "./pages/resume/ResumeUploadPage";
 import JobDescriptionPage from "./pages/resume/JobDescriptionPage";
+import JobMatchingResultsPage from "./pages/resume/JobMatchingResultsPage";
 
 // Screening Pages
 import ScreeningsPage from "./pages/screening/ScreeningsPage";
@@ -169,6 +170,18 @@ const App = () => (
                 <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate']}>
                   <MainLayout>
                     <JobDescriptionPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
+            {/* Job Matching Results - For All Roles except Applicant */}
+            <Route
+              path="/job-matching-results"
+              element={
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate']}>
+                  <MainLayout>
+                    <JobMatchingResultsPage />
                   </MainLayout>
                 </AuthProtection>
               }
