@@ -1,18 +1,32 @@
 
-import { useState, useCallback } from 'react';
-import { Upload, FileUp, X, Check, AlertCircle, Search, FileText, Database, FolderUp } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useCallback, useEffect } from 'react';
+import { Upload, FileUp, X, Check, FileText, Clock, Calendar, User, Briefcase, GraduationCap, Award, Tag, Eye, Download, Trash2, Phone } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
-import { CandidateCard, Candidate } from '@/components/ui/candidate-card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { fileToText, parseResume, ParsedResume } from '@/utils/resumeParser';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { format } from 'date-fns';
+
+// Define the Candidate interface
+interface Candidate {
+  id: string;
+  name: string;
+  position: string;
+  skills: string[];
+  status: string;
+  matchScore: number;
+  avatar?: string;
+}
 
 // Mock candidates (matching results after upload)
 const matchedCandidates: Candidate[] = [
@@ -85,29 +99,318 @@ const mockCandidates: Candidate[] = [
   },
 ];
 
+// Define a type for user information
+interface UserInfo {
+  id: string;
+  name: string;
+  role: 'CEO' | 'Branch Manager' | 'Marketing Head' | 'Marketing Supervisor' | 'Marketing Recruiter' | 'Marketing Associate';
+  avatar?: string;
+}
+
+// Define a type for the uploaded resume with additional metadata
+interface UploadedResume {
+  file: File;
+  parsedData: ParsedResume;
+  uploadDate: Date;
+  id: string;
+  status: 'processing' | 'completed' | 'error';
+  uploadedBy: UserInfo;
+}
+
+// Mock users for demonstration
+const mockUsers: UserInfo[] = [
+  {
+    id: 'user-1',
+    name: 'John Smith',
+    role: 'CEO',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+  },
+  {
+    id: 'user-2',
+    name: 'Sarah Johnson',
+    role: 'Branch Manager',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+  },
+  {
+    id: 'user-3',
+    name: 'Michael Brown',
+    role: 'Marketing Recruiter',
+    avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+  },
+  {
+    id: 'user-4',
+    name: 'Emily Davis',
+    role: 'Marketing Associate',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+  },
+];
+
 /**
- * ResumeUploadPage - Handles resume uploads and candidate matching
- * Admin users have full access to upload resumes, match with job descriptions,
- * and manage the resume database across the entire organization
+ * ResumeUploadPage - Handles resume uploads and displays uploaded resumes
+ * Allows users to upload, view, and manage candidate resumes based on user role
  */
 const ResumeUploadPage = () => {
+  // State for file upload and processing
   const [files, setFiles] = useState<File[]>([]);
-  const [parsedResumes, setParsedResumes] = useState<ParsedResume[]>([]);
-  const [jobTitle, setJobTitle] = useState('');
-  const [jobDescription, setJobDescription] = useState('');
   const [uploading, setUploading] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [showMatches, setShowMatches] = useState(false);
-  const [selectedResumeIndex, setSelectedResumeIndex] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState("upload");
-  const [uploadMode, setUploadMode] = useState<'single' | 'bulk'>('single');
-  const [bulkUploadStatus, setBulkUploadStatus] = useState({
-    total: 0,
-    processed: 0,
-    saved: 0,
-  });
-  const [showDatabaseInfo, setShowDatabaseInfo] = useState(false);
+
+  // State for uploaded resumes
+  const [uploadedResumes, setUploadedResumes] = useState<UploadedResume[]>([]);
+  const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null);
+  const [isResumeDialogOpen, setIsResumeDialogOpen] = useState(false);
+
+  // State for user role simulation
+  // In a real app, this would come from authentication context
+  const [currentUser, setCurrentUser] = useState<UserInfo>(mockUsers[0]); // Default to CEO (admin)
+  const [showRoleSelector, setShowRoleSelector] = useState(false);
+
+  // Check if user is admin (CEO or Branch Manager)
+  const isAdmin = currentUser.role === 'CEO' || currentUser.role === 'Branch Manager';
+
+  // Generate a unique ID for each resume
+  const generateId = () => {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  };
+
+  // Function to change current user (for demonstration)
+  const changeUser = (userId: string) => {
+    const user = mockUsers.find(u => u.id === userId);
+    if (user) {
+      setCurrentUser(user);
+      setShowRoleSelector(false);
+    }
+  };
+
+  // Sample resume data for demonstration
+  const sampleResumeData = [
+    {
+      id: 'resume-1',
+      parsedData: {
+        name: 'John Anderson',
+        email: 'john.anderson@example.com',
+        phone: '(555) 123-4567',
+        summary: 'Experienced software engineer with 8+ years of experience in full-stack development.',
+        skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'AWS', 'MongoDB'],
+        experience: [
+          {
+            position: 'Senior Software Engineer',
+            company: 'Tech Innovations Inc.',
+            duration: '2019 - Present',
+            responsibilities: [
+              'Led development of customer-facing web applications using React and Node.js',
+              'Implemented CI/CD pipelines using GitHub Actions',
+              'Mentored junior developers and conducted code reviews'
+            ]
+          },
+          {
+            position: 'Software Developer',
+            company: 'Digital Solutions LLC',
+            duration: '2015 - 2019',
+            responsibilities: [
+              'Developed and maintained RESTful APIs',
+              'Collaborated with UX designers to implement responsive interfaces',
+              'Optimized database queries for improved performance'
+            ]
+          }
+        ],
+        education: [
+          {
+            degree: 'B.S. Computer Science',
+            institution: 'University of Technology',
+            year: '2015'
+          }
+        ],
+        certifications: ['AWS Certified Developer', 'MongoDB Certified Developer']
+      },
+      uploadDate: new Date('2023-05-15'),
+      status: 'completed',
+      uploadedBy: mockUsers[0], // CEO
+      file: new File(['dummy content'], 'john_anderson_resume.pdf', { type: 'application/pdf' })
+    },
+    {
+      id: 'resume-2',
+      parsedData: {
+        name: 'Sarah Williams',
+        email: 'sarah.williams@example.com',
+        phone: '(555) 987-6543',
+        summary: 'Marketing professional with expertise in digital marketing and brand strategy.',
+        skills: ['Digital Marketing', 'SEO', 'Content Strategy', 'Social Media', 'Google Analytics', 'Adobe Creative Suite'],
+        experience: [
+          {
+            position: 'Marketing Manager',
+            company: 'Brand Forward',
+            duration: '2018 - Present',
+            responsibilities: [
+              'Developed and executed comprehensive marketing strategies',
+              'Managed a team of 5 marketing specialists',
+              'Increased website traffic by 45% through SEO optimization'
+            ]
+          },
+          {
+            position: 'Digital Marketing Specialist',
+            company: 'Creative Marketing Group',
+            duration: '2016 - 2018',
+            responsibilities: [
+              'Managed social media accounts and created engaging content',
+              'Analyzed campaign performance using Google Analytics',
+              'Collaborated with design team on brand assets'
+            ]
+          }
+        ],
+        education: [
+          {
+            degree: 'B.A. Marketing',
+            institution: 'State University',
+            year: '2016'
+          }
+        ],
+        certifications: ['Google Analytics Certified', 'HubSpot Inbound Marketing']
+      },
+      uploadDate: new Date('2023-06-22'),
+      status: 'completed',
+      uploadedBy: mockUsers[2], // Marketing Recruiter
+      file: new File(['dummy content'], 'sarah_williams_resume.pdf', { type: 'application/pdf' })
+    },
+    {
+      id: 'resume-3',
+      parsedData: {
+        name: 'Michael Chen',
+        email: 'michael.chen@example.com',
+        phone: '(555) 456-7890',
+        summary: 'Data scientist with strong background in machine learning and statistical analysis.',
+        skills: ['Python', 'R', 'Machine Learning', 'SQL', 'TensorFlow', 'Data Visualization', 'Statistical Analysis'],
+        experience: [
+          {
+            position: 'Senior Data Scientist',
+            company: 'Data Insights Corp',
+            duration: '2020 - Present',
+            responsibilities: [
+              'Developed predictive models for customer behavior analysis',
+              'Created data pipelines for automated reporting',
+              'Presented findings to executive stakeholders'
+            ]
+          },
+          {
+            position: 'Data Analyst',
+            company: 'Analytics Partners',
+            duration: '2017 - 2020',
+            responsibilities: [
+              'Performed statistical analysis on large datasets',
+              'Created interactive dashboards using Tableau',
+              'Collaborated with cross-functional teams on business intelligence initiatives'
+            ]
+          }
+        ],
+        education: [
+          {
+            degree: 'M.S. Data Science',
+            institution: 'Tech Institute',
+            year: '2017'
+          },
+          {
+            degree: 'B.S. Statistics',
+            institution: 'National University',
+            year: '2015'
+          }
+        ],
+        certifications: ['TensorFlow Developer Certificate', 'AWS Certified Data Analytics']
+      },
+      uploadDate: new Date('2023-07-10'),
+      status: 'completed',
+      uploadedBy: mockUsers[1], // Branch Manager
+      file: new File(['dummy content'], 'michael_chen_resume.pdf', { type: 'application/pdf' })
+    },
+    {
+      id: 'resume-4',
+      parsedData: {
+        name: 'Emily Rodriguez',
+        email: 'emily.rodriguez@example.com',
+        phone: '(555) 789-0123',
+        summary: 'UX/UI designer with a passion for creating intuitive and accessible user experiences.',
+        skills: ['UI Design', 'UX Research', 'Figma', 'Adobe XD', 'Prototyping', 'Wireframing', 'Accessibility'],
+        experience: [
+          {
+            position: 'UX/UI Designer',
+            company: 'Creative Design Studio',
+            duration: '2019 - Present',
+            responsibilities: [
+              'Designed user interfaces for web and mobile applications',
+              'Conducted user research and usability testing',
+              'Created design systems and component libraries'
+            ]
+          },
+          {
+            position: 'Web Designer',
+            company: 'Digital Agency',
+            duration: '2017 - 2019',
+            responsibilities: [
+              'Designed responsive websites for clients across industries',
+              'Collaborated with developers to ensure design implementation',
+              'Created visual assets and branding materials'
+            ]
+          }
+        ],
+        education: [
+          {
+            degree: 'B.F.A. Graphic Design',
+            institution: 'Art Institute',
+            year: '2017'
+          }
+        ],
+        certifications: ['Certified UX Designer', 'Accessibility Specialist']
+      },
+      uploadDate: new Date('2023-08-05'),
+      status: 'completed',
+      uploadedBy: mockUsers[3], // Marketing Associate
+      file: new File(['dummy content'], 'emily_rodriguez_resume.pdf', { type: 'application/pdf' })
+    }
+  ];
+
+  // Load saved resumes from localStorage on component mount or when user changes
+  useEffect(() => {
+    try {
+      // Check if we already have resumes in localStorage
+      const savedResumes = localStorage.getItem('uploadedResumes');
+
+      if (savedResumes) {
+        // Convert the dates back to Date objects
+        const parsedResumes = JSON.parse(savedResumes).map((resume: any) => ({
+          ...resume,
+          uploadDate: new Date(resume.uploadDate)
+        }));
+
+        // Filter resumes based on user role
+        // Admin users (CEO, Branch Manager) can see all resumes
+        // Other users can only see their own uploads
+        if (isAdmin) {
+          setUploadedResumes(parsedResumes);
+        } else {
+          // Filter to only show resumes uploaded by the current user
+          const filteredResumes = parsedResumes.filter(
+            (resume: UploadedResume) => resume.uploadedBy.id === currentUser.id
+          );
+          setUploadedResumes(filteredResumes);
+        }
+      } else {
+        // If no resumes in localStorage, add sample data for demonstration
+        localStorage.setItem('uploadedResumes', JSON.stringify(sampleResumeData));
+
+        // Filter sample data based on user role
+        if (isAdmin) {
+          setUploadedResumes(sampleResumeData);
+        } else {
+          const filteredSamples = sampleResumeData.filter(
+            resume => resume.uploadedBy.id === currentUser.id
+          );
+          setUploadedResumes(filteredSamples);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading saved resumes:', error);
+    }
+  }, [currentUser.id, isAdmin]);
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -145,8 +448,62 @@ const ResumeUploadPage = () => {
       for (const file of validFiles) {
         const text = await fileToText(file);
         const parsedResume = parseResume(text);
-        setParsedResumes(prev => [...prev, parsedResume]);
+
+        // Create a new uploaded resume entry with current user information
+        const newResume: UploadedResume = {
+          file: file,
+          parsedData: parsedResume,
+          uploadDate: new Date(),
+          id: generateId(),
+          status: 'completed',
+          uploadedBy: {
+            id: currentUser.id,
+            name: currentUser.name,
+            role: currentUser.role,
+            avatar: currentUser.avatar
+          }
+        };
+
+        // Add to the uploaded resumes list
+        setUploadedResumes(prev => {
+          // Get all existing resumes from localStorage first
+          let allResumes: UploadedResume[] = [];
+          try {
+            const savedResumes = localStorage.getItem('uploadedResumes');
+            if (savedResumes) {
+              allResumes = JSON.parse(savedResumes).map((resume: any) => ({
+                ...resume,
+                uploadDate: new Date(resume.uploadDate)
+              }));
+            }
+          } catch (error) {
+            console.error('Error loading existing resumes:', error);
+          }
+
+          // Add the new resume
+          const updated = [...allResumes, newResume];
+
+          // Save all resumes to localStorage
+          try {
+            localStorage.setItem('uploadedResumes', JSON.stringify(updated));
+          } catch (error) {
+            console.error('Error saving resumes to localStorage:', error);
+          }
+
+          // Return only the resumes this user should see based on role
+          if (isAdmin) {
+            return updated;
+          } else {
+            return updated.filter(resume => resume.uploadedBy.id === currentUser.id);
+          }
+        });
       }
+
+      // Show success message
+      toast({
+        title: "Resume Parsed Successfully",
+        description: `${validFiles.length} resume${validFiles.length > 1 ? 's' : ''} uploaded and parsed`,
+      });
     } catch (error) {
       toast({
         title: "Parsing Error",
@@ -155,29 +512,72 @@ const ResumeUploadPage = () => {
       });
     } finally {
       setParsing(false);
+      // Clear the files array after processing
+      setFiles([]);
     }
   };
 
-  const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
-    setParsedResumes(prev => prev.filter((_, i) => i !== index));
-    if (selectedResumeIndex === index) {
-      setSelectedResumeIndex(null);
-    } else if (selectedResumeIndex !== null && selectedResumeIndex > index) {
-      setSelectedResumeIndex(selectedResumeIndex - 1);
-    }
-  };
+  const removeResume = (id: string) => {
+    // Get the resume to be removed
+    const resumeToRemove = uploadedResumes.find(resume => resume.id === id);
 
-  const handleUpload = () => {
-    if (!jobTitle.trim() && uploadMode === 'single') {
+    // Check if the current user has permission to remove this resume
+    // Admin users can remove any resume, other users can only remove their own
+    if (!resumeToRemove || (!isAdmin && resumeToRemove.uploadedBy.id !== currentUser.id)) {
       toast({
-        title: "Missing Information",
-        description: "Please enter a job title",
+        title: "Permission Denied",
+        description: "You don't have permission to remove this resume",
         variant: "destructive",
       });
       return;
     }
 
+    // Get all resumes from localStorage
+    let allResumes: UploadedResume[] = [];
+    try {
+      const savedResumes = localStorage.getItem('uploadedResumes');
+      if (savedResumes) {
+        allResumes = JSON.parse(savedResumes).map((resume: any) => ({
+          ...resume,
+          uploadDate: new Date(resume.uploadDate)
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading existing resumes:', error);
+    }
+
+    // Remove the resume
+    const updatedAllResumes = allResumes.filter(resume => resume.id !== id);
+
+    // Save updated list to localStorage
+    try {
+      localStorage.setItem('uploadedResumes', JSON.stringify(updatedAllResumes));
+    } catch (error) {
+      console.error('Error saving resumes to localStorage:', error);
+    }
+
+    // Update state with filtered resumes based on user role
+    setUploadedResumes(prev => {
+      const updated = prev.filter(resume => resume.id !== id);
+      return updated;
+    });
+
+    if (selectedResumeId === id) {
+      setSelectedResumeId(null);
+    }
+
+    toast({
+      title: "Resume Removed",
+      description: "The resume has been removed from uploads",
+    });
+  };
+
+  const viewResumeDetails = (id: string) => {
+    setSelectedResumeId(id);
+    setIsResumeDialogOpen(true);
+  };
+
+  const handleUpload = () => {
     if (files.length === 0) {
       toast({
         title: "No Files Selected",
@@ -189,634 +589,704 @@ const ResumeUploadPage = () => {
 
     setUploading(true);
 
-    if (uploadMode === 'single') {
-      // Simulate upload progress for job matching
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += 5;
-        setUploadProgress(progress);
+    // Simulate upload progress
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 5;
+      setUploadProgress(progress);
 
-        if (progress >= 100) {
-          clearInterval(interval);
-          setUploading(false);
-          setShowMatches(true);
-          setActiveTab("matches");
-          toast({
-            title: "Upload Complete",
-            description: "Resumes uploaded and matched successfully",
-          });
+      if (progress >= 100) {
+        clearInterval(interval);
+        setUploading(false);
+
+        // Process the files
+        handleNewFiles(files);
+      }
+    }, 100);
+  };
+
+  // Function to download a resume
+  const downloadResume = (id: string) => {
+    const resume = uploadedResumes.find(r => r.id === id);
+    if (!resume) return;
+
+    // Create a download link
+    const url = URL.createObjectURL(resume.file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = resume.file.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Download Started",
+      description: `Downloading ${resume.file.name}`,
+    });
+  };
+
+  // Function to clear all resumes
+  const clearAllResumes = () => {
+    if (confirm('Are you sure you want to remove all uploaded resumes? This action cannot be undone.')) {
+      if (isAdmin) {
+        // Admin can clear all resumes
+        setUploadedResumes([]);
+        localStorage.removeItem('uploadedResumes');
+
+        toast({
+          title: "All Resumes Removed",
+          description: "All resumes have been cleared from the system",
+        });
+      } else {
+        // Non-admin users can only clear their own resumes
+        // Get all resumes from localStorage
+        let allResumes: UploadedResume[] = [];
+        try {
+          const savedResumes = localStorage.getItem('uploadedResumes');
+          if (savedResumes) {
+            allResumes = JSON.parse(savedResumes).map((resume: any) => ({
+              ...resume,
+              uploadDate: new Date(resume.uploadDate)
+            }));
+          }
+        } catch (error) {
+          console.error('Error loading existing resumes:', error);
         }
-      }, 200);
-    } else {
-      // Bulk upload to database
-      const totalFiles = files.length;
-      setBulkUploadStatus({
-        total: totalFiles,
-        processed: 0,
-        saved: 0,
-      });
 
-      // Simulate bulk processing
-      let processed = 0;
-      const processInterval = setInterval(() => {
-        processed++;
-        setBulkUploadStatus(prev => ({
-          ...prev,
-          processed,
-          saved: processed,
-        }));
-        setUploadProgress(Math.round((processed / totalFiles) * 100));
+        // Filter out the current user's resumes
+        const updatedResumes = allResumes.filter(resume => resume.uploadedBy.id !== currentUser.id);
 
-        if (processed >= totalFiles) {
-          clearInterval(processInterval);
-          setUploading(false);
-          setShowDatabaseInfo(true);
-          toast({
-            title: "Bulk Upload Complete",
-            description: `${totalFiles} resumes have been added to the database`,
-          });
+        // Save updated list to localStorage
+        try {
+          localStorage.setItem('uploadedResumes', JSON.stringify(updatedResumes));
+        } catch (error) {
+          console.error('Error saving resumes to localStorage:', error);
         }
-      }, 200);
+
+        // Clear the user's view
+        setUploadedResumes([]);
+
+        toast({
+          title: "Your Resumes Removed",
+          description: "All resumes uploaded by you have been cleared",
+        });
+      }
     }
-  };
-
-  const handleBulkUpload = () => {
-    setUploadMode('bulk');
-  };
-
-  const handleSingleUpload = () => {
-    setUploadMode('single');
-  };
-
-  const handleViewCandidate = (id: string) => {
-    toast({
-      title: "View Candidate",
-      description: `Viewing candidate profile for ID: ${id}`,
-    });
-  };
-
-  const handleNextStep = (id: string) => {
-    toast({
-      title: "Candidate Action",
-      description: `Sending screening link to candidate ID: ${id}`,
-    });
   };
 
   const renderResumeDetails = useCallback(() => {
-    if (selectedResumeIndex === null || !parsedResumes[selectedResumeIndex]) {
-      return (
-        <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-          <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="font-medium mb-1">Select a resume to view details</h3>
-          <p className="text-sm text-muted-foreground">
-            Click on a resume file to view the extracted information
-          </p>
-        </div>
-      );
-    }
+    if (!selectedResumeId) return null;
 
-    const resume = parsedResumes[selectedResumeIndex];
+    const resume = uploadedResumes.find(r => r.id === selectedResumeId);
+    if (!resume) return null;
+
+    const { parsedData } = resume;
 
     return (
-      <div className="space-y-6 p-4 animate-fade-in">
-        <div>
-          <h3 className="text-xl font-bold">{resume.name}</h3>
-          <div className="space-y-1 mt-2">
-            <p className="text-sm">{resume.email}</p>
-            {resume.phone && <p className="text-sm">{resume.phone}</p>}
+      <ScrollArea className="h-[80vh] pr-4">
+        <div className="space-y-6 p-4 animate-fade-in">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-bold">{parsedData.name}</h3>
+              <div className="space-y-1 mt-2">
+                <p className="text-sm flex items-center">
+                  <User className="h-4 w-4 mr-2 text-muted-foreground" />
+                  {parsedData.email}
+                </p>
+                {parsedData.phone && (
+                  <p className="text-sm flex items-center">
+                    <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
+                    {parsedData.phone}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="icon" onClick={() => downloadResume(resume.id)}>
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Download Resume</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
-        </div>
 
-        {resume.summary && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-muted/30 p-4 rounded-lg">
+            <div className="flex items-center">
+              <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">Upload Date</p>
+                <p className="text-sm font-medium">{format(resume.uploadDate, 'MMM d, yyyy')}</p>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">File Name</p>
+                <p className="text-sm font-medium truncate max-w-[200px]">{resume.file.name}</p>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <User className="h-4 w-4 mr-2 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">Uploaded By</p>
+                <div className="flex items-center gap-1">
+                  <Avatar className="h-4 w-4">
+                    {resume.uploadedBy.avatar ? (
+                      <AvatarImage src={resume.uploadedBy.avatar} alt={resume.uploadedBy.name} />
+                    ) : (
+                      <AvatarFallback>{resume.uploadedBy.name.charAt(0)}</AvatarFallback>
+                    )}
+                  </Avatar>
+                  <p className="text-sm font-medium">{resume.uploadedBy.name}</p>
+                  <Badge variant="outline" className="text-xs ml-1 h-5">
+                    {resume.uploadedBy.role}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {parsedData.summary && (
+            <div>
+              <h4 className="font-medium flex items-center gap-2 mb-2">
+                <FileText className="h-4 w-4" />
+                Summary
+              </h4>
+              <p className="text-sm bg-muted/20 p-3 rounded-md">{parsedData.summary}</p>
+            </div>
+          )}
+
           <div>
-            <h4 className="font-medium text-sm mb-2">Summary</h4>
-            <p className="text-sm">{resume.summary}</p>
+            <h4 className="font-medium flex items-center gap-2 mb-2">
+              <Tag className="h-4 w-4" />
+              Skills
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {parsedData.skills.map((skill, i) => (
+                <Badge key={i} variant="outline" className="capitalize">
+                  {skill}
+                </Badge>
+              ))}
+            </div>
           </div>
-        )}
 
-        <div>
-          <h4 className="font-medium text-sm mb-2">Skills</h4>
-          <div className="flex flex-wrap gap-2">
-            {resume.skills.map((skill, i) => (
-              <Badge key={i} variant="outline" className="capitalize">
-                {skill}
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <h4 className="font-medium text-sm mb-2">Experience</h4>
-          <div className="space-y-4">
-            {resume.experience.map((exp, i) => (
-              <div key={i} className="space-y-1">
-                <div className="flex justify-between">
-                  <p className="font-medium text-sm">{exp.position}</p>
-                  <p className="text-xs text-muted-foreground">{exp.duration}</p>
+          <div>
+            <h4 className="font-medium flex items-center gap-2 mb-2">
+              <Briefcase className="h-4 w-4" />
+              Experience
+            </h4>
+            <div className="space-y-4">
+              {parsedData.experience.map((exp, i) => (
+                <div key={i} className="bg-muted/20 p-3 rounded-md space-y-2">
+                  <div className="flex justify-between items-center">
+                    <p className="font-medium">{exp.position}</p>
+                    <Badge variant="outline">{exp.duration}</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{exp.company}</p>
+                  <ul className="text-sm list-disc pl-5 space-y-1">
+                    {exp.responsibilities.map((resp, j) => (
+                      <li key={j}>{resp}</li>
+                    ))}
+                  </ul>
                 </div>
-                <p className="text-sm text-muted-foreground">{exp.company}</p>
-                <ul className="text-sm list-disc pl-5 space-y-1">
-                  {exp.responsibilities.map((resp, j) => (
-                    <li key={j}>{resp}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div>
-          <h4 className="font-medium text-sm mb-2">Education</h4>
-          <div className="space-y-2">
-            {resume.education.map((edu, i) => (
-              <div key={i} className="space-y-1">
-                <div className="flex justify-between">
-                  <p className="font-medium text-sm">{edu.degree}</p>
-                  <p className="text-xs text-muted-foreground">{edu.year}</p>
+          <div>
+            <h4 className="font-medium flex items-center gap-2 mb-2">
+              <GraduationCap className="h-4 w-4" />
+              Education
+            </h4>
+            <div className="space-y-2">
+              {parsedData.education.map((edu, i) => (
+                <div key={i} className="bg-muted/20 p-3 rounded-md space-y-1">
+                  <div className="flex justify-between items-center">
+                    <p className="font-medium">{edu.degree}</p>
+                    <Badge variant="outline">{edu.year}</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{edu.institution}</p>
                 </div>
-                <p className="text-sm text-muted-foreground">{edu.institution}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
+          {parsedData.certifications && parsedData.certifications.length > 0 && (
+            <div>
+              <h4 className="font-medium flex items-center gap-2 mb-2">
+                <Award className="h-4 w-4" />
+                Certifications
+              </h4>
+              <div className="space-y-2">
+                {parsedData.certifications.map((cert, i) => (
+                  <div key={i} className="bg-muted/20 p-3 rounded-md">
+                    <p className="font-medium">{cert}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      </ScrollArea>
     );
-  }, [selectedResumeIndex, parsedResumes]);
+  }, [selectedResumeId, uploadedResumes]);
+
+  // State for tab management
+  const [activeTab, setActiveTab] = useState<string>("upload");
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-bold">Resume Upload</h1>
-        <p className="text-muted-foreground mt-2">
-          Upload resumes and job descriptions to find matching candidates
-        </p>
+    <div className="space-y-6 animate-fade-in">
+      <div className="border-b pb-4 mb-2">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Resume Management</h1>
+            <p className="text-muted-foreground mt-1">
+              Upload and manage candidate resumes
+            </p>
+          </div>
+
+          {/* User Info Display */}
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-sm font-medium">{currentUser.name}</p>
+              <p className="text-xs text-muted-foreground">{currentUser.role}</p>
+            </div>
+            <Avatar className="h-10 w-10">
+              {currentUser.avatar ? (
+                <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
+              ) : (
+                <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
+              )}
+            </Avatar>
+          </div>
+        </div>
       </div>
 
+      {/* Role Switcher (Demo Only) - Hidden by default */}
+      <div className="bg-muted/30 p-3 rounded-lg mb-4 border border-dashed">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <User className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <h3 className="text-sm font-medium">Demo Mode</h3>
+              <p className="text-xs text-muted-foreground">Switch between different user roles to see how the interface changes</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {mockUsers.map(user => (
+              <Button
+                key={user.id}
+                variant={user.id === currentUser.id ? "default" : "outline"}
+                size="sm"
+                onClick={() => changeUser(user.id)}
+                className="flex items-center gap-1"
+              >
+                <Avatar className="h-5 w-5">
+                  {user.avatar ? (
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                  ) : (
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  )}
+                </Avatar>
+                <span>{user.role}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs for Upload and View */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-4 w-[500px]">
-          <TabsTrigger value="upload">Upload</TabsTrigger>
-          <TabsTrigger value="parse">Resume Parsing</TabsTrigger>
-          <TabsTrigger value="matches">Matches</TabsTrigger>
-          <TabsTrigger value="database">Database</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="upload" className="flex items-center gap-2">
+            <Upload className="h-4 w-4" />
+            Upload Resumes
+          </TabsTrigger>
+          <TabsTrigger value="view" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Uploaded Resumes
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="upload" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Upload Mode Selection */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload Mode</CardTitle>
-                <CardDescription>Choose how you want to upload resumes</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <Button
-                    variant={uploadMode === 'single' ? "default" : "outline"}
-                    className="h-24 flex flex-col items-center justify-center"
-                    onClick={handleSingleUpload}
-                  >
-                    <FileUp className="h-8 w-8 mb-2" />
-                    <span className="font-medium">Match with Job</span>
-                    <span className="text-xs text-muted-foreground mt-1">Upload and match with a job description</span>
-                  </Button>
-                  <Button
-                    variant={uploadMode === 'bulk' ? "default" : "outline"}
-                    className="h-24 flex flex-col items-center justify-center"
-                    onClick={handleBulkUpload}
-                  >
-                    <FolderUp className="h-8 w-8 mb-2" />
-                    <span className="font-medium">Bulk Upload</span>
-                    <span className="text-xs text-muted-foreground mt-1">Upload multiple resumes to database</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Job Description Form - Only shown in single upload mode */}
-            {uploadMode === 'single' ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Job Description</CardTitle>
-                  <CardDescription>Enter details about the position</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="jobTitle">Job Title</Label>
-                    <Input
-                      id="jobTitle"
-                      placeholder="e.g. Senior Software Engineer"
-                      value={jobTitle}
-                      onChange={(e) => setJobTitle(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="jobDescription">Job Description</Label>
-                    <Textarea
-                      id="jobDescription"
-                      placeholder="Enter detailed job requirements, skills, and responsibilities..."
-                      rows={10}
-                      value={jobDescription}
-                      onChange={(e) => setJobDescription(e.target.value)}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Resume Database</CardTitle>
-                  <CardDescription>Upload resumes to the central database for future matching</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center p-4 bg-muted rounded-md">
-                      <Database className="h-8 w-8 mr-4 text-primary" />
-                      <div>
-                        <h3 className="font-medium">Resume Database</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Resumes uploaded to the database can be matched with any job description later.
-                          This is useful for building a talent pool.
-                        </p>
-                      </div>
-                    </div>
-
-                    {showDatabaseInfo && (
-                      <div className="p-4 border rounded-md">
-                        <h3 className="font-medium mb-2">Database Statistics</h3>
-                        <div className="grid grid-cols-3 gap-4 text-center">
-                          <div>
-                            <p className="text-2xl font-bold">247</p>
-                            <p className="text-sm text-muted-foreground">Total Resumes</p>
-                          </div>
-                          <div>
-                            <p className="text-2xl font-bold">32</p>
-                            <p className="text-sm text-muted-foreground">Added Today</p>
-                          </div>
-                          <div>
-                            <p className="text-2xl font-bold">18</p>
-                            <p className="text-sm text-muted-foreground">Skills Indexed</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Resume Upload Area */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Resume Upload</CardTitle>
-                <CardDescription>Upload candidate resumes (.pdf, .doc, .docx)</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Drop Zone */}
-                <div
-                  className="border-2 border-dashed rounded-lg p-8 text-center hover:bg-muted/50 transition-colors cursor-pointer"
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={handleFileDrop}
-                  onClick={() => document.getElementById('fileInput')?.click()}
-                >
-                  <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="font-medium mb-1">Drag & Drop Files Here</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    or click to browse files
-                  </p>
-                  <Input
-                    id="fileInput"
-                    type="file"
-                    multiple
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <Button variant="outline" size="sm">
-                    <FileUp className="mr-2 h-4 w-4" />
-                    Select Files
-                  </Button>
-                </div>
-
-                {/* File List */}
-                {files.length > 0 && (
-                  <div className="space-y-2">
-                    <h3 className="font-medium text-sm">Selected Files ({files.length})</h3>
-                    <div className="max-h-60 overflow-y-auto space-y-2">
-                      {files.map((file, index) => (
-                        <div
-                          key={`${file.name}-${index}`}
-                          className={`flex items-center justify-between bg-muted p-2 rounded-md ${
-                            selectedResumeIndex === index ? 'ring-2 ring-primary' : ''
-                          } hover:bg-muted/80 cursor-pointer`}
-                          onClick={() => setSelectedResumeIndex(index)}
-                        >
-                          <div className="flex items-center overflow-hidden">
-                            <div className="flex-shrink-0 h-8 w-8 bg-primary/10 rounded-md flex items-center justify-center">
-                              <FileUp className="h-4 w-4 text-primary" />
-                            </div>
-                            <div className="ml-2 overflow-hidden">
-                              <p className="text-sm font-medium truncate">{file.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {(file.size / 1024).toFixed(0)} KB
-                              </p>
-                            </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeFile(index);
-                            }}
-                            className="h-8 w-8 p-0"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {uploading && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Uploading...</span>
-                      <span>{uploadProgress}%</span>
-                    </div>
-                    <Progress value={uploadProgress} />
-                  </div>
-                )}
-
-                <Button
-                  className="w-full"
-                  disabled={uploading || parsing}
-                  onClick={handleUpload}
-                >
-                  {uploading ? (
-                    <>Processing...</>
-                  ) : (
-                    <>
-                      <Upload className="mr-2 h-4 w-4" />
-                      {uploadMode === 'single' ? 'Upload & Match Resumes' : 'Upload to Database'}
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="parse" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Resume Parsing Results</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="h-5 w-5" />
+                Upload Resumes
+              </CardTitle>
               <CardDescription>
-                Extracted information from uploaded resumes
+                Upload candidate resumes (.pdf, .doc, .docx)
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              {parsing && (
-                <div className="flex items-center justify-center p-8">
-                  <div className="text-center animate-pulse">
-                    <p className="font-medium mb-2">Parsing Resumes...</p>
-                    <p className="text-sm text-muted-foreground">
-                      Extracting skills and information
-                    </p>
-                  </div>
-                </div>
-              )}
+          <CardContent className="space-y-4">
+            {/* Drop Zone */}
+            <div
+              className="border-2 border-dashed rounded-lg p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleFileDrop}
+              onClick={() => document.getElementById('fileInput')?.click()}
+            >
+              <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <h3 className="font-medium mb-1">Drag & Drop Files Here</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                or click to browse files
+              </p>
+              <Input
+                id="fileInput"
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <Button variant="outline" size="sm">
+                <FileUp className="mr-2 h-4 w-4" />
+                Select Files
+              </Button>
+            </div>
 
-              {!parsing && files.length === 0 && (
-                <div className="flex flex-col items-center justify-center p-8 text-center">
-                  <Search className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="font-medium mb-1">No Resumes Uploaded Yet</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Upload resumes to extract skills and information
-                  </p>
-                  <Button
-                    variant="outline"
-                    onClick={() => setActiveTab("upload")}
-                  >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Go to Upload
-                  </Button>
-                </div>
-              )}
-
-              {!parsing && files.length > 0 && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="col-span-1 border rounded-md overflow-hidden">
-                    <div className="p-3 bg-muted font-medium text-sm">
-                      Resume Files
-                    </div>
-                    <div className="max-h-[500px] overflow-y-auto">
-                      {files.map((file, index) => (
-                        <div
-                          key={index}
-                          className={`flex items-center p-3 border-b cursor-pointer hover:bg-muted/50 ${
-                            selectedResumeIndex === index ? 'bg-muted' : ''
-                          }`}
-                          onClick={() => setSelectedResumeIndex(index)}
-                        >
-                          <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
-                          <span className="text-sm truncate">{file.name}</span>
+            {/* File List */}
+            {files.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="font-medium text-sm">Selected Files ({files.length})</h3>
+                <div className="max-h-60 overflow-y-auto space-y-2">
+                  {files.map((file, index) => (
+                    <div
+                      key={`${file.name}-${index}`}
+                      className="flex items-center justify-between bg-muted p-2 rounded-md hover:bg-muted/80"
+                    >
+                      <div className="flex items-center overflow-hidden">
+                        <div className="flex-shrink-0 h-8 w-8 bg-primary/10 rounded-md flex items-center justify-center">
+                          <FileUp className="h-4 w-4 text-primary" />
                         </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="col-span-2 border rounded-md overflow-hidden">
-                    <div className="p-3 bg-muted font-medium text-sm">
-                      Parsed Information
-                    </div>
-                    <div className="max-h-[500px] overflow-y-auto">
-                      {renderResumeDetails()}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="database" className="mt-6">
-          {/* Resume Database */}
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle>Resume Database</CardTitle>
-                  <CardDescription>
-                    Search and match resumes from the central database
-                  </CardDescription>
-                </div>
-                <Button variant="outline" onClick={() => {
-                  setActiveTab("upload");
-                  setUploadMode('bulk');
-                }}>
-                  Add More Resumes
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="flex items-center p-4 bg-muted rounded-md">
-                  <Database className="h-8 w-8 mr-4 text-primary" />
-                  <div>
-                    <h3 className="font-medium">Resume Database</h3>
-                    <p className="text-sm text-muted-foreground">
-                      The database contains 247 resumes that can be matched with any job description.
-                      Use the search below to find candidates or upload a job description to match.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                  <div className="p-4 border rounded-md">
-                    <p className="text-2xl font-bold">247</p>
-                    <p className="text-sm text-muted-foreground">Total Resumes</p>
-                  </div>
-                  <div className="p-4 border rounded-md">
-                    <p className="text-2xl font-bold">32</p>
-                    <p className="text-sm text-muted-foreground">Added Today</p>
-                  </div>
-                  <div className="p-4 border rounded-md">
-                    <p className="text-2xl font-bold">18</p>
-                    <p className="text-sm text-muted-foreground">Skills Indexed</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="font-medium">Match with Job Description</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="dbJobTitle">Job Title</Label>
-                      <Input
-                        id="dbJobTitle"
-                        placeholder="e.g. Senior Software Engineer"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="dbSkills">Required Skills</Label>
-                      <Input
-                        id="dbSkills"
-                        placeholder="e.g. React, TypeScript, Node.js"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="dbJobDescription">Job Description</Label>
-                    <Textarea
-                      id="dbJobDescription"
-                      placeholder="Enter detailed job requirements, skills, and responsibilities..."
-                      rows={5}
-                    />
-                  </div>
-                  <Button className="w-full">
-                    <Search className="mr-2 h-4 w-4" />
-                    Find Matching Candidates
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-medium">Recently Added Resumes</h3>
-                    <Button variant="link" className="h-auto p-0">View All</Button>
-                  </div>
-                  <div className="space-y-2">
-                    {mockCandidates.slice(0, 3).map((candidate) => (
-                      <div key={candidate.id} className="flex items-center justify-between p-3 border rounded-md">
-                        <div className="flex items-center">
-                          <Avatar className="h-10 w-10 mr-3">
-                            <AvatarImage src={candidate.avatar} alt={candidate.name} />
-                            <AvatarFallback>{candidate.name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">{candidate.name}</p>
-                            <p className="text-sm text-muted-foreground">{candidate.skills.join(', ')}</p>
-                          </div>
+                        <div className="ml-2 overflow-hidden">
+                          <p className="text-sm font-medium truncate">{file.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(file.size / 1024).toFixed(0)} KB
+                          </p>
                         </div>
-                        <Button variant="outline" size="sm">View</Button>
                       </div>
-                    ))}
-                  </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setFiles(prev => prev.filter((_, i) => i !== index));
+                        }}
+                        className="h-8 w-8 p-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </CardContent>
+            )}
+
+            {uploading && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Uploading...</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <Progress value={uploadProgress} />
+              </div>
+            )}
+
+            <Button
+              className="w-full"
+              disabled={uploading || parsing || files.length === 0}
+              onClick={handleUpload}
+            >
+              {uploading ? (
+                <>Processing...</>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Resumes
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Uploaded Resumes Card */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Uploaded Resumes
+                </CardTitle>
+                <CardDescription>
+                  View and manage all uploaded candidate resumes
+                </CardDescription>
+              </div>
+              {uploadedResumes.length > 0 && (
+                <Button variant="outline" size="sm" onClick={clearAllResumes}>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Clear All
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {uploadedResumes.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="font-medium mb-1">No Resumes Uploaded Yet</h3>
+                <p className="text-sm text-muted-foreground mb-4 max-w-md">
+                  Upload resumes using the form on the left to see them listed here
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Candidate</TableHead>
+                      <TableHead>Skills</TableHead>
+                      {isAdmin && <TableHead>Uploaded By</TableHead>}
+                      <TableHead>Upload Date</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {uploadedResumes.map((resume) => (
+                      <TableRow key={resume.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback>{resume.parsedData.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium">{resume.parsedData.name}</p>
+                              <p className="text-xs text-muted-foreground">{resume.parsedData.email}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                            {resume.parsedData.skills.slice(0, 3).map((skill, i) => (
+                              <Badge key={i} variant="outline" className="text-xs">
+                                {skill}
+                              </Badge>
+                            ))}
+                            {resume.parsedData.skills.length > 3 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{resume.parsedData.skills.length - 3} more
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        {isAdmin && (
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-6 w-6">
+                                {resume.uploadedBy.avatar ? (
+                                  <AvatarImage src={resume.uploadedBy.avatar} alt={resume.uploadedBy.name} />
+                                ) : (
+                                  <AvatarFallback>{resume.uploadedBy.name.charAt(0)}</AvatarFallback>
+                                )}
+                              </Avatar>
+                              <div>
+                                <p className="text-sm font-medium">{resume.uploadedBy.name}</p>
+                                <p className="text-xs text-muted-foreground">{resume.uploadedBy.role}</p>
+                              </div>
+                            </div>
+                          </TableCell>
+                        )}
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm">{format(resume.uploadDate, 'MMM d, yyyy')}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button variant="outline" size="sm" onClick={() => viewResumeDetails(resume.id)}>
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => downloadResume(resume.id)}>
+                              <Download className="h-4 w-4 mr-1" />
+                              Download
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeResume(resume.id)}
+                              disabled={!isAdmin && resume.uploadedBy.id !== currentUser.id}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="matches" className="mt-6">
-          {/* Matching Results */}
+        <TabsContent value="view" className="mt-6">
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle>Matching Results</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Uploaded Resumes
+                  </CardTitle>
                   <CardDescription>
-                    Candidates matching the job position: {jobTitle}
+                    {isAdmin
+                      ? "View and manage all uploaded resumes across the organization"
+                      : "View and manage your uploaded resumes"}
                   </CardDescription>
                 </div>
-                <Button variant="outline" onClick={() => {
-                  setShowMatches(false);
-                  setActiveTab("upload");
-                  setFiles([]);
-                  setParsedResumes([]);
-                  setJobTitle('');
-                  setJobDescription('');
-                }}>
-                  New Upload
-                </Button>
+                {uploadedResumes.length > 0 && (
+                  <Button variant="outline" size="sm" onClick={clearAllResumes}>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {isAdmin ? "Clear All" : "Clear My Uploads"}
+                  </Button>
+                )}
               </div>
             </CardHeader>
             <CardContent>
-              {!showMatches && (
-                <div className="flex flex-col items-center justify-center p-8 text-center">
-                  <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="font-medium mb-1">No Matches Found</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Upload and process resumes to find matching candidates
+              {uploadedResumes.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="font-medium mb-1">No Resumes Uploaded Yet</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-md">
+                    {isAdmin
+                      ? "No resumes have been uploaded to the system yet"
+                      : "You haven't uploaded any resumes yet"}
                   </p>
-                  <Button
-                    variant="outline"
-                    onClick={() => setActiveTab("upload")}
-                  >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Go to Upload
+                  <Button onClick={() => setActiveTab("upload")}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Resumes
                   </Button>
                 </div>
-              )}
-
-              {showMatches && (
-                <>
-                  <div className="bg-recruit-success/30 p-4 rounded-md mb-6 flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mt-0.5 mr-2 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium">Upload Complete</p>
-                      <p className="text-sm">
-                        {files.length} resumes were processed and matched with the job description for {jobTitle}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {matchedCandidates.map((candidate) => (
-                      <CandidateCard
-                        key={candidate.id}
-                        candidate={candidate}
-                        onView={handleViewCandidate}
-                        onAction={handleNextStep}
-                        actionLabel="Send Screening"
-                      />
-                    ))}
-                  </div>
-                </>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Candidate</TableHead>
+                        <TableHead>Skills</TableHead>
+                        {isAdmin && <TableHead>Uploaded By</TableHead>}
+                        <TableHead>Upload Date</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {uploadedResumes.map((resume) => (
+                        <TableRow key={resume.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback>{resume.parsedData.name.charAt(0)}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">{resume.parsedData.name}</p>
+                                <p className="text-xs text-muted-foreground">{resume.parsedData.email}</p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1 max-w-[200px]">
+                              {resume.parsedData.skills.slice(0, 3).map((skill, i) => (
+                                <Badge key={i} variant="outline" className="text-xs">
+                                  {skill}
+                                </Badge>
+                              ))}
+                              {resume.parsedData.skills.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{resume.parsedData.skills.length - 3} more
+                                </Badge>
+                              )}
+                            </div>
+                          </TableCell>
+                          {isAdmin && (
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Avatar className="h-6 w-6">
+                                  {resume.uploadedBy.avatar ? (
+                                    <AvatarImage src={resume.uploadedBy.avatar} alt={resume.uploadedBy.name} />
+                                  ) : (
+                                    <AvatarFallback>{resume.uploadedBy.name.charAt(0)}</AvatarFallback>
+                                  )}
+                                </Avatar>
+                                <div>
+                                  <p className="text-sm font-medium">{resume.uploadedBy.name}</p>
+                                  <p className="text-xs text-muted-foreground">{resume.uploadedBy.role}</p>
+                                </div>
+                              </div>
+                            </TableCell>
+                          )}
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-sm">{format(resume.uploadDate, 'MMM d, yyyy')}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button variant="outline" size="sm" onClick={() => viewResumeDetails(resume.id)}>
+                                <Eye className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={() => downloadResume(resume.id)}>
+                                <Download className="h-4 w-4 mr-1" />
+                                Download
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeResume(resume.id)}
+                                disabled={!isAdmin && resume.uploadedBy.id !== currentUser.id}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Resume Details Dialog */}
+      <Dialog open={isResumeDialogOpen} onOpenChange={setIsResumeDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle>Resume Details</DialogTitle>
+            <DialogDescription>
+              Detailed information extracted from the resume
+            </DialogDescription>
+          </DialogHeader>
+          {renderResumeDetails()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

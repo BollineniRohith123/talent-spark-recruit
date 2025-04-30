@@ -557,8 +557,8 @@ This document provides a comprehensive overview of all tasks and subtasks for th
   - [ ] Add skill gap analysis between candidates and job requirements
   - [ ] Implement continuous learning from matching feedback
 
-- [ ] 🚩 **TalentPulse Screening Integration**
-  - [ ] Integrate with TalentPulse for voice-based screening
+- [ ] 🚩 **SmartMatch Screening Integration**
+  - [ ] Integrate with SmartMatch for voice-based screening
   - [ ] Implement screening question generation from job descriptions
   - [ ] Create transcript generation and storage
   - [ ] Add automated evaluation of responses
@@ -918,7 +918,7 @@ Based on the current state of the application and business requirements, here is
   - Relevance scoring
   - Match explanation
 
-- Week 5-6: Ultravox AI integration
+- Week 5-6: SmartMatch AI integration
   - Screening question generation
   - Voice-based screening
   - Transcript processing
@@ -969,7 +969,7 @@ Based on the current state of the application and business requirements, here is
 ### Milestone 3: AI & Advanced Analytics (Week 24)
 - ✓ Resume parsing working
 - ✓ RAG matching engine implemented
-- ✓ Ultravox screening integrated
+- ✓ SmartMatch screening integrated
 - ✓ Advanced profit analytics operational
 - ✓ Profit optimization recommendations available
 

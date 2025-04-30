@@ -51,7 +51,7 @@ const LoginPage = () => {
                 <div>
                   <h3 className="font-medium">AI-Driven Screening</h3>
                   <p className="text-sm opacity-80">
-                    Leverage Ultravox AI for voice-based candidate screening
+                    Leverage SmartMatch AI for voice-based candidate screening
                   </p>
                 </div>
               </div>
