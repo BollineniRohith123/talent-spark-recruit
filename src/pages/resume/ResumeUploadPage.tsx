@@ -846,22 +846,22 @@ const ResumeUploadPage = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="border-b pb-4 mb-2">
-        <div className="flex justify-between items-center">
+      <div className="border-b pb-3 md:pb-4 mb-2">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0">
           <div>
-            <h1 className="text-3xl font-bold">Resume Management</h1>
+            <h1 className="text-2xl md:text-3xl font-bold">Resume Management</h1>
             <p className="text-muted-foreground mt-1">
               Upload and manage candidate resumes
             </p>
           </div>
 
           {/* User Info Display */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 self-end md:self-auto">
             <div className="text-right">
               <p className="text-sm font-medium">{currentUser.name}</p>
               <p className="text-xs text-muted-foreground">{currentUser.role}</p>
             </div>
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-8 w-8 md:h-10 md:w-10">
               {currentUser.avatar ? (
                 <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
               ) : (
@@ -874,7 +874,7 @@ const ResumeUploadPage = () => {
 
       {/* Role Switcher (Demo Only) - Hidden by default */}
       <div className="bg-muted/30 p-3 rounded-lg mb-4 border border-dashed">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-muted-foreground" />
             <div>
@@ -882,23 +882,23 @@ const ResumeUploadPage = () => {
               <p className="text-xs text-muted-foreground">Switch between different user roles to see how the interface changes</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {mockUsers.map(user => (
               <Button
                 key={user.id}
                 variant={user.id === currentUser.id ? "default" : "outline"}
                 size="sm"
                 onClick={() => changeUser(user.id)}
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 text-xs h-8"
               >
-                <Avatar className="h-5 w-5">
+                <Avatar className="h-4 w-4 md:h-5 md:w-5">
                   {user.avatar ? (
                     <AvatarImage src={user.avatar} alt={user.name} />
                   ) : (
                     <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                   )}
                 </Avatar>
-                <span>{user.role}</span>
+                <span className="truncate max-w-[80px] md:max-w-none">{user.role}</span>
               </Button>
             ))}
           </div>
@@ -918,10 +918,10 @@ const ResumeUploadPage = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="upload" className="mt-6">
+        <TabsContent value="upload" className="mt-4 md:mt-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="px-4 md:px-6 py-4 md:py-6">
+              <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
                 <Upload className="h-5 w-5" />
                 Upload Resumes
               </CardTitle>
@@ -929,17 +929,17 @@ const ResumeUploadPage = () => {
                 Upload candidate resumes (.pdf, .doc, .docx)
               </CardDescription>
             </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="px-4 md:px-6 space-y-4">
             {/* Drop Zone */}
             <div
-              className="border-2 border-dashed rounded-lg p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer"
+              className="border-2 border-dashed rounded-lg p-4 md:p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer"
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleFileDrop}
               onClick={() => document.getElementById('fileInput')?.click()}
             >
-              <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <Upload className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground mx-auto mb-2 md:mb-3" />
               <h3 className="font-medium mb-1">Drag & Drop Files Here</h3>
-              <p className="text-sm text-muted-foreground mb-3">
+              <p className="text-sm text-muted-foreground mb-2 md:mb-3">
                 or click to browse files
               </p>
               <Input
@@ -1143,12 +1143,12 @@ const ResumeUploadPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="view" className="mt-6">
+        <TabsContent value="view" className="mt-4 md:mt-6">
           <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
+            <CardHeader className="px-4 md:px-6 py-4 md:py-6">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 md:gap-0">
                 <div>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
                     <FileText className="h-5 w-5" />
                     Uploaded Resumes
                   </CardTitle>
@@ -1159,17 +1159,17 @@ const ResumeUploadPage = () => {
                   </CardDescription>
                 </div>
                 {uploadedResumes.length > 0 && (
-                  <Button variant="outline" size="sm" onClick={clearAllResumes}>
+                  <Button variant="outline" size="sm" onClick={clearAllResumes} className="self-start md:self-auto">
                     <Trash2 className="h-4 w-4 mr-2" />
                     {isAdmin ? "Clear All" : "Clear My Uploads"}
                   </Button>
                 )}
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 md:px-6">
               {uploadedResumes.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+                <div className="flex flex-col items-center justify-center py-8 md:py-12 text-center">
+                  <FileText className="h-10 w-10 md:h-12 md:w-12 text-muted-foreground mb-3 md:mb-4" />
                   <h3 className="font-medium mb-1">No Resumes Uploaded Yet</h3>
                   <p className="text-sm text-muted-foreground mb-4 max-w-md">
                     {isAdmin
@@ -1182,14 +1182,14 @@ const ResumeUploadPage = () => {
                   </Button>
                 </div>
               ) : (
-                <div className="rounded-md border">
+                <div className="rounded-md border overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Candidate</TableHead>
-                        <TableHead>Skills</TableHead>
-                        {isAdmin && <TableHead>Uploaded By</TableHead>}
-                        <TableHead>Upload Date</TableHead>
+                        <TableHead className="hidden md:table-cell">Skills</TableHead>
+                        {isAdmin && <TableHead className="hidden lg:table-cell">Uploaded By</TableHead>}
+                        <TableHead className="hidden md:table-cell">Date</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1197,18 +1197,21 @@ const ResumeUploadPage = () => {
                       {uploadedResumes.map((resume) => (
                         <TableRow key={resume.id}>
                           <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-8 w-8">
+                            <div className="flex items-center gap-2 md:gap-3">
+                              <Avatar className="h-7 w-7 md:h-8 md:w-8">
                                 <AvatarFallback>{resume.parsedData.name.charAt(0)}</AvatarFallback>
                               </Avatar>
                               <div>
-                                <p className="font-medium">{resume.parsedData.name}</p>
-                                <p className="text-xs text-muted-foreground">{resume.parsedData.email}</p>
+                                <p className="font-medium text-sm md:text-base">{resume.parsedData.name}</p>
+                                <p className="text-xs text-muted-foreground truncate max-w-[120px] md:max-w-none">{resume.parsedData.email}</p>
+                                <div className="md:hidden text-xs text-muted-foreground mt-1">
+                                  {format(resume.uploadDate, 'MM/dd/yy')}
+                                </div>
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell>
-                            <div className="flex flex-wrap gap-1 max-w-[200px]">
+                          <TableCell className="hidden md:table-cell">
+                            <div className="flex flex-wrap gap-1 max-w-[150px] lg:max-w-[200px]">
                               {resume.parsedData.skills.slice(0, 3).map((skill, i) => (
                                 <Badge key={i} variant="outline" className="text-xs">
                                   {skill}
@@ -1222,7 +1225,7 @@ const ResumeUploadPage = () => {
                             </div>
                           </TableCell>
                           {isAdmin && (
-                            <TableCell>
+                            <TableCell className="hidden lg:table-cell">
                               <div className="flex items-center gap-2">
                                 <Avatar className="h-6 w-6">
                                   {resume.uploadedBy.avatar ? (
@@ -1238,27 +1241,28 @@ const ResumeUploadPage = () => {
                               </div>
                             </TableCell>
                           )}
-                          <TableCell>
+                          <TableCell className="hidden md:table-cell">
                             <div className="flex items-center gap-2">
                               <Calendar className="h-4 w-4 text-muted-foreground" />
                               <span className="text-sm">{format(resume.uploadDate, 'MMM d, yyyy')}</span>
                             </div>
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button variant="outline" size="sm" onClick={() => viewResumeDetails(resume.id)}>
-                                <Eye className="h-4 w-4 mr-1" />
-                                View
+                            <div className="flex justify-end gap-1 md:gap-2">
+                              <Button variant="outline" size="sm" onClick={() => viewResumeDetails(resume.id)} className="h-8 w-8 md:w-auto md:px-3">
+                                <Eye className="h-4 w-4 md:mr-1" />
+                                <span className="hidden md:inline">View</span>
                               </Button>
-                              <Button variant="outline" size="sm" onClick={() => downloadResume(resume.id)}>
-                                <Download className="h-4 w-4 mr-1" />
-                                Download
+                              <Button variant="outline" size="sm" onClick={() => downloadResume(resume.id)} className="h-8 w-8 md:w-auto md:px-3">
+                                <Download className="h-4 w-4 md:mr-1" />
+                                <span className="hidden md:inline">Download</span>
                               </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => removeResume(resume.id)}
                                 disabled={!isAdmin && resume.uploadedBy.id !== currentUser.id}
+                                className="h-8 w-8 md:w-auto md:px-3"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -1277,9 +1281,9 @@ const ResumeUploadPage = () => {
 
       {/* Resume Details Dialog */}
       <Dialog open={isResumeDialogOpen} onOpenChange={setIsResumeDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-          <DialogHeader>
-            <DialogTitle>Resume Details</DialogTitle>
+        <DialogContent className="max-w-[95vw] md:max-w-4xl max-h-[90vh] overflow-hidden p-4 md:p-6">
+          <DialogHeader className="pb-2 md:pb-4">
+            <DialogTitle className="text-lg md:text-xl">Resume Details</DialogTitle>
             <DialogDescription>
               Detailed information extracted from the resume
             </DialogDescription>
