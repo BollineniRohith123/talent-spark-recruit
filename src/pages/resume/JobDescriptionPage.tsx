@@ -394,7 +394,7 @@ const JobDescriptionPage = () => {
   return (
     <div className="space-y-5 animate-fade-in">
       <div className="border-b pb-4 mb-2">
-        <h1 className="text-3xl font-bold text-recruit-primary">Job Descriptions</h1>
+        <h1 className="text-3xl font-bold">Job Descriptions</h1>
         <p className="text-muted-foreground mt-1">
           Create, manage, and match candidates to job descriptions
         </p>
@@ -403,16 +403,16 @@ const JobDescriptionPage = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <div className="bg-muted/50 p-1 rounded-lg">
           <TabsList className="bg-transparent">
-            <TabsTrigger value="create" className="data-[state=active]:bg-white data-[state=active]:text-recruit-primary">
+            <TabsTrigger value="create" className="data-[state=active]:bg-white">
               <Plus className="h-4 w-4 mr-2" />
               Create Job
             </TabsTrigger>
-            <TabsTrigger value="saved" className="data-[state=active]:bg-white data-[state=active]:text-recruit-primary">
+            <TabsTrigger value="saved" className="data-[state=active]:bg-white">
               <FileText className="h-4 w-4 mr-2" />
               Saved Jobs
             </TabsTrigger>
             {selectedJobId && (
-              <TabsTrigger value="view" className="data-[state=active]:bg-white data-[state=active]:text-recruit-primary">
+              <TabsTrigger value="view" className="data-[state=active]:bg-white">
                 <FileText className="h-4 w-4 mr-2" />
                 View Job
               </TabsTrigger>
@@ -422,10 +422,10 @@ const JobDescriptionPage = () => {
 
         <TabsContent value="create" className="space-y-6">
           {!showMatches ? (
-            <Card className="border-recruit-primary/20">
-              <CardHeader className="bg-gradient-to-r from-recruit-primary/5 to-transparent">
+            <Card>
+              <CardHeader>
                 <div className="flex items-center gap-2">
-                  <Plus className="h-5 w-5 text-recruit-primary" />
+                  <Plus className="h-5 w-5" />
                   <CardTitle>Create Job Description</CardTitle>
                 </div>
                 <CardDescription>Enter details about the position to find matching candidates</CardDescription>
@@ -435,18 +435,18 @@ const JobDescriptionPage = () => {
                   {/* Basic Information */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 border-b pb-2">
-                      <Briefcase className="h-5 w-5 text-recruit-primary" />
+                      <Briefcase className="h-5 w-5" />
                       <h3 className="text-lg font-medium">Basic Information</h3>
                     </div>
 
                     {/* File Upload Section */}
-                    <div className="border-2 border-dashed border-recruit-primary/20 rounded-lg p-4 bg-recruit-primary/5 hover:bg-recruit-primary/10 transition-colors">
+                    <div className="border-2 border-dashed border-muted rounded-lg p-4 bg-muted/30 hover:bg-muted/50 transition-colors">
                       <div className="flex items-center gap-4">
                         <div className="flex-shrink-0 flex flex-col items-center">
-                          <Upload className="h-10 w-10 text-recruit-primary/70" />
+                          <Upload className="h-10 w-10 text-muted-foreground" />
                         </div>
                         <div className="flex-grow">
-                          <h4 className="font-medium text-recruit-primary">Upload Job Description</h4>
+                          <h4 className="font-medium">Upload Job Description</h4>
                           <p className="text-sm text-muted-foreground">
                             Upload a PDF or DOC file to automatically extract job details
                           </p>
@@ -461,7 +461,7 @@ const JobDescriptionPage = () => {
                             <Button
                               variant="outline"
                               onClick={() => fileInputRef.current?.click()}
-                              className="text-xs border-recruit-primary/30 hover:bg-recruit-primary/10"
+                              className="text-xs"
                               size="sm"
                             >
                               <File className="h-4 w-4 mr-1" />
@@ -471,7 +471,7 @@ const JobDescriptionPage = () => {
                               <Button
                                 variant="default"
                                 onClick={handleFileUpload}
-                                className="text-xs bg-recruit-primary hover:bg-recruit-primary/90"
+                                className="text-xs"
                                 disabled={uploading}
                                 size="sm"
                               >
@@ -482,7 +482,7 @@ const JobDescriptionPage = () => {
                           </div>
                           {selectedFile && (
                             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2 bg-background p-2 rounded-md border">
-                              <FileText className="h-4 w-4 text-recruit-primary" />
+                              <FileText className="h-4 w-4 text-muted-foreground" />
                               <span>Selected: {selectedFile.name}</span>
                             </div>
                           )}
@@ -626,10 +626,10 @@ const JobDescriptionPage = () => {
 
                       {/* Profit Calculator - Only for higher roles */}
                       {canSeeClientBudget && (
-                        <div className="mt-4 border-2 border-recruit-primary/20 rounded-md overflow-hidden">
-                          <div className="bg-recruit-primary/10 p-3 border-b border-recruit-primary/20">
+                        <div className="mt-4 border-2 border-muted rounded-md overflow-hidden">
+                          <div className="bg-muted/30 p-3 border-b border-muted">
                             <div className="flex justify-between items-center">
-                              <h3 className="font-medium text-recruit-primary">Profit Calculator</h3>
+                              <h3 className="font-medium">Profit Calculator</h3>
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -740,7 +740,7 @@ const JobDescriptionPage = () => {
                   {/* Detailed Description */}
                   <div className="space-y-4 border-t pt-4">
                     <div className="flex items-center gap-2 border-b pb-2">
-                      <FileText className="h-5 w-5 text-recruit-primary" />
+                      <FileText className="h-5 w-5" />
                       <h3 className="text-lg font-medium">Job Details</h3>
                     </div>
                     <div className="space-y-3">
@@ -754,7 +754,7 @@ const JobDescriptionPage = () => {
                         rows={6}
                         value={jobDescription}
                         onChange={(e) => setJobDescription(e.target.value)}
-                        className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30 w-full"
+                        className="w-full"
                       />
                     </div>
                     <div className="space-y-3">
@@ -768,7 +768,7 @@ const JobDescriptionPage = () => {
                         rows={4}
                         value={responsibilities}
                         onChange={(e) => setResponsibilities(e.target.value)}
-                        className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30 w-full"
+                        className="w-full"
                       />
                     </div>
                   </div>
@@ -776,14 +776,14 @@ const JobDescriptionPage = () => {
                   {/* Requirements and Benefits */}
                   <div className="border-t pt-4 mt-2">
                     <div className="flex items-center gap-2 mb-4">
-                      <Users className="h-5 w-5 text-recruit-primary" />
+                      <Users className="h-5 w-5" />
                       <h3 className="text-lg font-medium">Requirements & Benefits</h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div className="space-y-3 bg-muted/30 p-4 rounded-lg border border-border/50">
                         <div className="flex items-center justify-between">
                           <Label htmlFor="requirements" className="font-medium flex items-center">
-                            <Check className="h-4 w-4 mr-1 text-recruit-primary" />
+                            <Check className="h-4 w-4 mr-1" />
                             Requirements & Qualifications
                           </Label>
                           <span className="text-xs text-muted-foreground">{requirements.length} characters</span>
@@ -794,13 +794,13 @@ const JobDescriptionPage = () => {
                           rows={5}
                           value={requirements}
                           onChange={(e) => setRequirements(e.target.value)}
-                          className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30 bg-white w-full"
+                          className="bg-white w-full"
                         />
                       </div>
                       <div className="space-y-3 bg-muted/30 p-4 rounded-lg border border-border/50">
                         <div className="flex items-center justify-between">
                           <Label htmlFor="benefits" className="font-medium flex items-center">
-                            <DollarSign className="h-4 w-4 mr-1 text-recruit-primary" />
+                            <DollarSign className="h-4 w-4 mr-1" />
                             Benefits & Perks
                           </Label>
                           <span className="text-xs text-muted-foreground">{benefits.length} characters</span>
@@ -811,7 +811,7 @@ const JobDescriptionPage = () => {
                           rows={5}
                           value={benefits}
                           onChange={(e) => setBenefits(e.target.value)}
-                          className="border-recruit-primary/20 focus-visible:ring-recruit-primary/30 bg-white w-full"
+                          className="bg-white w-full"
                         />
                       </div>
                     </div>
@@ -821,7 +821,7 @@ const JobDescriptionPage = () => {
                     <div className="space-y-2 bg-muted p-4 rounded-lg border animate-pulse">
                       <div className="flex justify-between text-sm">
                         <span className="flex items-center">
-                          <FileUp className="h-4 w-4 mr-2 text-recruit-primary animate-bounce" />
+                          <FileUp className="h-4 w-4 mr-2 animate-bounce" />
                           Processing job description...
                         </span>
                         <span className="font-medium">{uploadProgress}%</span>
@@ -847,7 +847,7 @@ const JobDescriptionPage = () => {
                         setRequirements('');
                         setBenefits('');
                       }}
-                      className="border-recruit-primary/30 hover:bg-recruit-primary/10"
+                      className=""
                     >
                       <File className="mr-2 h-4 w-4" />
                       Clear Form
@@ -855,7 +855,7 @@ const JobDescriptionPage = () => {
                     <Button
                       onClick={handleCreateJob}
                       disabled={uploading}
-                      className="bg-recruit-primary hover:bg-recruit-primary/90 transition-all duration-200"
+                      className="transition-all duration-200"
                     >
                       {uploading ? (
                         <div className="flex items-center">
