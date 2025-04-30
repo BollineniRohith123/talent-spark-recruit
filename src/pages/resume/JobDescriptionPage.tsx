@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { Search, FileUp, Check, AlertCircle, FileText, Building, Clock, Briefcase, Plus, Users, DollarSign, Percent, Info, Upload, File } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -627,120 +626,119 @@ const JobDescriptionPage = () => {
                       />
                     </div>
                   </div>
-                </div>
 
-                {/* Requirements and Benefits */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="requirements">Requirements & Qualifications</Label>
-                    <Textarea
-                      id="requirements"
-                      placeholder="Enter required skills, experience, education..."
-                      rows={5}
-                      value={requirements}
-                      onChange={(e) => setRequirements(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="benefits">Benefits & Perks</Label>
-                    <Textarea
-                      id="benefits"
-                      placeholder="Enter benefits, perks, work environment details..."
-                      rows={5}
-                      value={benefits}
-                      onChange={(e) => setBenefits(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                {uploading && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Processing job description...</span>
-                      <span>{uploadProgress}%</span>
+                  {/* Requirements and Benefits */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="requirements">Requirements & Qualifications</Label>
+                      <Textarea
+                        id="requirements"
+                        placeholder="Enter required skills, experience, education..."
+                        rows={5}
+                        value={requirements}
+                        onChange={(e) => setRequirements(e.target.value)}
+                      />
                     </div>
-                    <Progress value={uploadProgress} />
+                    <div className="space-y-2">
+                      <Label htmlFor="benefits">Benefits & Perks</Label>
+                      <Textarea
+                        id="benefits"
+                        placeholder="Enter benefits, perks, work environment details..."
+                        rows={5}
+                        value={benefits}
+                        onChange={(e) => setBenefits(e.target.value)}
+                      />
+                    </div>
                   </div>
-                )}
 
-                <div className="flex justify-end gap-3">
-                  <Button variant="outline" onClick={() => {
-                    setJobTitle('');
-                    setLocation('');
-                    setClient('');
-                    setInternalBudget('');
-                    setCandidateSplit('80');
-                    setCompanySplit('20');
-                    setShowProfitDetails(false);
-                    setJobDescription('');
-                    setResponsibilities('');
-                    setRequirements('');
-                    setBenefits('');
-                  }}>
-                    Clear Form
-                  </Button>
-                  <Button
-                    onClick={handleCreateJob}
-                    disabled={uploading}
-                    className="bg-recruit-primary hover:bg-recruit-primary/90"
-                  >
-                    {uploading ? (
-                      <>Processing...</>
-                    ) : (
-                      <>
-                        <FileUp className="mr-2 h-4 w-4" />
-                        Create & Find Matching Candidates
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            /* Matching Results */
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle>Matching Results</CardTitle>
-                    <CardDescription>
-                      Candidates matching the job position: {jobTitle}
-                    </CardDescription>
-                  </div>
-                  <Button variant="outline" onClick={() => {
-                    setShowMatches(false);
-                    setJobTitle('');
-                    setJobDescription('');
-                  }}>
-                    New Job Description
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-recruit-success/30 p-4 rounded-md mb-6 flex items-start">
-                  <Check className="h-5 w-5 text-green-600 mt-0.5 mr-2 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium">Job Description Created</p>
-                    <p className="text-sm">
-                      Your job description for {jobTitle} has been analyzed using SmartMatch matching
-                    </p>
-                  </div>
-                </div>
+                  {uploading && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Processing job description...</span>
+                        <span>{uploadProgress}%</span>
+                      </div>
+                      <Progress value={uploadProgress} />
+                    </div>
+                  )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {matchedCandidates.map((candidate) => (
-                    <CandidateCard
-                      key={candidate.id}
-                      candidate={candidate}
-                      onView={handleViewCandidate}
-                      onAction={handleNextStep}
-                      actionLabel="Send Screening"
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                  <div className="flex justify-end gap-3">
+                    <Button variant="outline" onClick={() => {
+                      setJobTitle('');
+                      setLocation('');
+                      setClient('');
+                      setInternalBudget('');
+                      setCandidateSplit('80');
+                      setCompanySplit('20');
+                      setShowProfitDetails(false);
+                      setJobDescription('');
+                      setResponsibilities('');
+                      setRequirements('');
+                      setBenefits('');
+                    }}>
+                      Clear Form
+                    </Button>
+                    <Button
+                      onClick={handleCreateJob}
+                      disabled={uploading}
+                      className="bg-recruit-primary hover:bg-recruit-primary/90"
+                    >
+                      {uploading ? (
+                        <>Processing...</>
+                      ) : (
+                        <>
+                          <FileUp className="mr-2 h-4 w-4" />
+                          Create & Find Matching Candidates
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              /* Matching Results */
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle>Matching Results</CardTitle>
+                      <CardDescription>
+                        Candidates matching the job position: {jobTitle}
+                      </CardDescription>
+                    </div>
+                    <Button variant="outline" onClick={() => {
+                      setShowMatches(false);
+                      setJobTitle('');
+                      setJobDescription('');
+                    }}>
+                      New Job Description
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-recruit-success/30 p-4 rounded-md mb-6 flex items-start">
+                    <Check className="h-5 w-5 text-green-600 mt-0.5 mr-2 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium">Job Description Created</p>
+                      <p className="text-sm">
+                        Your job description for {jobTitle} has been analyzed using SmartMatch matching
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {matchedCandidates.map((candidate) => (
+                      <CandidateCard
+                        key={candidate.id}
+                        candidate={candidate}
+                        onView={handleViewCandidate}
+                        onAction={handleNextStep}
+                        actionLabel="Send Screening"
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
           {/* Tips for Creating Effective Job Descriptions */}
           <Card>
@@ -1072,9 +1070,9 @@ const JobDescriptionPage = () => {
             </Card>
           </TabsContent>
         )}
-      </Tabs>
-    </div>
-  );
-};
+        </Tabs>
+      </div>
+    );
+  };
 
 export default JobDescriptionPage;
