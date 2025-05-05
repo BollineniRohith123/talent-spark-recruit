@@ -1,6 +1,6 @@
 
 import { useState, useCallback, useEffect } from 'react';
-import { Upload, FileUp, X, Check, FileText, Clock, Calendar, User, Briefcase, GraduationCap, Award, Tag, Eye, Download, Trash2, Phone } from 'lucide-react';
+import { Upload, FileUp, X, Check, FileText, Clock, Calendar, User, Briefcase, GraduationCap, Award, Tag, Eye, Download, Trash2, Phone, Mail } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CandidateInviteDialog from '@/components/resume/CandidateInviteDialog';
 import { format } from 'date-fns';
 
 // Define the Candidate interface
@@ -160,6 +161,10 @@ const ResumeUploadPage = () => {
   const [uploadedResumes, setUploadedResumes] = useState<UploadedResume[]>([]);
   const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null);
   const [isResumeDialogOpen, setIsResumeDialogOpen] = useState(false);
+
+  // State for candidate invitation
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [candidateToInvite, setCandidateToInvite] = useState<{name: string, email: string} | null>(null);
 
   // State for user role simulation
   // In a real app, this would come from authentication context
@@ -575,6 +580,18 @@ const ResumeUploadPage = () => {
   const viewResumeDetails = (id: string) => {
     setSelectedResumeId(id);
     setIsResumeDialogOpen(true);
+  };
+
+  // Function to invite a candidate
+  const inviteCandidate = (id: string) => {
+    const resume = uploadedResumes.find(r => r.id === id);
+    if (!resume) return;
+
+    setCandidateToInvite({
+      name: resume.parsedData.name,
+      email: resume.parsedData.email
+    });
+    setIsInviteDialogOpen(true);
   };
 
   const handleUpload = () => {
@@ -1260,6 +1277,15 @@ const ResumeUploadPage = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
+                                onClick={() => inviteCandidate(resume.id)}
+                                className="h-8 w-8 md:w-auto md:px-3"
+                              >
+                                <Mail className="h-4 w-4 md:mr-1" />
+                                <span className="hidden md:inline">Invite</span>
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => removeResume(resume.id)}
                                 disabled={!isAdmin && resume.uploadedBy.id !== currentUser.id}
                                 className="h-8 w-8 md:w-auto md:px-3"
@@ -1291,6 +1317,19 @@ const ResumeUploadPage = () => {
           {renderResumeDetails()}
         </DialogContent>
       </Dialog>
+
+      {/* Candidate Invite Dialog */}
+      {candidateToInvite && (
+        <CandidateInviteDialog
+          isOpen={isInviteDialogOpen}
+          onClose={() => {
+            setIsInviteDialogOpen(false);
+            setCandidateToInvite(null);
+          }}
+          candidateName={candidateToInvite.name}
+          candidateEmail={candidateToInvite.email}
+        />
+      )}
     </div>
   );
 };

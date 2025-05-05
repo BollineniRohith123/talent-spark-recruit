@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -124,13 +124,21 @@ const LoginForm = () => {
           </div>
         </CardContent>
         <CardFooter>
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
-            {isLoading ? "Logging in..." : "Login"}
-          </Button>
+          <div className="w-full space-y-4">
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? "Logging in..." : "Login"}
+            </Button>
+            <div className="text-center text-sm">
+              Don't have an account?{" "}
+              <Link to="/register" className="text-primary hover:underline">
+                Sign up
+              </Link>
+            </div>
+          </div>
         </CardFooter>
       </form>
     </Card>

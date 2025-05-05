@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 
 // Auth Pages
 import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
 
 // Dashboard Pages
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
@@ -74,6 +75,7 @@ const App = () => (
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
             {/* Index route for deciding where to redirect based on auth state */}
             <Route path="/index" element={<Index />} />

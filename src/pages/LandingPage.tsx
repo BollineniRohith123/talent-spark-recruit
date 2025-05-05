@@ -22,7 +22,7 @@ const LandingPage = () => {
           >
             <Bot className="h-8 w-8 text-recruit-primary mr-2" />
             <span className="text-xl font-bold bg-gradient-to-r from-recruit-primary to-recruit-secondary bg-clip-text text-transparent">
-              TalentSpark
+              QORE
             </span>
           </motion.div>
           <motion.div
@@ -52,7 +52,7 @@ const LandingPage = () => {
                 Sign In
               </Button>
             </Link>
-            <Link to="/login">
+            <Link to="/register">
               <Button className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-recruit-primary to-recruit-secondary hover:opacity-90">
                 Get Started
               </Button>
@@ -127,7 +127,7 @@ const LandingPage = () => {
       <section id="benefits" className="py-20 bg-gradient-to-br from-recruit-primary/10 to-recruit-secondary/10">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose TalentSpark</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose QORE</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Our platform offers distinct advantages for US consulting firms looking to optimize their recruitment process.
             </p>
@@ -137,7 +137,7 @@ const LandingPage = () => {
             <div>
               <img
                 src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-1.2.1&q=80&w=1500&auto=format&fit=crop"
-                alt="Team collaborating using TalentSpark"
+                alt="Team collaborating using QORE"
                 className="rounded-xl shadow-lg"
               />
             </div>
@@ -201,7 +201,7 @@ const LandingPage = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Role-Based Dashboards</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              TalentSpark provides customized experiences for everyone involved in the recruitment process.
+              QORE provides customized experiences for everyone involved in the recruitment process.
             </p>
           </div>
 
@@ -305,9 +305,13 @@ const LandingPage = () => {
             <div className="bg-white p-8 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold mb-3">Applicant</h3>
               <p className="text-muted-foreground mb-4">
-                Monitor application status, complete screenings, and respond to interview invitations.
+                Create an account, monitor application status, complete screenings, and respond to interview invitations.
               </p>
               <ul className="space-y-2 mb-6">
+                <li className="flex items-center text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Easy self-registration</span>
+                </li>
                 <li className="flex items-center text-sm">
                   <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
                   <span>Application progress tracking</span>
@@ -321,8 +325,8 @@ const LandingPage = () => {
                   <span>Interview and offer management</span>
                 </li>
               </ul>
-              <Link to="/login">
-                <Button variant="outline" className="w-full">View Demo</Button>
+              <Link to="/register">
+                <Button variant="outline" className="w-full">Create Account</Button>
               </Link>
             </div>
 
@@ -350,11 +354,11 @@ const LandingPage = () => {
             Ready to Optimize Your Recruitment Process?
           </h2>
           <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto animate-fade-in [animation-delay:200ms]">
-            Join leading consulting firms using TalentSpark to find better candidates,
+            Join leading consulting firms using QORE to find better candidates,
             increase margins, and streamline hiring.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/login">
+            <Link to="/register">
               <Button
                 size="lg"
                 className="rounded-full animate-pulse-slow bg-gradient-to-r from-recruit-primary to-recruit-secondary hover:opacity-90"
