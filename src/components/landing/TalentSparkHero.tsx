@@ -111,10 +111,10 @@ interface TalentSparkHeroProps {
 }
 
 export function TalentSparkHero({
-  badge = "SmartMatch-Powered Recruitment",
-  title = "TalentSpark",
-  subtitle = "Revolutionizing Recruitment",
-  description = "Our SmartMatch-powered platform streamlines your hiring process with intelligent resume parsing, candidate matching, and profit optimization.",
+  badge = "Smart-Powered Recruitment Engine",
+  title = "QORE",
+  subtitle = "The Core of Recruitment Excellence",
+  description = "Our intelligent platform streamlines your hiring process with advanced resume parsing, precise candidate matching, and profit optimization.",
 }: TalentSparkHeroProps) {
   const textVariants = {
     hidden: { opacity: 0, y: 30 },

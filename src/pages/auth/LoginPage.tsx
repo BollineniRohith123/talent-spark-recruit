@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -26,7 +25,7 @@ const LoginPage = () => {
         {/* Right Side - Info */}
         <div className="w-full md:w-1/2 bg-gradient-to-br from-recruit-primary to-recruit-secondary p-8 text-white flex flex-col justify-center">
           <div>
-            <h1 className="text-3xl font-bold mb-4">TalentSpark Platform</h1>
+            <h1 className="text-3xl font-bold mb-4">QORE Platform</h1>
             <p className="mb-6">
               AI-powered recruitment platform designed for US consulting companies. Streamline your hiring process with intelligent tools.
             </p>

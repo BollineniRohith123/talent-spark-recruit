@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 export type UserRole = 'ceo' | 'branch-manager' | 'marketing-head' | 'marketing-supervisor' | 'marketing-recruiter' | 'marketing-associate' | 'applicant';
@@ -24,52 +23,52 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const demoUsers: Record<UserRole, User> = {
   'ceo': {
     id: '1',
-    name: 'Alex Johnson',
-    email: 'ceo@talentspark.com',
+    name: 'Sarah Chen',
+    email: 'ceo@qore.io',
     role: 'ceo',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   'branch-manager': {
     id: '2',
-    name: 'Morgan Smith',
-    email: 'manager@talentspark.com',
+    name: 'Michael Thompson',
+    email: 'branch-manager@qore.io',
     role: 'branch-manager',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   'marketing-head': {
     id: '3',
-    name: 'Taylor Reed',
-    email: 'marketing-head@talentspark.com',
+    name: 'Emma Rodriguez',
+    email: 'marketing-head@qore.io',
     role: 'marketing-head',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   'marketing-supervisor': {
     id: '4',
-    name: 'Jordan Lee',
-    email: 'marketing-supervisor@talentspark.com',
+    name: 'David Kim',
+    email: 'marketing-supervisor@qore.io',
     role: 'marketing-supervisor',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   'marketing-recruiter': {
     id: '5',
-    name: 'Jamie Garcia',
-    email: 'recruiter@talentspark.com',
+    name: 'Jordan Lee',
+    email: 'recruiter@qore.io',
     role: 'marketing-recruiter',
-    avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   'marketing-associate': {
     id: '6',
-    name: 'Robin Taylor',
-    email: 'associate@talentspark.com',
+    name: 'Taylor Smith',
+    email: 'associate@qore.io',
     role: 'marketing-associate',
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   },
   'applicant': {
     id: '7',
-    name: 'Casey Wilson',
-    email: 'applicant@example.com',
+    name: 'Alex Johnson',
+    email: 'applicant@qore.io',
     role: 'applicant',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   }
 };
 

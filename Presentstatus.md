@@ -266,7 +266,7 @@ The TalentSpark Recruit application has a well-structured frontend with all the 
 3. Implement real data visualization with charts
 4. Add real authentication and authorization
 5. Implement AI-powered resume parsing and matching with RAG
-6. Integrate with Ultravox AI for voice-based screening
+6. Integrate with SmartMatch AI for voice-based screening
 7. Add comprehensive error handling and loading states
 8. Implement real-time updates with WebSockets
 9. Add more advanced profit analytics and forecasting

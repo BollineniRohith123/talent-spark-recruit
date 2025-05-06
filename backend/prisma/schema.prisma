@@ -1,0 +1,435 @@
+// This is your Prisma schema file
+// Learn more about it here: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int                 @id @default(autoincrement())
+  email             String              @unique
+  password          String
+  firstName         String
+  lastName          String
+  role              Role                @default(CANDIDATE)
+  phone             String?
+  avatarUrl         String?
+  customPermissions String[]
+  isActive          Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  department        Department?         @relation("DepartmentMembers", fields: [departmentId], references: [id])
+  departmentId      Int?
+  location          Location?           @relation(fields: [locationId], references: [id])
+  locationId        Int?
+
+  // Relations
+  managedDepartments   Department[]         @relation("DepartmentManager")
+  jobs                 Job[]                @relation("JobHiringManager")
+  applications         Application[]        @relation("CandidateApplications")
+  interviews           Interview[]          @relation("UserInterviews")
+  interviewFeedbacks   InterviewFeedback[]  @relation("FeedbackInterviewer")
+  budgets              Budget[]             @relation("BudgetCreator")
+  budgetAllocations    BudgetAllocation[]   @relation("BudgetRequester")
+  approvedAllocations  BudgetAllocation[]   @relation("BudgetApprover")
+  notificationSettings NotificationSettings?
+  receivedNotifications Notification[]      @relation("NotificationRecipient")
+
+  @@map("users")
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  MANAGER
+  RECRUITER
+  INTERVIEWER
+  CANDIDATE
+}
+
+model Department {
+  id                Int         @id @default(autoincrement())
+  name              String
+  description       String?
+  manager           User?       @relation("DepartmentManager", fields: [managerId], references: [id])
+  managerId         Int?
+  parentDepartment  Department? @relation("DepartmentHierarchy", fields: [parentDepartmentId], references: [id])
+  parentDepartmentId Int?
+  budgetCode        String?
+  isActive          Boolean     @default(true)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  childDepartments  Department[] @relation("DepartmentHierarchy")
+  members           User[]       @relation("DepartmentMembers")
+  jobs              Job[]
+  budgets           Budget[]
+
+  @@map("departments")
+}
+
+model Location {
+  id              Int       @id @default(autoincrement())
+  name            String
+  address         String
+  city            String
+  state           String
+  country         String
+  postalCode      String
+  phone           String?
+  isHeadquarters  Boolean   @default(false)
+  isActive        Boolean   @default(true)
+  timezone        String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  users           User[]
+  jobs            Job[]
+
+  @@map("locations")
+}
+
+model Job {
+  id                Int       @id @default(autoincrement())
+  title             String
+  description       String
+  requirements      String
+  responsibilities  String
+  department        Department @relation(fields: [departmentId], references: [id])
+  departmentId      Int
+  location          Location   @relation(fields: [locationId], references: [id])
+  locationId        Int
+  salaryRangeMin    Float
+  salaryRangeMax    Float
+  jobType           JobType
+  experienceLevel   ExperienceLevel
+  status            JobStatus  @default(DRAFT)
+  publishedAt       DateTime?
+  deadlineAt        DateTime?
+  hiringManager     User       @relation("JobHiringManager", fields: [hiringManagerId], references: [id])
+  hiringManagerId   Int
+  isRemote          Boolean    @default(false)
+  skills            String[]
+  benefits          String[]
+  numberOfOpenings  Int        @default(1)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  // Relations
+  applications     Application[]
+  budgetAllocations BudgetAllocation[]
+
+  @@map("jobs")
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum ExperienceLevel {
+  ENTRY
+  JUNIOR
+  MID
+  SENIOR
+  EXECUTIVE
+}
+
+enum JobStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  ON_HOLD
+}
+
+model Application {
+  id                Int             @id @default(autoincrement())
+  job               Job             @relation(fields: [jobId], references: [id])
+  jobId             Int
+  candidate         User?           @relation("CandidateApplications", fields: [candidateId], references: [id])
+  candidateId       Int?
+  firstName         String
+  lastName          String
+  email             String
+  phone             String?
+  coverLetter       String?
+  resumeUrl         String?
+  status            ApplicationStatus @default(APPLIED)
+  source            ApplicationSource @default(WEBSITE)
+  referralName      String?
+  expectedSalary    Float?
+  availableStartDate DateTime?
+  education         Json?  // Array of education objects
+  experience        Json?  // Array of experience objects
+  skills            String[]
+  portfolioUrl      String?
+  linkedinUrl       String?
+  githubUrl         String?
+  notes             String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  // Relations
+  interviews        Interview[]
+  offers            Offer[]
+  screenings        Screening[]
+
+  @@map("applications")
+}
+
+enum ApplicationStatus {
+  APPLIED
+  SCREENING
+  INTERVIEW
+  ASSESSMENT
+  OFFER
+  HIRED
+  REJECTED
+  WITHDRAWN
+}
+
+enum ApplicationSource {
+  WEBSITE
+  REFERRAL
+  LINKEDIN
+  INDEED
+  GLASSDOOR
+  OTHER
+}
+
+model Interview {
+  id              Int             @id @default(autoincrement())
+  application     Application     @relation(fields: [applicationId], references: [id])
+  applicationId   Int
+  interviewer     User            @relation("UserInterviews", fields: [interviewerId], references: [id])
+  interviewerId   Int
+  scheduledAt     DateTime
+  duration        Int              // Duration in minutes
+  type            InterviewType
+  status          InterviewStatus @default(SCHEDULED)
+  notes           String?
+  location        String?
+  meetingLink     String?
+  questions       String[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  feedback        InterviewFeedback?
+
+  @@map("interviews")
+}
+
+enum InterviewType {
+  PHONE
+  VIDEO
+  IN_PERSON
+  TECHNICAL
+  BEHAVIORAL
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELED
+  RESCHEDULED
+}
+
+model InterviewFeedback {
+  id              Int           @id @default(autoincrement())
+  interview       Interview     @relation(fields: [interviewId], references: [id])
+  interviewId     Int           @unique
+  interviewer     User          @relation("FeedbackInterviewer", fields: [interviewerId], references: [id])
+  interviewerId   Int
+  rating          Int           // 1-5 rating
+  strengths       String
+  weaknesses      String
+  notes           String
+  recommendation  Recommendation
+  skillAssessments Json        // Array of skill assessment objects
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@map("interview_feedbacks")
+}
+
+enum Recommendation {
+  HIRE
+  REJECT
+  CONSIDER
+}
+
+model Offer {
+  id               Int           @id @default(autoincrement())
+  application      Application   @relation(fields: [applicationId], references: [id])
+  applicationId    Int
+  salary           Float
+  bonus            Float        @default(0)
+  stockOptions     Int          @default(0)
+  benefits         String[]
+  startDate        DateTime
+  expiryDate       DateTime
+  jobTitle         String
+  status           OfferStatus  @default(DRAFT)
+  notes            String?
+  approvalWorkflow Json        // Array of approval workflow objects
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@map("offers")
+}
+
+enum OfferStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  SENT
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+model Budget {
+  id               Int           @id @default(autoincrement())
+  fiscalYear       Int
+  department       Department    @relation(fields: [departmentId], references: [id])
+  departmentId     Int
+  totalAmount      Float
+  startDate        DateTime
+  endDate          DateTime
+  description      String?
+  status           BudgetStatus @default(DRAFT)
+  createdBy        User         @relation("BudgetCreator", fields: [createdById], references: [id])
+  createdById      Int
+  categories       Json        // Array of budget category objects
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  // Relations
+  allocations      BudgetAllocation[]
+
+  @@map("budgets")
+}
+
+enum BudgetStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+model BudgetAllocation {
+  id               Int                  @id @default(autoincrement())
+  budget           Budget               @relation(fields: [budgetId], references: [id])
+  budgetId         Int
+  categoryId       Int                 // References a category in the budget's categories JSON
+  amount           Float
+  description      String
+  job              Job?                 @relation(fields: [jobId], references: [id])
+  jobId            Int?
+  departmentId     Int?
+  locationId       Int?
+  requestedBy      User                 @relation("BudgetRequester", fields: [requestedById], references: [id])
+  requestedById    Int
+  approvedBy       User?                @relation("BudgetApprover", fields: [approvedById], references: [id])
+  approvedById     Int?
+  status           BudgetAllocationStatus @default(REQUESTED)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  @@map("budget_allocations")
+}
+
+enum BudgetAllocationStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+model Screening {
+  id               Int           @id @default(autoincrement())
+  application      Application   @relation(fields: [applicationId], references: [id])
+  applicationId    Int
+  type             ScreeningType
+  status           ScreeningStatus @default(PENDING)
+  scheduledAt      DateTime?
+  completedAt      DateTime?
+  score            Int?
+  notes            String?
+  results          Json?         // Detailed screening results
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@map("screenings")
+}
+
+enum ScreeningType {
+  RESUME_REVIEW
+  PHONE_SCREEN
+  ASSESSMENT
+  BACKGROUND_CHECK
+  REFERENCE_CHECK
+}
+
+enum ScreeningStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELED
+}
+
+model NotificationSettings {
+  id                  Int        @id @default(autoincrement())
+  user                User       @relation(fields: [userId], references: [id])
+  userId              Int        @unique
+  emailNotifications  Boolean    @default(true)
+  applicationUpdates  Boolean    @default(true)
+  interviewReminders  Boolean    @default(true)
+  jobAlerts           Boolean    @default(true)
+  offerUpdates        Boolean    @default(true)
+  systemAnnouncements Boolean    @default(true)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  @@map("notification_settings")
+}
+
+model Notification {
+  id          Int               @id @default(autoincrement())
+  recipient   User              @relation("NotificationRecipient", fields: [recipientId], references: [id])
+  recipientId Int
+  type        NotificationType
+  title       String
+  message     String
+  isRead      Boolean           @default(false)
+  linkUrl     String?
+  metadata    Json?             // Additional data related to the notification
+  createdAt   DateTime          @default(now())
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  JOB_POSTED
+  APPLICATION_RECEIVED
+  APPLICATION_STATUS_CHANGE
+  INTERVIEW_SCHEDULED
+  INTERVIEW_REMINDER
+  INTERVIEW_FEEDBACK
+  OFFER_CREATED
+  OFFER_APPROVED
+  OFFER_SENT
+  OFFER_RESPONDED
+  BUDGET_APPROVED
+  SYSTEM_ANNOUNCEMENT
+}

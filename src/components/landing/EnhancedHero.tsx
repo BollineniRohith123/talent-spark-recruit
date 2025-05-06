@@ -317,7 +317,7 @@ export function EnhancedHero() {
           >
             <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold mb-2 md:mb-4 tracking-tight">
               <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
-                TalentSpark
+                QORE
               </span>
             </h1>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 md:mb-8 tracking-tight">
@@ -368,24 +368,30 @@ export function EnhancedHero() {
             className="flex flex-wrap justify-center gap-4 mb-12"
           >
             <Link to="/login">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-recruit-primary via-recruit-secondary to-recruit-tertiary text-white hover:opacity-90 transition-opacity"
+              <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Get Started
-              </Button>
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-recruit-primary via-recruit-secondary to-recruit-tertiary text-white hover:opacity-90 transition-opacity"
+                >
+                  Get Started
+                </Button>
+              </motion.div>
             </Link>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-white/10 text-white/80 hover:bg-white/5"
+            <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Book a Demo
-            </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="border-white/10 text-white/80 hover:bg-white/5"
+              >
+                Book a Demo
+              </Button>
+            </motion.div>
           </motion.div>
 
           <motion.div

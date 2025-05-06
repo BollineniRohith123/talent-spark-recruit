@@ -467,7 +467,7 @@ export function TalentSparkFeatures() {
             transition={{ duration: 0.5 }}
             className="mb-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
           >
-            SmartMatch-Powered Recruitment
+            Intelligence-Powered Recruitment
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -475,7 +475,7 @@ export function TalentSparkFeatures() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mx-auto max-w-2xl text-muted-foreground"
           >
-            TalentSpark uses cutting-edge SmartMatch technology to streamline your recruitment process and find the perfect candidates faster.
+            QORE uses cutting-edge technology to streamline your recruitment process and find the perfect candidates faster.
           </motion.p>
         </div>
 
@@ -582,7 +582,7 @@ export function TalentSparkFeatures() {
                         </h3>
                       </div>
                       <p className="mb-4 text-center text-muted-foreground">
-                        Experience the power of AI-driven recruitment with TalentSpark
+                        Experience the power of AI-driven recruitment with QORE
                       </p>
                       <div className="flex justify-center">
                         <Link to="/login">

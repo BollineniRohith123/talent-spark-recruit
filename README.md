@@ -1,47 +1,87 @@
-# TalentSpark Recruit
+# QORE - Smart-Powered Recruitment Platform
+
+<p align="center">
+  <img src="public/logo.png" alt="QORE Logo" width="200"/>
+</p>
 
 ## Project Overview
 
-TalentSpark Recruit is an advanced SmartMatch-powered recruitment platform specifically designed for US-based recruiting consultancies. The platform streamlines the hiring process while maximizing profits through a sophisticated two-level profit tracking system.
+QORE is an advanced SmartMatch-powered recruitment platform designed for US-based recruiting consultancies. The platform streamlines the hiring process while maximizing profits through a sophisticated two-level profit tracking system. With its intuitive interface and powerful features, QORE helps recruitment agencies manage their entire workflow from job posting to candidate placement.
 
 ### Key Features
 
 - **Role-Based Access Control**: Tailored dashboards and permissions for CEO, Branch Managers, Marketing Heads, Marketing Supervisors, Marketing Recruiters, Marketing Associates, and Applicants
-- **Profit Optimization**: Two-level profit tracking (client-to-company and company-to-candidate) with configurable splits
-- **SmartMatch-Powered Matching**: Resume parsing and semantic matching using Retrieval-Augmented Generation (RAG)
-- **Automated Screening**: Integration with TalentPulse for voice-based candidate screening
-- **Comprehensive Analytics**: Detailed profit metrics, hiring efficiency, and team performance tracking
+- **Profit Optimization**: Two-level profit tracking (client-to-company and company-to-candidate) with configurable splits and detailed financial analytics
+- **SmartMatch-Powered Matching**: Resume parsing and semantic matching using Retrieval-Augmented Generation (RAG) technology
+- **Automated Screening**: Integration with SmartMatch for voice-based candidate screening and assessment
+- **Comprehensive Analytics**: Detailed profit metrics, hiring efficiency, and team performance tracking with visual dashboards
 - **Hierarchical Organization Structure**: Branch-based management with locations, departments, and teams
+- **Job Management**: Complete job lifecycle management from creation to placement
+- **Candidate Management**: Comprehensive candidate tracking, screening, and placement
+- **Interview Scheduling**: Integrated interview scheduling and feedback collection
+- **Offer Management**: Streamlined offer creation, approval, and tracking
 
-## Current Implementation Status
+## Architecture
 
-The application currently has a fully implemented frontend with comprehensive UI components for all major features. The platform includes:
+QORE is built with a modern tech stack:
 
-- ✅ Role-specific dashboards with appropriate metrics and visualizations
-- ✅ Two-level profit tracking system with detailed analytics
-- ✅ Job creation with profit configuration and real-time calculation
-- ✅ Resume upload and candidate matching simulation
-- ✅ Team and profile management interfaces
-- ✅ Budget allocation and tracking with profit metrics
-- ✅ Interview scheduling and feedback collection
+- **Frontend**: React with TypeScript, Vite, and TailwindCSS
+- **Backend**: Node.js/Express with TypeScript and PostgreSQL
+- **Authentication**: JWT-based authentication with role-based access control
+- **Database**: PostgreSQL with Prisma ORM
+- **AI Integration**: RAG-based resume parsing and job matching
 
-See [Presentstatus.md](./Presentstatus.md) for a detailed breakdown of implemented features and pending items.
+## Project Structure
+
+```
+qore-recruit/
+├── public/                # Static assets
+├── src/                   # Frontend source code
+│   ├── components/        # Reusable UI components
+│   ├── context/           # React context providers
+│   ├── hooks/             # Custom React hooks
+│   ├── layouts/           # Page layout components
+│   ├── pages/             # Page components
+│   ├── services/          # API service modules
+│   ├── styles/            # Global styles
+│   ├── types/             # TypeScript type definitions
+│   └── utils/             # Utility functions
+├── backend/               # Backend source code
+│   ├── prisma/            # Database schema and migrations
+│   ├── src/               # Backend source files
+│   │   ├── controllers/   # Request handlers
+│   │   ├── middleware/    # Express middleware
+│   │   ├── routes/        # API routes
+│   │   ├── utils/         # Utility functions
+│   │   └── index.ts       # Entry point
+│   └── package.json       # Backend dependencies
+└── All Markdown/          # Comprehensive documentation
+    ├── 1-Project Setup/   # Setup and configuration guides
+    ├── 2-API Integration/ # API integration guides
+    ├── 3-Feature Implementation/ # Feature implementation guides
+    ├── 4-Deployment/      # Deployment guides
+    ├── 5-Roadmap/         # Project roadmap and tasks
+    ├── 6-Backend Documentation/ # API documentation
+    ├── 7-Backend Analysis/ # Backend analysis
+    └── 8-Production Guide/ # Production guides
+```
 
 ## Development Setup
 
 ### Prerequisites
 
-- Node.js (v16+) & npm - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Node.js (v16+) & npm
+- PostgreSQL (v14+)
 - Git
 
-### Local Development
+### Frontend Development
 
 ```sh
 # Clone the repository
-git clone https://github.com/BollineniRohith123/talent-spark-recruit.git
+git clone https://github.com/yourusername/qore-recruit.git
 
 # Navigate to the project directory
-cd talent-spark-recruit
+cd qore-recruit
 
 # Install dependencies
 npm install
@@ -50,51 +90,102 @@ npm install
 npm run dev
 ```
 
-The application will be available at http://localhost:8080
+### Backend Development
+
+```sh
+# Navigate to the backend directory
+cd backend
+
+# Install dependencies
+npm install
+
+# Create .env file from example
+cp .env.example .env
+
+# Update database connection string in .env
+# DATABASE_URL="postgresql://username:password@localhost:5432/qore_recruit?schema=public"
+
+# Generate Prisma client
+npx prisma generate
+
+# Run database migrations
+npx prisma migrate dev
+
+# Seed the database
+npx prisma db seed
+
+# Start the backend server
+npm run dev
+```
+
+The backend API will be available at `http://localhost:3001/api`.
 
 ### Demo Credentials
 
-You can access different role-specific dashboards using these credentials:
+Access different role-specific dashboards using these credentials:
 
-- **CEO**: ceo@talentspark.com / admin123
-- **Branch Manager**: branch-manager@talentspark.com / manager123
-- **Marketing Head**: marketing-head@talentspark.com / manager123
-- **Marketing Supervisor**: marketing-supervisor@talentspark.com / manager123
-- **Marketing Recruiter**: recruiter@talentspark.com / scout123
-- **Marketing Associate**: associate@talentspark.com / member123
-- **Applicant**: applicant@example.com / applicant123
+- **CEO**: ceo@qore.io / admin123
+- **Branch Manager**: branch-manager@qore.io / manager123
+- **Marketing Head**: marketing-head@qore.io / manager123
+- **Marketing Supervisor**: marketing-supervisor@qore.io / manager123
+- **Marketing Recruiter**: recruiter@qore.io / scout123
+- **Marketing Associate**: associate@qore.io / member123
+- **Applicant**: applicant@qore.io / applicant123
 
-## Technology Stack
+## Comprehensive Documentation
 
-- **Frontend**: React with TypeScript
-- **Build Tool**: Vite
-- **UI Framework**: Shadcn UI components with Tailwind CSS
-- **State Management**: React Context API
-- **Routing**: React Router
-- **Animations**: Framer Motion
-- **Charts**: Recharts
-- **Forms**: React Hook Form with Zod validation
+For detailed documentation, refer to the `All Markdown` folder which contains comprehensive guides for all aspects of the project:
 
-## Deployment
+### Project Setup and Configuration
+- Backend setup and database configuration
+- Environment configuration
+- Development workflow
 
-The application is deployed on Vercel and can be accessed at:
-[https://talent-spark-recruit.vercel.app](https://talent-spark-recruit.vercel.app)
+### API Integration
+- API client implementation
+- Authentication service
+- Service modules for all resources
 
-### Deployment Instructions
+### Feature Implementation
+- Job management
+- User management
+- Application tracking
+- Interview scheduling
+- Offer management
 
-1. Push changes to the GitHub repository
-2. Vercel automatically deploys the updated code
-3. Check deployment status in the Vercel dashboard
+### Deployment
+- Backend deployment
+- Frontend deployment
+- CI/CD setup
+- Production considerations
 
-## Project Documentation
+### Roadmap and Planning
+- Project roadmap
+- Task checklist
+- Implementation timeline
 
-For more detailed information about the project, refer to these documents:
+### API Documentation
+- Comprehensive API reference
+- Authentication flows
+- Data models and relationships
 
-- [All About Project](./allaboutproject.md) - Comprehensive project documentation
-- [Present Status](./Presentstatus.md) - Current implementation status
-- [Tasks and Subtasks](./tasks-and-subtasks.md) - Detailed task breakdown and roadmap
-- [User Flows](./flows.md) - Role-specific user flows and interactions
+### Production Guide
+- Backend usage in production
+- Best practices
+- Performance optimization
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
 This project is proprietary software. All rights reserved.
+
+## Contact
+
+Project Link: [https://github.com/yourusername/qore-recruit](https://github.com/yourusername/qore-recruit)

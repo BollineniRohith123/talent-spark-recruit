@@ -64,7 +64,7 @@ export function TestimonialsSection() {
 
   const testimonials = [
     {
-      quote: "TalentSpark has revolutionized our hiring process. The AI-powered matching has helped us find candidates that perfectly fit our company culture and job requirements.",
+      quote: "QORE has revolutionized our hiring process. The AI-powered matching has helped us find candidates that perfectly fit our company culture and job requirements.",
       author: "Sarah Johnson",
       role: "HR Director",
       company: "TechGrowth Inc.",
@@ -78,7 +78,7 @@ export function TestimonialsSection() {
       rating: 5,
     },
     {
-      quote: "I was skeptical about AI in recruitment, but TalentSpark proved me wrong. The resume parsing is incredibly accurate and has saved our team countless hours of manual screening.",
+      quote: "I was skeptical about AI in recruitment, but QORE proved me wrong. The resume parsing is incredibly accurate and has saved our team countless hours of manual screening.",
       author: "Jessica Williams",
       role: "Talent Acquisition Manager",
       company: "Innovate Partners",
@@ -92,14 +92,14 @@ export function TestimonialsSection() {
       rating: 5,
     },
     {
-      quote: "TalentSpark has helped us reduce our time-to-hire by 40%. The automated workflow and candidate matching have streamlined our entire recruitment process.",
+      quote: "QORE has helped us reduce our time-to-hire by 40%. The automated workflow and candidate matching have streamlined our entire recruitment process.",
       author: "Emily Thompson",
       role: "Recruitment Lead",
       company: "Future Innovations",
       rating: 4,
     },
     {
-      quote: "The customer support team at TalentSpark is exceptional. They've been responsive and helpful throughout our implementation and beyond.",
+      quote: "The customer support team at QORE is exceptional. They've been responsive and helpful throughout our implementation and beyond.",
       author: "Robert Kim",
       role: "IT Manager",
       company: "Nexus Solutions",
@@ -128,7 +128,7 @@ export function TestimonialsSection() {
             What Our Clients Say
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Discover how TalentSpark has transformed recruitment processes for companies worldwide.
+            Discover how QORE has transformed recruitment processes for companies worldwide.
           </p>
         </motion.div>
 

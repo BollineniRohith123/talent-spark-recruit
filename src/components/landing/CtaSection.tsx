@@ -48,7 +48,7 @@ export function CtaSection() {
                 Ready to Transform Your Recruitment Process?
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-8">
-                Join hundreds of companies already using TalentSpark to streamline their hiring process, find better candidates, and optimize their recruitment budget.
+                Join hundreds of companies already using QORE to streamline their hiring process, find better candidates, and optimize their recruitment budget.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
@@ -100,7 +100,7 @@ export function CtaSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-8">
                 <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
                   <p className="text-white font-medium">
-                    "TalentSpark has helped us reduce our time-to-hire by 40% while improving the quality of our candidates."
+                    "QORE has helped us reduce our time-to-hire by 40% while improving the quality of our candidates."
                   </p>
                   <p className="text-white/80 text-sm mt-2">
                     — HR Director, Fortune 500 Company

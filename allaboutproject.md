@@ -1,4 +1,4 @@
-TalentSpark Recruit Platform Documentation
+QORE Recruit Platform Documentation
 Version 1.1
 SmartMatch-Powered Recruitment Platform for Consulting Companies
 Updated: April 26, 2025
@@ -22,7 +22,7 @@ Key Citations & Technologies
 
 
 1. Introduction
-TalentSpark Recruit is an advanced SmartMatch-powered recruitment platform tailored for consulting companies in the US. It streamlines the hiring process by integrating cutting-edge technologies such as TalentPulse for voice-based candidate screening, n8n.io for workflow automation, and a secure on-premise deployment model. The platform maximizes profits for consulting agencies by efficiently managing client budgets and candidate offers, offering role-specific dashboards for transparency, and ensuring robust security through subscription-based licensing.
+QORE Recruit is an advanced SmartMatch-powered recruitment platform tailored for consulting companies in the US. It streamlines the hiring process by integrating cutting-edge technologies such as TalentPulse for voice-based candidate screening, n8n.io for workflow automation, and a secure on-premise deployment model. The platform maximizes profits for consulting agencies by efficiently managing client budgets and candidate offers, offering role-specific dashboards for transparency, and ensuring robust security through subscription-based licensing.
 Key Objectives
 
 Profit Optimization: Maximize agency margins through configurable budget splits (e.g., client budget of $100/hour, candidate offered $65/hour, agency retains $35/hour).
