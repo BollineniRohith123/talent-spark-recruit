@@ -41,7 +41,7 @@ const ApplicationPage = () => {
   const handleStartScreening = () => {
     toast({
       title: "Starting Screening",
-      description: "Redirecting to SmartMatch screening process",
+      description: "Redirecting to TalentPulse screening process",
     });
     window.open(applicationData.screeningLink, '_blank');
   };

@@ -2,6 +2,8 @@
 import { useAuth } from '@/context/AuthContext';
 import CompanyAdminDashboard from './CompanyAdminDashboard';
 import HiringManagerDashboard from './HiringManagerDashboard';
+import MarketingHeadDashboard from './MarketingHeadDashboard';
+import MarketingSupervisorDashboard from './MarketingSupervisorDashboard';
 import TalentScoutDashboard from './TalentScoutDashboard';
 import TeamMemberDashboard from './TeamMemberDashboard';
 import ApplicantDashboard from './ApplicantDashboard';
@@ -18,9 +20,9 @@ const DashboardRouter = () => {
     case 'branch-manager':
       return <HiringManagerDashboard />;
     case 'marketing-head':
-      return <HiringManagerDashboard />;
+      return <MarketingHeadDashboard />;
     case 'marketing-supervisor':
-      return <HiringManagerDashboard />;
+      return <MarketingSupervisorDashboard />;
     case 'marketing-recruiter':
       return <TalentScoutDashboard />;
     case 'marketing-associate':

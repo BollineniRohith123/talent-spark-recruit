@@ -441,14 +441,14 @@ const SettingsPage = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <h4 className="text-sm font-medium">SmartMatch Voice Screening</h4>
+                  <h4 className="text-sm font-medium">TalentPulse Voice Screening</h4>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm">
                         TalentPulse Integration Status
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Enable or disable SmartMatch voice screening functionality
+                        Enable or disable TalentPulse voice screening functionality
                       </p>
                     </div>
                     <div className="flex items-center">

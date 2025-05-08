@@ -485,18 +485,18 @@ export function EnhancedFeatures() {
     },
     {
       icon: <Zap className="h-6 w-6" />,
-      title: "SmartMatch-Powered Insights",
-      description: "Gain valuable insights into your recruitment process with our SmartMatch-powered analytics dashboard.",
+      title: "TalentPulse-Powered Insights",
+      description: "Gain valuable insights into your recruitment process with our TalentPulse-powered analytics dashboard.",
     },
     {
       icon: <Brain className="h-6 w-6" />,
       title: "Intelligent Screening",
-      description: "Automate initial candidate screening with SmartMatch to save time and improve quality of hires.",
+      description: "Automate initial candidate screening with TalentPulse to save time and improve quality of hires.",
     },
     {
       icon: <Target className="h-6 w-6" />,
       title: "Precision Targeting",
-      description: "Target the right candidates with SmartMatch-powered job posting optimization and candidate sourcing.",
+      description: "Target the right candidates with TalentPulse-powered job posting optimization and candidate sourcing.",
     },
     {
       icon: <BarChart3 className="h-6 w-6" />,
@@ -525,7 +525,7 @@ export function EnhancedFeatures() {
             transition={{ duration: 0.5 }}
             className="mb-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-recruit-primary to-recruit-secondary"
           >
-            SmartMatch-Powered Recruitment
+            TalentPulse-Powered Recruitment
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -533,7 +533,7 @@ export function EnhancedFeatures() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mx-auto max-w-2xl text-muted-foreground"
           >
-            QORE uses cutting-edge SmartMatch technology to streamline your recruitment process and find the perfect candidates faster.
+            QORE uses cutting-edge TalentPulse technology to streamline your recruitment process and find the perfect candidates faster.
           </motion.p>
         </div>
 
@@ -608,7 +608,7 @@ export function EnhancedFeatures() {
                           />
                         </svg>
                         <span className="relative -top-1 left-3 rounded-3xl bg-recruit-primary px-2 py-1 text-xs text-primary-foreground">
-                          SmartMatch
+                          TalentPulse
                         </span>
                       </div>
                     </div>

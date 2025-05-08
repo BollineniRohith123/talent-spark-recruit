@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
+import { NotificationProvider } from "@/context/NotificationContext";
 import MainLayout from "@/components/layout/MainLayout";
 import AuthProtection from "@/components/auth/AuthProtection";
 import NotFound from "./pages/NotFound";
@@ -54,6 +55,9 @@ import JobListingsPage from "./pages/jobs/JobListingsPage";
 import JobDetailsPage from "./pages/jobs/JobDetailsPage";
 import JobCreatePage from "./pages/jobs/JobCreatePage";
 
+// Profit Pages
+import ProfitCalculatorPage from "./pages/profit/ProfitCalculatorPage";
+
 // Feedback Page has been removed and integrated into ProfileDetailsPage
 
 // Landing Page
@@ -67,11 +71,12 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
+      <NotificationProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -299,6 +304,18 @@ const App = () => (
               }
             />
 
+            {/* Profit Calculator - For CEO, Branch Manager, Marketing Head, Marketing Supervisor */}
+            <Route
+              path="/profit-calculator"
+              element={
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor']}>
+                  <MainLayout>
+                    <ProfitCalculatorPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
+
             {/* Settings - For All Users */}
             <Route
               path="/settings"
@@ -316,6 +333,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+      </NotificationProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

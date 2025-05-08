@@ -31,6 +31,7 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { JobStatus, JobPriority, mockJobListings } from '@/types/jobs';
 import { mockLocations, mockDepartments } from '@/types/organization';
+import ProfitCalculator from '@/components/profit/ProfitCalculator';
 
 // Mock users for assignment
 const mockUsers = [
@@ -510,112 +511,26 @@ const JobCreatePage: React.FC = () => {
               <CardDescription>Configure budget and profit splits</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="clientBudget">Client Budget (per hour) <span className="text-red-500">*</span></Label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="clientBudget"
-                      type="number"
-                      placeholder="e.g. 100"
-                      className="pl-8"
-                      value={clientBudget}
-                      onChange={(e) => setClientBudget(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    The total amount the client is willing to pay per hour
-                  </p>
-                </div>
+              <ProfitCalculator
+                initialValues={{
+                  clientBudget: clientBudget ? parseFloat(clientBudget) : 120,
+                  internalBudget: parseFloat(candidateOffer) || 90,
+                  candidateSplit: 100 - (parseFloat(companyProfitPercentage) || 20),
+                  companySplit: parseFloat(companyProfitPercentage) || 20
+                }}
+                onCalculate={(values) => {
+                  setClientBudget(values.clientBudget.toString());
+                  setCompanyProfit(values.clientToCompanyProfit.toString());
+                  setCandidateOffer(values.internalBudget.toString());
+                  setCompanyProfitPercentage(values.companySplit.toString());
+                }}
+              />
 
-                <div className="space-y-2">
-                  <Label htmlFor="companyProfit">Company Profit (per hour) <span className="text-red-500">*</span></Label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="companyProfit"
-                      type="number"
-                      placeholder="e.g. 35"
-                      className="pl-8"
-                      value={companyProfit}
-                      onChange={(e) => setCompanyProfit(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    The amount the company keeps from the client budget (default: 35%)
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="candidateOffer">Candidate Offer (per hour) <span className="text-red-500">*</span></Label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="candidateOffer"
-                      type="number"
-                      placeholder="e.g. 65"
-                      className="pl-8"
-                      value={candidateOffer}
-                      onChange={(e) => setCandidateOffer(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    The amount offered to the candidate (Client Budget - Company Profit)
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="companyProfitPercentage">Company-to-Candidate Split (%) <span className="text-red-500">*</span></Label>
-                  <div className="relative">
-                    <Input
-                      id="companyProfitPercentage"
-                      type="number"
-                      placeholder="e.g. 30"
-                      value={companyProfitPercentage}
-                      onChange={(e) => setCompanyProfitPercentage(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Percentage the company keeps from the candidate offer (visible to employees)
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 border rounded-md bg-muted/30 mt-4">
-                <h4 className="font-medium mb-2">Profit Breakdown</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Client Budget:</span>
-                    <span className="font-medium">${clientBudget || 0}/hr</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Company Profit (Client-to-Company):</span>
-                    <span className="font-medium">${companyProfit || 0}/hr ({clientBudget ? Math.round((parseFloat(companyProfit) / parseFloat(clientBudget)) * 100) : 0}%)</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Candidate Offer:</span>
-                    <span className="font-medium">${candidateOffer || 0}/hr</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Company Profit (Company-to-Candidate):</span>
-                    <span className="font-medium">{companyProfitPercentage}% of Candidate Offer</span>
-                  </div>
-                  <div className="flex justify-between text-sm font-medium pt-2 border-t">
-                    <span>Final Candidate Pay:</span>
-                    <span>${candidateOffer ? Math.round(parseFloat(candidateOffer) * (1 - parseFloat(companyProfitPercentage) / 100)) : 0}/hr</span>
-                  </div>
-                </div>
-                <div className="mt-4 pt-2 border-t">
-                  <p className="text-xs text-muted-foreground">
-                    <strong>Note:</strong> Only the Company-to-Candidate split percentage ({companyProfitPercentage}%) will be visible to employees.
-                    The Client-to-Company split is confidential.
-                  </p>
-                </div>
+              <div className="mt-4 pt-2 border-t">
+                <p className="text-xs text-muted-foreground">
+                  <strong>Note:</strong> Only the Company-to-Candidate split percentage ({companyProfitPercentage}%) will be visible to employees.
+                  The Client-to-Company split is confidential.
+                </p>
               </div>
             </CardContent>
           </Card>

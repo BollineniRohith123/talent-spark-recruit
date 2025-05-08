@@ -21,6 +21,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
+import ScreeningDialog from '@/components/screening/ScreeningDialog';
 
 // Mock screenings data
 const mockScreenings = [
@@ -78,6 +79,8 @@ const ScreeningsPage = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [positionFilter, setPositionFilter] = useState('all');
+  const [isScreeningDialogOpen, setIsScreeningDialogOpen] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
 
   // Filter screenings based on tab, search term and position
   const filterScreenings = () => {
@@ -99,19 +102,27 @@ const ScreeningsPage = () => {
   const positions = ['all', ...new Set(mockScreenings.map(s => s.position))];
 
   // Handle actions - Admin can always send screenings for any candidate
-  const handleSendScreening = (id: string, email: string) => {
+  const handleSendScreening = (screening: any) => {
     // Admin users can bypass any workflow restrictions here
-    toast({
-      title: "Screening Link Sent",
-      description: `Screening link sent to ${email}`,
+    setSelectedCandidate({
+      id: screening.id,
+      name: screening.candidate,
+      position: screening.position,
+      email: screening.email
     });
+    setIsScreeningDialogOpen(true);
   };
 
-  const handleViewResults = (id: string) => {
-    toast({
-      title: "View Results",
-      description: `Viewing screening results for ID: ${id}`,
+  const handleViewResults = (screening: any) => {
+    // For completed screenings, view the results
+    setSelectedCandidate({
+      id: screening.id,
+      name: screening.candidate,
+      position: screening.position,
+      email: screening.email,
+      score: screening.score
     });
+    setIsScreeningDialogOpen(true);
   };
 
   const handleReschedule = (id: string) => {
@@ -142,9 +153,9 @@ const ScreeningsPage = () => {
         return (
           <Button
             size="sm"
-            onClick={() => handleSendScreening(screening.id, screening.email)}
+            onClick={() => handleSendScreening(screening)}
           >
-            <Play className="h-3 w-3 mr-1" /> Send Link
+            <Play className="h-3 w-3 mr-1" /> Start Screening
           </Button>
         );
       case 'scheduled':
@@ -162,7 +173,7 @@ const ScreeningsPage = () => {
           <Button
             size="sm"
             variant="secondary"
-            onClick={() => handleViewResults(screening.id)}
+            onClick={() => handleViewResults(screening)}
           >
             <BarChart3 className="h-3 w-3 mr-1" /> View Results
           </Button>
@@ -214,7 +225,7 @@ const ScreeningsPage = () => {
       {/* Screenings List */}
       <Card>
         <CardHeader>
-          <CardTitle>SmartMatch Screenings</CardTitle>
+          <CardTitle>TalentPulse Screenings</CardTitle>
           <CardDescription>Manage voice-based candidate screenings</CardDescription>
         </CardHeader>
         <CardContent>
@@ -300,7 +311,7 @@ const ScreeningsPage = () => {
       {/* How It Works */}
       <Card>
         <CardHeader>
-          <CardTitle>How SmartMatch Screening Works</CardTitle>
+          <CardTitle>How TalentPulse Screening Works</CardTitle>
           <CardDescription>Understanding the voice-based screening process</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -319,7 +330,7 @@ const ScreeningsPage = () => {
               <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center mb-4">
                 <BarChart3 className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="font-medium mb-2">Step 2: SmartMatch Analysis</h3>
+              <h3 className="font-medium mb-2">Step 2: TalentPulse Analysis</h3>
               <p className="text-sm text-muted-foreground">
                 TalentPulse analyzes responses for technical accuracy, communication skills, and problem-solving ability.
               </p>
@@ -337,6 +348,15 @@ const ScreeningsPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Screening Dialog */}
+      {selectedCandidate && (
+        <ScreeningDialog
+          isOpen={isScreeningDialogOpen}
+          onClose={() => setIsScreeningDialogOpen(false)}
+          candidate={selectedCandidate}
+        />
+      )}
     </div>
   );
 };

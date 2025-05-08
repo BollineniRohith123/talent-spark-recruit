@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Menu } from "lucide-react";
-import NotificationCenter from '@/components/notifications/NotificationCenter';
+import EnhancedNotificationCenter from '@/components/notifications/EnhancedNotificationCenter';
 
 // Role display names
 const roleNames: Record<UserRole, string> = {
@@ -67,7 +67,7 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
 
           <div className="flex items-center space-x-2 md:space-x-4">
             {/* Notifications */}
-            <NotificationCenter />
+            <EnhancedNotificationCenter />
 
             {/* User menu */}
             {user && (

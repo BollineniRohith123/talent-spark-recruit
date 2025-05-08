@@ -12,7 +12,8 @@ import {
   Eye,
   Edit,
   Trash2,
-  Users
+  Users,
+  AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,6 +56,8 @@ import {
 } from '@/types/jobs';
 import { mockLocations } from '@/types/organization';
 import { AssignJobDialog } from '@/components/jobs/AssignJobDialog';
+import JobPriorityBadge from '@/components/jobs/JobPriorityBadge';
+import JobPrioritySelector from '@/components/jobs/JobPrioritySelector';
 
 const JobListingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -69,6 +72,7 @@ const JobListingsPage: React.FC = () => {
   const [filteredListings, setFilteredListings] = useState<JobListing[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<JobStatus | 'all'>('all');
+  const [priorityFilter, setPriorityFilter] = useState<JobPriority | 'all'>('all');
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [assignedFilter, setAssignedFilter] = useState<string>('all');
 
@@ -118,6 +122,11 @@ const JobListingsPage: React.FC = () => {
       filtered = filtered.filter(job => job.status === statusFilter);
     }
 
+    // Apply priority filter
+    if (priorityFilter !== 'all') {
+      filtered = filtered.filter(job => job.priority === priorityFilter);
+    }
+
     // Apply location filter
     if (locationFilter !== 'all') {
       filtered = filtered.filter(job => job.locationId === locationFilter);
@@ -131,7 +140,7 @@ const JobListingsPage: React.FC = () => {
     }
 
     setFilteredListings(filtered);
-  }, [jobListings, searchQuery, statusFilter, locationFilter, assignedFilter]);
+  }, [jobListings, searchQuery, statusFilter, priorityFilter, locationFilter, assignedFilter]);
 
   // Handle job assignment
   const handleAssignJob = (job: JobListing) => {
@@ -181,6 +190,28 @@ const JobListingsPage: React.FC = () => {
     toast({
       title: "Job Deleted",
       description: "Job listing has been deleted",
+    });
+  };
+
+  // Handle priority change
+  const handlePriorityChange = (jobId: string, newPriority: JobPriority) => {
+    // In a real app, this would be an API call
+    const updatedListings = jobListings.map(job => {
+      if (job.id === jobId) {
+        return {
+          ...job,
+          priority: newPriority,
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return job;
+    });
+
+    setJobListings(updatedListings);
+
+    toast({
+      title: "Priority Updated",
+      description: `Job priority has been updated to ${newPriority}`,
     });
   };
 
@@ -240,6 +271,20 @@ const JobListingsPage: React.FC = () => {
                   <SelectItem value="on-hold">On Hold</SelectItem>
                   <SelectItem value="filled">Filled</SelectItem>
                   <SelectItem value="closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={priorityFilter} onValueChange={(value) => setPriorityFilter(value as JobPriority | 'all')}>
+                <SelectTrigger className="w-[150px]">
+                  <AlertCircle className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Priorities</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -314,10 +359,17 @@ const JobListingsPage: React.FC = () => {
                       {getStatusLabel(job.status)}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    <Badge className={`${getPriorityColor(job.priority)}`}>
-                      {job.priority.charAt(0).toUpperCase() + job.priority.slice(1)}
-                    </Badge>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    {(adminUser || isHiringManager) ? (
+                      <JobPrioritySelector
+                        jobId={job.id}
+                        jobTitle={job.title}
+                        currentPriority={job.priority}
+                        onPriorityChange={handlePriorityChange}
+                      />
+                    ) : (
+                      <JobPriorityBadge priority={job.priority} />
+                    )}
                   </TableCell>
                   <TableCell>
                     {job.assignedToName ? (

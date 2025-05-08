@@ -13,45 +13,12 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { JobListing } from '@/types/jobs';
 import { useAuth } from '@/context/AuthContext';
+import { mockUsers } from '@/types/users';
 
-// Mock users for assignment
-const mockUsers = [
-  {
-    id: 'user-3',
-    name: 'Jamie Garcia',
-    email: 'recruiter@talentspark.com',
-    role: 'marketing-recruiter',
-    avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  },
-  {
-    id: 'user-4',
-    name: 'Robin Taylor',
-    email: 'associate@talentspark.com',
-    role: 'marketing-associate',
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  },
-  {
-    id: 'user-6',
-    name: 'Jordan Lee',
-    email: 'jordan@talentspark.com',
-    role: 'marketing-recruiter',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  },
-  {
-    id: 'user-7',
-    name: 'Taylor Smith',
-    email: 'taylor@talentspark.com',
-    role: 'marketing-associate',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  },
-  {
-    id: 'user-8',
-    name: 'Casey Wilson',
-    email: 'casey@talentspark.com',
-    role: 'marketing-recruiter',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  }
-];
+// Filter users to only include recruiters and associates
+const assignableUsers = mockUsers.filter(user =>
+  user.role === 'marketing-recruiter' || user.role === 'marketing-associate'
+);
 
 interface AssignJobDialogProps {
   isOpen: boolean;
@@ -71,7 +38,7 @@ export const AssignJobDialog: React.FC<AssignJobDialogProps> = ({
   const [selectedUserId, setSelectedUserId] = useState<string | null>(job.assignedTo);
 
   // Filter users based on search query
-  const filteredUsers = mockUsers.filter(user => {
+  const filteredUsers = assignableUsers.filter(user => {
     const query = searchQuery.toLowerCase();
     return (
       user.name.toLowerCase().includes(query) ||
@@ -89,7 +56,7 @@ export const AssignJobDialog: React.FC<AssignJobDialogProps> = ({
   const handleAssign = () => {
     if (!selectedUserId) return;
 
-    const selectedUser = mockUsers.find(user => user.id === selectedUserId);
+    const selectedUser = assignableUsers.find(user => user.id === selectedUserId);
     if (selectedUser) {
       onAssign(job.id, selectedUser.id, selectedUser.name);
       onClose();
@@ -164,7 +131,7 @@ export const AssignJobDialog: React.FC<AssignJobDialogProps> = ({
         <DialogFooter className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
             {selectedUserId
-              ? `Assigning to ${mockUsers.find(u => u.id === selectedUserId)?.name}`
+              ? `Assigning to ${assignableUsers.find(u => u.id === selectedUserId)?.name}`
               : 'Select a user to assign'
             }
           </div>

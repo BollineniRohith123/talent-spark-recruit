@@ -41,6 +41,7 @@ import {
   getStatusLabel
 } from '@/types/jobs';
 import { AssignJobDialog } from '@/components/jobs/AssignJobDialog';
+import JobAssignmentNotification from '@/components/jobs/JobAssignmentNotification';
 
 const JobDetailsPage: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
@@ -58,6 +59,8 @@ const JobDetailsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [candidateNote, setCandidateNote] = useState('');
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [isNotificationDialogOpen, setIsNotificationDialogOpen] = useState(false);
+  const [assignedUser, setAssignedUser] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
     if (!jobId) return;
@@ -117,9 +120,19 @@ const JobDetailsPage: React.FC = () => {
       updatedAt: new Date().toISOString()
     });
 
+    // Set the assigned user and open the notification dialog
+    setAssignedUser({ id: userId, name: userName });
+    setIsNotificationDialogOpen(true);
+  };
+
+  // Handle notification completion
+  const handleNotificationComplete = () => {
+    setIsNotificationDialogOpen(false);
+    setAssignedUser(null);
+
     toast({
-      title: "Job Assigned",
-      description: `Job has been assigned to ${userName}`,
+      title: "Assignment Complete",
+      description: "The user has been notified of their assignment",
     });
   };
 
@@ -728,6 +741,16 @@ const JobDetailsPage: React.FC = () => {
           onClose={() => setIsAssignDialogOpen(false)}
           job={job}
           onAssign={handleAssignmentComplete}
+        />
+      )}
+
+      {/* Notification Dialog */}
+      {isNotificationDialogOpen && assignedUser && job && (
+        <JobAssignmentNotification
+          job={job}
+          assignedUserId={assignedUser.id}
+          assignedUserName={assignedUser.name}
+          onComplete={handleNotificationComplete}
         />
       )}
     </div>

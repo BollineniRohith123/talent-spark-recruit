@@ -38,6 +38,7 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
     { title: 'Screenings', path: '/screenings', icon: FileSearch },
     { title: 'Interviews', path: '/interviews', icon: Calendar },
     { title: 'Reports', path: '/reports', icon: PieChart },
+    { title: 'Profit Calculator', path: '/profit-calculator', icon: DollarSign },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
   'branch-manager': [
@@ -48,6 +49,7 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
     { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
     { title: 'Candidates', path: '/candidates', icon: Users },
     { title: 'Reports', path: '/reports', icon: PieChart },
+    { title: 'Profit Calculator', path: '/profit-calculator', icon: DollarSign },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
   'marketing-head': [
@@ -58,6 +60,7 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
     { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
     { title: 'Candidates', path: '/candidates', icon: Users },
     { title: 'Reports', path: '/reports', icon: PieChart },
+    { title: 'Profit Calculator', path: '/profit-calculator', icon: DollarSign },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
   'marketing-supervisor': [
@@ -67,6 +70,7 @@ const menuItems: Record<UserRole, { title: string; path: string; icon: React.Ele
     { title: 'Job Descriptions', path: '/job-descriptions', icon: FileText },
     { title: 'Candidates', path: '/candidates', icon: Users },
     { title: 'Reports', path: '/reports', icon: PieChart },
+    { title: 'Profit Calculator', path: '/profit-calculator', icon: DollarSign },
     { title: 'Settings', path: '/settings', icon: Settings },
   ],
   'marketing-recruiter': [

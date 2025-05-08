@@ -276,7 +276,7 @@ export function TalentSparkHero({
                 delay={1.4}
               />
               <h3 className="text-lg font-medium text-white/90">Candidate Matching</h3>
-              <p className="text-sm text-white/60">Find the perfect fit with SmartMatch-powered matching</p>
+              <p className="text-sm text-white/60">Find the perfect fit with TalentPulse-powered matching</p>
             </div>
 
             <div className="flex flex-col items-center gap-3 p-4 rounded-lg bg-white/[0.03] border border-white/[0.08]">
