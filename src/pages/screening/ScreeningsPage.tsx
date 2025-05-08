@@ -1,10 +1,15 @@
 
-import { useState } from 'react';
-import { Search, Filter, Play, FileCheck, Clock, AlertCircle, BarChart3 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useMemo } from 'react';
+import {
+  Search, Filter, Play, FileCheck, Clock, AlertCircle, BarChart3,
+  MapPin, Building2, Users, ChevronDown, PieChart, Download, Calendar,
+  ArrowUpDown, Mail, Phone, User, Layers
+} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import {
   Select,
   SelectContent,
@@ -12,6 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { isAdmin } from '@/utils/adminPermissions';
@@ -22,8 +33,10 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 import ScreeningDialog from '@/components/screening/ScreeningDialog';
+import { mockLocations, mockDepartments, getLocationById, getDepartmentById } from '@/types/organization';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-// Mock screenings data
+// Enhanced screenings data with location and department information
 const mockScreenings = [
   {
     id: '1',
@@ -33,6 +46,10 @@ const mockScreenings = [
     created: '2025-04-22T14:30:00',
     email: 'jordan.lee@example.com',
     avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-1', // Miami Headquarters
+    departmentId: 'dept-1', // Marketing (Recruitment)
+    source: 'LinkedIn',
+    assignedTo: 'user-11', // Sarah Chen
   },
   {
     id: '2',
@@ -43,6 +60,10 @@ const mockScreenings = [
     email: 'taylor.smith@example.com',
     scheduledFor: '2025-04-27T11:00:00',
     avatarUrl: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-1', // Miami Headquarters
+    departmentId: 'dept-1', // Marketing (Recruitment)
+    source: 'Indeed',
+    assignedTo: 'user-20', // Jordan Lee
   },
   {
     id: '3',
@@ -54,6 +75,10 @@ const mockScreenings = [
     score: 87,
     email: 'morgan.chen@example.com',
     avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-2', // New York Office
+    departmentId: 'dept-3', // Marketing (Recruitment)
+    source: 'Referral',
+    assignedTo: 'user-22', // Alex Morgan
   },
   {
     id: '4',
@@ -65,7 +90,67 @@ const mockScreenings = [
     score: 92,
     email: 'casey.wilson@example.com',
     avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-3', // San Francisco Branch
+    departmentId: 'dept-5', // Marketing (Recruitment)
+    source: 'Dribbble',
+    assignedTo: 'user-24', // Morgan Chen
   },
+  {
+    id: '5',
+    candidate: 'Robin Taylor',
+    position: 'Product Manager',
+    status: 'scheduled',
+    created: '2025-04-21T11:30:00',
+    scheduledFor: '2025-04-28T14:00:00',
+    email: 'robin.taylor@example.com',
+    avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-3', // San Francisco Branch
+    departmentId: 'dept-6', // Sales
+    source: 'LinkedIn',
+    assignedTo: 'user-25', // Jordan Taylor
+  },
+  {
+    id: '6',
+    candidate: 'Alex Johnson',
+    position: 'Backend Developer',
+    status: 'pending',
+    created: '2025-04-24T09:15:00',
+    email: 'alex.johnson@example.com',
+    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-4', // Chicago Office
+    departmentId: 'dept-7', // Marketing (Recruitment)
+    source: 'Indeed',
+    assignedTo: 'user-26', // Taylor Reed
+  },
+  {
+    id: '7',
+    candidate: 'Jamie Garcia',
+    position: 'Mobile Developer',
+    status: 'completed',
+    created: '2025-04-17T13:45:00',
+    completedAt: '2025-04-18T16:20:00',
+    score: 89,
+    email: 'jamie.garcia@example.com',
+    avatarUrl: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-4', // Chicago Office
+    departmentId: 'dept-8', // Sales
+    source: 'Referral',
+    assignedTo: 'user-27', // Drew Garcia
+  },
+  {
+    id: '8',
+    candidate: 'Riley Martinez',
+    position: 'Marketing Specialist',
+    status: 'scheduled',
+    created: '2025-04-22T15:30:00',
+    scheduledFor: '2025-04-29T10:00:00',
+    email: 'riley.martinez@example.com',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-1', // Miami Headquarters
+    departmentId: 'dept-1', // Marketing (Recruitment)
+    source: 'Company Website',
+    assignedTo: 'user-11', // Sarah Chen
+  }
 ];
 
 /**
@@ -79,10 +164,47 @@ const ScreeningsPage = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [positionFilter, setPositionFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('all');
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [sourceFilter, setSourceFilter] = useState('all');
   const [isScreeningDialogOpen, setIsScreeningDialogOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
+  const [showDashboard, setShowDashboard] = useState(true);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'date' | 'name'>('date');
 
-  // Filter screenings based on tab, search term and position
+  // Compute metrics and filters
+  const screeningsByLocation = useMemo(() => {
+    const result: Record<string, number> = {};
+    mockScreenings.forEach(screening => {
+      if (screening.locationId) {
+        result[screening.locationId] = (result[screening.locationId] || 0) + 1;
+      }
+    });
+    return result;
+  }, []);
+
+  const screeningsByDepartment = useMemo(() => {
+    const result: Record<string, number> = {};
+    mockScreenings.forEach(screening => {
+      if (screening.departmentId) {
+        result[screening.departmentId] = (result[screening.departmentId] || 0) + 1;
+      }
+    });
+    return result;
+  }, []);
+
+  const screeningsBySource = useMemo(() => {
+    const result: Record<string, number> = {};
+    mockScreenings.forEach(screening => {
+      if (screening.source) {
+        result[screening.source] = (result[screening.source] || 0) + 1;
+      }
+    });
+    return result;
+  }, []);
+
+  // Filter screenings based on tab, search term, position, location, and department
   const filterScreenings = () => {
     return mockScreenings.filter(screening => {
       // Filter by tab (status)
@@ -94,12 +216,38 @@ const ScreeningsPage = () => {
       // Filter by position
       if (positionFilter !== 'all' && screening.position !== positionFilter) return false;
 
+      // Filter by location
+      if (locationFilter !== 'all' && screening.locationId !== locationFilter) return false;
+
+      // Filter by department
+      if (departmentFilter !== 'all' && screening.departmentId !== departmentFilter) return false;
+
+      // Filter by source
+      if (sourceFilter !== 'all' && screening.source !== sourceFilter) return false;
+
       return true;
+    }).sort((a, b) => {
+      // Sort by date (newest first)
+      if (sortOrder === 'date') {
+        return new Date(b.created).getTime() - new Date(a.created).getTime();
+      }
+
+      // Sort by name (alphabetical)
+      return a.candidate.localeCompare(b.candidate);
     });
   };
 
-  // Get unique positions for filter
+  // Get unique values for filters
   const positions = ['all', ...new Set(mockScreenings.map(s => s.position))];
+  const sources = ['all', ...new Set(mockScreenings.filter(s => s.source).map(s => s.source as string))];
+
+  // Calculate metrics for dashboard
+  const totalScreenings = mockScreenings.length;
+  const screeningsByStatus = {
+    pending: mockScreenings.filter(s => s.status === 'pending').length,
+    scheduled: mockScreenings.filter(s => s.status === 'scheduled').length,
+    completed: mockScreenings.filter(s => s.status === 'completed').length,
+  };
 
   // Handle actions - Admin can always send screenings for any candidate
   const handleSendScreening = (screening: any) => {
@@ -187,39 +335,469 @@ const ScreeningsPage = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-bold">Screenings</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage AI screenings for candidates
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Screenings</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage AI screenings for candidates
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant={showDashboard ? "default" : "outline"}
+            onClick={() => setShowDashboard(true)}
+            className="flex items-center gap-1"
+          >
+            <BarChart3 className="h-4 w-4" />
+            <span className="hidden sm:inline">Dashboard</span>
+          </Button>
+          <Button
+            variant={!showDashboard ? "default" : "outline"}
+            onClick={() => setShowDashboard(false)}
+            className="flex items-center gap-1"
+          >
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">Screenings</span>
+          </Button>
+          <Button variant="outline" onClick={() => toast({ title: "Export Data", description: "Exporting screening data to CSV" })}>
+            <Download className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center">
+              <div className="bg-recruit-info/30 p-2 rounded-full mb-3">
+                <BarChart3 className="h-5 w-5 text-recruit-secondary" />
+              </div>
+              <div className="text-2xl font-bold">{totalScreenings}</div>
+              <p className="text-sm text-muted-foreground">Total Screenings</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center">
+              <div className="bg-amber-100 p-2 rounded-full mb-3">
+                <AlertCircle className="h-5 w-5 text-amber-600" />
+              </div>
+              <div className="text-2xl font-bold">{screeningsByStatus.pending}</div>
+              <p className="text-sm text-muted-foreground">Pending</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center">
+              <div className="bg-blue-100 p-2 rounded-full mb-3">
+                <Clock className="h-5 w-5 text-blue-600" />
+              </div>
+              <div className="text-2xl font-bold">{screeningsByStatus.scheduled}</div>
+              <p className="text-sm text-muted-foreground">Scheduled</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center">
+              <div className="bg-green-100 p-2 rounded-full mb-3">
+                <FileCheck className="h-5 w-5 text-green-600" />
+              </div>
+              <div className="text-2xl font-bold">{screeningsByStatus.completed}</div>
+              <p className="text-sm text-muted-foreground">Completed</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Dashboard View */}
+      {showDashboard && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Location Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-muted-foreground" />
+                Screenings by Location
+              </CardTitle>
+              <CardDescription>
+                Distribution of screenings across different office locations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {mockLocations.map(location => {
+                  const count = screeningsByLocation[location.id] || 0;
+                  const percentage = totalScreenings > 0 ? Math.round((count / totalScreenings) * 100) : 0;
+
+                  return (
+                    <div key={location.id} className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium text-sm">{location.name}</span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium">{count}</span>
+                          <span className="text-muted-foreground ml-1">({percentage}%)</span>
+                        </div>
+                      </div>
+                      <Progress value={percentage} className="h-2" />
+                      <p className="text-xs text-muted-foreground">{location.city}, {location.state}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+            <CardFooter className="border-t pt-4 flex justify-between">
+              <Button variant="outline" size="sm" onClick={() => {
+                setLocationFilter('all');
+                setShowDashboard(false);
+              }}>
+                View All Locations
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => toast({ title: "Export", description: "Exporting location data" })}>
+                <Download className="h-4 w-4" />
+              </Button>
+            </CardFooter>
+          </Card>
+
+          {/* Department Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-muted-foreground" />
+                Screenings by Department
+              </CardTitle>
+              <CardDescription>
+                Distribution of screenings across different departments
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {mockDepartments.map(department => {
+                  const count = screeningsByDepartment[department.id] || 0;
+                  const percentage = totalScreenings > 0 ? Math.round((count / totalScreenings) * 100) : 0;
+                  const location = mockLocations.find(loc => loc.id === department.locationId);
+
+                  return (
+                    <div key={department.id} className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium text-sm">{department.name}</span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium">{count}</span>
+                          <span className="text-muted-foreground ml-1">({percentage}%)</span>
+                        </div>
+                      </div>
+                      <Progress value={percentage} className="h-2" />
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <MapPin className="h-3 w-3" />
+                        <span>{location?.name}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+            <CardFooter className="border-t pt-4 flex justify-between">
+              <Button variant="outline" size="sm" onClick={() => {
+                setDepartmentFilter('all');
+                setShowDashboard(false);
+              }}>
+                View All Departments
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => toast({ title: "Export", description: "Exporting department data" })}>
+                <Download className="h-4 w-4" />
+              </Button>
+            </CardFooter>
+          </Card>
+
+          {/* Status Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <PieChart className="h-5 w-5 text-muted-foreground" />
+                Screenings by Status
+              </CardTitle>
+              <CardDescription>
+                Distribution of screenings across different stages
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {Object.entries(screeningsByStatus).map(([status, count]) => {
+                  const percentage = totalScreenings > 0 ? Math.round((count / totalScreenings) * 100) : 0;
+                  const statusColors: Record<string, string> = {
+                    pending: 'bg-amber-100',
+                    scheduled: 'bg-blue-100',
+                    completed: 'bg-green-100'
+                  };
+                  const statusTextColors: Record<string, string> = {
+                    pending: 'text-amber-800',
+                    scheduled: 'text-blue-800',
+                    completed: 'text-green-800'
+                  };
+
+                  return (
+                    <div key={status} className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <Badge className={`${statusColors[status]} ${statusTextColors[status]}`}>
+                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                          </Badge>
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium">{count}</span>
+                          <span className="text-muted-foreground ml-1">({percentage}%)</span>
+                        </div>
+                      </div>
+                      <Progress
+                        value={percentage}
+                        className="h-2"
+                        indicatorClassName={statusColors[status]}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+            <CardFooter className="border-t pt-4 flex justify-between">
+              <Button variant="outline" size="sm" onClick={() => {
+                setActiveTab('all');
+                setShowDashboard(false);
+              }}>
+                View All Statuses
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => toast({ title: "Export", description: "Exporting status data" })}>
+                <Download className="h-4 w-4" />
+              </Button>
+            </CardFooter>
+          </Card>
+
+          {/* Source Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Layers className="h-5 w-5 text-muted-foreground" />
+                Screenings by Source
+              </CardTitle>
+              <CardDescription>
+                Distribution of screenings by candidate source
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {Object.entries(screeningsBySource).map(([source, count]) => {
+                  const percentage = totalScreenings > 0 ? Math.round((count / totalScreenings) * 100) : 0;
+
+                  return (
+                    <div key={source} className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="h-5 px-2">
+                            {source}
+                          </Badge>
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium">{count}</span>
+                          <span className="text-muted-foreground ml-1">({percentage}%)</span>
+                        </div>
+                      </div>
+                      <Progress value={percentage} className="h-2" />
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+            <CardFooter className="border-t pt-4 flex justify-between">
+              <Button variant="outline" size="sm" onClick={() => {
+                setSourceFilter('all');
+                setShowDashboard(false);
+              }}>
+                View All Sources
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => toast({ title: "Export", description: "Exporting source data" })}>
+                <Download className="h-4 w-4" />
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      )}
+
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search candidates..."
-            className="pl-8"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+          <div className="relative sm:col-span-4">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search candidates..."
+              className="pl-8"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <Select value={locationFilter} onValueChange={setLocationFilter}>
+              <SelectTrigger>
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Location" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Locations</SelectItem>
+                {mockLocations.map((location) => (
+                  <SelectItem key={location.id} value={location.id}>
+                    {location.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="sm:col-span-2">
+            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+              <SelectTrigger>
+                <div className="flex items-center">
+                  <Building2 className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Department" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Departments</SelectItem>
+                {mockDepartments.map((department) => (
+                  <SelectItem key={department.id} value={department.id}>
+                    {department.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="sm:col-span-2">
+            <Select value={activeTab} onValueChange={setActiveTab}>
+              <SelectTrigger>
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Status" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="scheduled">Scheduled</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="sm:col-span-2 flex gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <ArrowUpDown className="h-4 w-4" />
+                  <span className="sr-only">Sort</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setSortOrder('date')}>
+                  Sort by Date
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortOrder('name')}>
+                  Sort by Name
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-        <div className="w-full sm:w-48 flex-shrink-0">
-          <Select value={positionFilter} onValueChange={setPositionFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Filter by position" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Positions</SelectItem>
-              {positions.filter(p => p !== 'all').map((position) => (
-                <SelectItem key={position} value={position}>
-                  {position}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+
+        {/* Advanced Filters */}
+        <div className="flex items-center justify-between">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className="flex items-center gap-1 text-muted-foreground"
+          >
+            <Filter className="h-4 w-4" />
+            {showAdvancedFilters ? 'Hide Advanced Filters' : 'Show Advanced Filters'}
+            <ChevronDown className={`h-4 w-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
+          </Button>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setActiveTab('all');
+                setPositionFilter('all');
+                setLocationFilter('all');
+                setDepartmentFilter('all');
+                setSourceFilter('all');
+                setSearchTerm('');
+              }}
+              className="text-xs"
+            >
+              Clear Filters
+            </Button>
+
+            <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none">
+              {filteredScreenings.length} screenings
+            </Badge>
+          </div>
         </div>
+
+        {showAdvancedFilters && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 border rounded-md bg-muted/10">
+            <div>
+              <Select value={positionFilter} onValueChange={setPositionFilter}>
+                <SelectTrigger>
+                  <div className="flex items-center">
+                    <Briefcase className="h-4 w-4 mr-2 text-muted-foreground" />
+                    <SelectValue placeholder="Position" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Positions</SelectItem>
+                  {positions.filter(p => p !== 'all').map((position) => (
+                    <SelectItem key={position} value={position}>
+                      {position}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                <SelectTrigger>
+                  <div className="flex items-center">
+                    <Layers className="h-4 w-4 mr-2 text-muted-foreground" />
+                    <SelectValue placeholder="Source" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sources</SelectItem>
+                  {sources.filter(s => s !== 'all').map((source) => (
+                    <SelectItem key={source} value={source}>
+                      {source}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Screenings List */}
@@ -249,6 +827,8 @@ const ScreeningsPage = () => {
                       <th className="text-left py-3 px-4">Candidate</th>
                       <th className="text-left py-3 px-4">Position</th>
                       <th className="text-left py-3 px-4">Status</th>
+                      <th className="text-left py-3 px-4">Location</th>
+                      <th className="text-left py-3 px-4">Department</th>
                       <th className="text-left py-3 px-4">Created</th>
                       <th className="text-left py-3 px-4">Details</th>
                       <th className="text-left py-3 px-4">Actions</th>
@@ -275,6 +855,26 @@ const ScreeningsPage = () => {
                         <td className="py-3 px-4">{screening.position}</td>
                         <td className="py-3 px-4">
                           {getStatusBadge(screening.status)}
+                        </td>
+                        <td className="py-3 px-4">
+                          {screening.locationId ? (
+                            <div className="flex items-center">
+                              <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                              <span>{getLocationById(screening.locationId)?.name || 'Unknown'}</span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">Not specified</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4">
+                          {screening.departmentId ? (
+                            <div className="flex items-center">
+                              <Building2 className="h-4 w-4 mr-2 text-muted-foreground" />
+                              <span>{getDepartmentById(screening.departmentId)?.name || 'Unknown'}</span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">Not specified</span>
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           {new Date(screening.created).toLocaleDateString()}

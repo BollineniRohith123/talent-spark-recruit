@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -44,7 +43,6 @@ import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { mockLocations, mockDepartments, getLocationById, getDepartmentById } from '@/types/organization';
-
 // Enhanced mock interview data with location and department information
 const mockInterviews = [
   {
@@ -163,7 +161,6 @@ const mockInterviews = [
     source: 'Company Website',
   }
 ];
-
 // Mock candidates for scheduling
 const mockCandidatesList = [
   { id: '1', name: 'Jordan Lee', position: 'Senior Software Engineer' },
@@ -172,7 +169,6 @@ const mockCandidatesList = [
   { id: '6', name: 'Robin Taylor', position: 'Product Manager' },
   { id: '8', name: 'Alex Johnson', position: 'Backend Developer' },
 ];
-
 // Mock team members for interviewers
 const mockTeamMembers = [
   { id: '1', name: 'Robin Taylor' },
@@ -180,7 +176,6 @@ const mockTeamMembers = [
   { id: '3', name: 'Jamie Garcia' },
   { id: '4', name: 'Morgan Smith' },
 ];
-
 // Interview types
 const interviewTypes = [
   { value: 'technical', label: 'Technical' },
@@ -188,7 +183,6 @@ const interviewTypes = [
   { value: 'portfolio', label: 'Portfolio Review' },
   { value: 'final', label: 'Final Round' },
 ];
-
 const InterviewsPage = () => {
   const [filter, setFilter] = useState('upcoming');
   const [date, setDate] = useState<Date>();
@@ -206,7 +200,6 @@ const InterviewsPage = () => {
   const [sortOrder, setSortOrder] = useState<'date' | 'name'>('date');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('');
-
   // Compute metrics and filters
   const interviewsByLocation = useMemo(() => {
     const result: Record<string, number> = {};
@@ -217,7 +210,6 @@ const InterviewsPage = () => {
     });
     return result;
   }, []);
-
   const interviewsByDepartment = useMemo(() => {
     const result: Record<string, number> = {};
     mockInterviews.forEach(interview => {
@@ -227,7 +219,6 @@ const InterviewsPage = () => {
     });
     return result;
   }, []);
-
   const interviewsBySource = useMemo(() => {
     const result: Record<string, number> = {};
     mockInterviews.forEach(interview => {
@@ -237,7 +228,6 @@ const InterviewsPage = () => {
     });
     return result;
   }, []);
-
   const interviewsByType = useMemo(() => {
     const result: Record<string, number> = {};
     mockInterviews.forEach(interview => {
@@ -247,7 +237,6 @@ const InterviewsPage = () => {
     });
     return result;
   }, []);
-
   // Filter interviews based on status, location, department, and search term
   const filteredInterviews = mockInterviews.filter(interview => {
     // Filter by status
@@ -256,41 +245,33 @@ const InterviewsPage = () => {
     } else if (filter === 'past') {
       if (interview.status !== 'completed') return false;
     }
-
     // Filter by search term
     if (searchTerm && !interview.candidate.toLowerCase().includes(searchTerm.toLowerCase())) {
       return false;
     }
-
     // Filter by location
     if (locationFilter !== 'all' && interview.locationId !== locationFilter) {
       return false;
     }
-
     // Filter by department
     if (departmentFilter !== 'all' && interview.departmentId !== departmentFilter) {
       return false;
     }
-
     // Filter by source
     if (sourceFilter !== 'all' && interview.source !== sourceFilter) {
       return false;
     }
-
     return true;
   }).sort((a, b) => {
     // Sort by date (newest first)
     if (sortOrder === 'date') {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     }
-
     // Sort by name (alphabetical)
     return a.candidate.localeCompare(b.candidate);
   });
-
   // Get unique values for filters
   const sources = ['all', ...new Set(mockInterviews.filter(i => i.source).map(i => i.source as string))];
-
   // Handle actions
   const handleJoinInterview = (id: string) => {
     toast({
@@ -298,14 +279,12 @@ const InterviewsPage = () => {
       description: "Opening Zoom meeting for the interview",
     });
   };
-
   const handleViewFeedback = (id: string) => {
     toast({
       title: "View Feedback",
       description: "Opening interview feedback",
     });
   };
-
   const handleScheduleInterview = () => {
     if (!selectedCandidate || !date || !interviewTime || selectedInterviewers.length === 0 || !selectedLocation || !selectedDepartment) {
       toast({
@@ -315,20 +294,16 @@ const InterviewsPage = () => {
       });
       return;
     }
-
     const candidate = mockCandidatesList.find(c => c.id === selectedCandidate);
     const location = mockLocations.find(l => l.id === selectedLocation);
     const department = mockDepartments.find(d => d.id === selectedDepartment);
-
     toast({
       title: "Interview Scheduled",
       description: `Interview for ${candidate?.name} scheduled successfully at ${location?.name} for ${department?.name}`,
     });
-
     setIsDialogOpen(false);
     resetForm();
   };
-
   const resetForm = () => {
     setSelectedCandidate('');
     setDate(undefined);
@@ -338,7 +313,6 @@ const InterviewsPage = () => {
     setSelectedLocation('');
     setSelectedDepartment('');
   };
-
   const toggleInterviewer = (memberId: string) => {
     setSelectedInterviewers(prev =>
       prev.includes(memberId)
@@ -346,7 +320,6 @@ const InterviewsPage = () => {
         : [...prev, memberId]
     );
   };
-
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex items-start justify-between">
@@ -356,7 +329,6 @@ const InterviewsPage = () => {
             Manage and schedule candidate interviews
           </p>
         </div>
-
         <div className="flex gap-2">
           <Button
             variant={showDashboard ? "default" : "outline"}
@@ -374,7 +346,6 @@ const InterviewsPage = () => {
             <Users className="h-4 w-4" />
             <span className="hidden sm:inline">Interviews</span>
           </Button>
-
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button>
@@ -388,7 +359,6 @@ const InterviewsPage = () => {
                 Set up an interview with a candidate and team members
               </DialogDescription>
             </DialogHeader>
-
             <div className="grid gap-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="candidate">Candidate</Label>
@@ -405,7 +375,6 @@ const InterviewsPage = () => {
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="type">Interview Type</Label>
                 <Select value={selectedType} onValueChange={setSelectedType}>
@@ -421,7 +390,6 @@ const InterviewsPage = () => {
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Location</Label>
@@ -441,7 +409,6 @@ const InterviewsPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
-
                 <div className="space-y-2">
                   <Label>Department</Label>
                   <Select
@@ -468,7 +435,6 @@ const InterviewsPage = () => {
                   </Select>
                 </div>
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Date</Label>
@@ -496,7 +462,6 @@ const InterviewsPage = () => {
                     </PopoverContent>
                   </Popover>
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="time">Time</Label>
                   <Input
@@ -507,7 +472,6 @@ const InterviewsPage = () => {
                   />
                 </div>
               </div>
-
               <div className="space-y-2">
                 <Label>Interviewers</Label>
                 <div className="border rounded-md px-4 py-2 max-h-40 overflow-y-auto">
@@ -534,7 +498,6 @@ const InterviewsPage = () => {
                 </div>
               </div>
             </div>
-
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel
@@ -544,7 +507,6 @@ const InterviewsPage = () => {
           </DialogContent>
         </Dialog>
       </div>
-
       {/* Stats Overview */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Card>
@@ -558,7 +520,6 @@ const InterviewsPage = () => {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-6">
             <div className="flex flex-col items-center">
@@ -570,7 +531,6 @@ const InterviewsPage = () => {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-6">
             <div className="flex flex-col items-center">
@@ -582,7 +542,6 @@ const InterviewsPage = () => {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-6">
             <div className="flex flex-col items-center">
@@ -595,7 +554,6 @@ const InterviewsPage = () => {
           </CardContent>
         </Card>
       </div>
-
       {/* Dashboard View */}
       {showDashboard && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -615,7 +573,6 @@ const InterviewsPage = () => {
                 {mockLocations.map(location => {
                   const count = interviewsByLocation[location.id] || 0;
                   const percentage = mockInterviews.length > 0 ? Math.round((count / mockInterviews.length) * 100) : 0;
-
                   return (
                     <div key={location.id} className="space-y-1">
                       <div className="flex justify-between items-center">
@@ -647,7 +604,6 @@ const InterviewsPage = () => {
               </Button>
             </CardFooter>
           </Card>
-
           {/* Department Distribution */}
           <Card>
             <CardHeader>
@@ -665,7 +621,6 @@ const InterviewsPage = () => {
                   const count = interviewsByDepartment[department.id] || 0;
                   const percentage = mockInterviews.length > 0 ? Math.round((count / mockInterviews.length) * 100) : 0;
                   const location = mockLocations.find(loc => loc.id === department.locationId);
-
                   return (
                     <div key={department.id} className="space-y-1">
                       <div className="flex justify-between items-center">
@@ -700,7 +655,6 @@ const InterviewsPage = () => {
               </Button>
             </CardFooter>
           </Card>
-
           {/* Interview Type Distribution */}
           <Card>
             <CardHeader>
@@ -728,7 +682,6 @@ const InterviewsPage = () => {
                     portfolio: 'text-purple-800',
                     final: 'text-amber-800'
                   };
-
                   return (
                     <div key={type} className="space-y-1">
                       <div className="flex justify-between items-center">
@@ -749,7 +702,6 @@ const InterviewsPage = () => {
               </div>
             </CardContent>
           </Card>
-
           {/* Source Distribution */}
           <Card>
             <CardHeader>
@@ -765,7 +717,6 @@ const InterviewsPage = () => {
               <div className="space-y-4">
                 {Object.entries(interviewsBySource).map(([source, count]) => {
                   const percentage = mockInterviews.length > 0 ? Math.round((count / mockInterviews.length) * 100) : 0;
-
                   return (
                     <div key={source} className="space-y-1">
                       <div className="flex justify-between items-center">
@@ -788,7 +739,6 @@ const InterviewsPage = () => {
           </Card>
         </div>
       )}
-
       {/* Filters */}
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
@@ -801,7 +751,6 @@ const InterviewsPage = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-
           <div className="sm:col-span-2">
             <Select value={locationFilter} onValueChange={setLocationFilter}>
               <SelectTrigger>
@@ -820,7 +769,6 @@ const InterviewsPage = () => {
               </SelectContent>
             </Select>
           </div>
-
           <div className="sm:col-span-2">
             <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
               <SelectTrigger>
@@ -839,7 +787,6 @@ const InterviewsPage = () => {
               </SelectContent>
             </Select>
           </div>
-
           <div className="sm:col-span-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -864,7 +811,6 @@ const InterviewsPage = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-
           <div className="sm:col-span-2 flex gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -884,7 +830,6 @@ const InterviewsPage = () => {
             </DropdownMenu>
           </div>
         </div>
-
         {/* Advanced Filters */}
         <div className="flex items-center justify-between">
           <Button
@@ -897,7 +842,6 @@ const InterviewsPage = () => {
             {showAdvancedFilters ? 'Hide Advanced Filters' : 'Show Advanced Filters'}
             <ChevronDown className={`h-4 w-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
           </Button>
-
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -913,13 +857,11 @@ const InterviewsPage = () => {
             >
               Clear Filters
             </Button>
-
             <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none">
               {filteredInterviews.length} interviews
             </Badge>
           </div>
         </div>
-
         {showAdvancedFilters && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 border rounded-md bg-muted/10">
             <div>
@@ -940,7 +882,6 @@ const InterviewsPage = () => {
                 </SelectContent>
               </Select>
             </div>
-
             <div>
               <Button
                 variant="outline"
@@ -957,7 +898,6 @@ const InterviewsPage = () => {
           </div>
         )}
       </div>
-
       {/* Interviews List */}
       <div className="space-y-6">
         {filteredInterviews.length === 0 ? (
@@ -977,7 +917,6 @@ const InterviewsPage = () => {
                         className="h-full w-full object-cover"
                       />
                     </div>
-
                     <div>
                       <div className="flex items-center">
                         <h3 className="font-semibold text-lg">{interview.candidate}</h3>
@@ -988,30 +927,24 @@ const InterviewsPage = () => {
                           {interview.status === 'completed' ? 'Completed' : 'Upcoming'}
                         </Badge>
                       </div>
-
                       <p className="text-muted-foreground">{interview.position}</p>
-
                       <div className="flex flex-wrap mt-2 gap-3">
                         <div className="flex items-center text-sm">
                           <Calendar className="h-4 w-4 mr-1 text-muted-foreground" />
                           {new Date(interview.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                         </div>
-
                         <div className="flex items-center text-sm">
                           <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
                           {new Date(interview.date).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                         </div>
-
                         <div className="flex items-center text-sm">
                           <User className="h-4 w-4 mr-1 text-muted-foreground" />
                           {interview.interviewers.join(', ')}
                         </div>
-
                         <Badge variant="outline" className="bg-accent/50 text-sm font-normal">
                           {interview.type.charAt(0).toUpperCase() + interview.type.slice(1)} Interview
                         </Badge>
                       </div>
-
                       <div className="flex flex-wrap mt-2 gap-3">
                         {interview.locationId && (
                           <div className="flex items-center text-sm">
@@ -1019,14 +952,12 @@ const InterviewsPage = () => {
                             {getLocationById(interview.locationId)?.name || 'Unknown Location'}
                           </div>
                         )}
-
                         {interview.departmentId && (
                           <div className="flex items-center text-sm">
                             <Building2 className="h-4 w-4 mr-1 text-muted-foreground" />
                             {getDepartmentById(interview.departmentId)?.name || 'Unknown Department'}
                           </div>
                         )}
-
                         {interview.source && (
                           <div className="flex items-center text-sm">
                             <Layers className="h-4 w-4 mr-1 text-muted-foreground" />
@@ -1034,7 +965,6 @@ const InterviewsPage = () => {
                           </div>
                         )}
                       </div>
-
                       {interview.feedback && (
                         <div className="mt-3 border-t pt-3">
                           <div className="flex items-center text-sm font-medium mb-1">
@@ -1046,7 +976,6 @@ const InterviewsPage = () => {
                       )}
                     </div>
                   </div>
-
                   <div className="flex-shrink-0">
                     {interview.status === 'scheduled' ? (
                       <Button onClick={() => handleJoinInterview(interview.id)}>
@@ -1066,7 +995,6 @@ const InterviewsPage = () => {
           ))
         )}
       </div>
-
       {/* Guidelines Card */}
       <Card>
         <CardHeader>
@@ -1085,7 +1013,6 @@ const InterviewsPage = () => {
                   <li>• Log in 5 minutes early</li>
                 </ul>
               </div>
-
               <div className="p-4 bg-muted rounded-lg">
                 <h3 className="font-medium mb-2">During the Interview</h3>
                 <ul className="text-sm space-y-1">
@@ -1095,7 +1022,6 @@ const InterviewsPage = () => {
                   <li>• Take clear, objective notes</li>
                 </ul>
               </div>
-
               <div className="p-4 bg-muted rounded-lg">
                 <h3 className="font-medium mb-2">After the Interview</h3>
                 <ul className="text-sm space-y-1">
@@ -1106,7 +1032,6 @@ const InterviewsPage = () => {
                 </ul>
               </div>
             </div>
-
             <div className="mt-4 text-center">
               <Link to="/feedback">
                 <Button variant="outline">
@@ -1121,5 +1046,4 @@ const InterviewsPage = () => {
     </div>
   );
 };
-
 export default InterviewsPage;

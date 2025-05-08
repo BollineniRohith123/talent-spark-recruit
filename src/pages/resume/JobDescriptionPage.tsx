@@ -898,7 +898,7 @@ const JobDescriptionPage = () => {
                     <div>
                       <p className="font-medium">Job Description Created</p>
                       <p className="text-sm">
-                        Your job description for {jobTitle} has been analyzed using SmartMatch matching
+                        Your job description for {jobTitle} has been analyzed using TalentPulse matching
                       </p>
                     </div>
                   </div>

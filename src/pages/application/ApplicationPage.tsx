@@ -30,7 +30,7 @@ const applicationData = {
 
     This role offers competitive compensation, remote work flexibility, and opportunities for professional growth.
   `,
-  nextStep: 'Complete SmartMatch Screening',
+  nextStep: 'Complete TalentPulse Screening',
   screeningLink: 'https://screening.talentspark.com/abc123',
   screeningDeadline: '2025-04-30'
 };

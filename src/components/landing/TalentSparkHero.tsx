@@ -111,7 +111,7 @@ interface TalentSparkHeroProps {
 }
 
 export function TalentSparkHero({
-  badge = "Smart-Powered Recruitment Engine",
+  badge = "TalentPulse-Powered Recruitment Engine",
   title = "QORE",
   subtitle = "The Core of Recruitment Excellence",
   description = "Our intelligent platform streamlines your hiring process with advanced resume parsing, precise candidate matching, and profit optimization.",

@@ -1,4 +1,4 @@
-# QORE - Smart-Powered Recruitment Platform
+# QORE - TalentPulse-Powered Recruitment Platform
 
 <p align="center">
   <img src="public/logo.png" alt="QORE Logo" width="200"/>
@@ -12,8 +12,8 @@ QORE is an advanced SmartMatch-powered recruitment platform designed for US-base
 
 - **Role-Based Access Control**: Tailored dashboards and permissions for CEO, Branch Managers, Marketing Heads, Marketing Supervisors, Marketing Recruiters, Marketing Associates, and Applicants
 - **Profit Optimization**: Two-level profit tracking (client-to-company and company-to-candidate) with configurable splits and detailed financial analytics
-- **SmartMatch-Powered Matching**: Resume parsing and semantic matching using Retrieval-Augmented Generation (RAG) technology
-- **Automated Screening**: Integration with SmartMatch for voice-based candidate screening and assessment
+- **TalentPulse-Powered Matching**: Resume parsing and semantic matching using Retrieval-Augmented Generation (RAG) technology
+- **Automated Screening**: Integration with TalentPulse for voice-based candidate screening and assessment
 - **Comprehensive Analytics**: Detailed profit metrics, hiring efficiency, and team performance tracking with visual dashboards
 - **Hierarchical Organization Structure**: Branch-based management with locations, departments, and teams
 - **Job Management**: Complete job lifecycle management from creation to placement

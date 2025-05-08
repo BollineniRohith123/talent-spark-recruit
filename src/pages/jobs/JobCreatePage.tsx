@@ -11,7 +11,9 @@ import {
   Briefcase,
   CheckCircle2,
   AlertCircle,
-  UserPlus
+  UserPlus,
+  FileUp,
+  Upload
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +34,7 @@ import { toast } from '@/hooks/use-toast';
 import { JobStatus, JobPriority, mockJobListings } from '@/types/jobs';
 import { mockLocations, mockDepartments } from '@/types/organization';
 import ProfitCalculator from '@/components/profit/ProfitCalculator';
+import JobDescriptionUploader from '@/components/jobs/JobDescriptionUploader';
 
 // Mock users for assignment
 const mockUsers = [
@@ -244,7 +247,7 @@ const JobCreatePage: React.FC = () => {
       description: "The job listing has been created successfully",
     });
 
-    navigate('/jobs');
+    navigate('/jobs-management');
   };
 
   // Get available departments based on selected location
@@ -259,7 +262,7 @@ const JobCreatePage: React.FC = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
-          <Button variant="ghost" size="icon" className="mr-2" onClick={() => navigate('/jobs')}>
+          <Button variant="ghost" size="icon" className="mr-2" onClick={() => navigate('/jobs-management')}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
@@ -276,6 +279,28 @@ const JobCreatePage: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Upload Job Description</CardTitle>
+            <CardDescription>Upload a PDF or Word document to automatically fill the form</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <JobDescriptionUploader
+              onParsedData={(data) => {
+                if (data.title) setTitle(data.title);
+                if (data.description) setDescription(data.description);
+                if (data.requirements) setRequirements(data.requirements);
+                if (data.responsibilities) setResponsibilities(data.responsibilities);
+                if (data.benefits) setBenefits(data.benefits);
+                if (data.minSalary) setMinSalary(data.minSalary);
+                if (data.maxSalary) setMaxSalary(data.maxSalary);
+                if (data.isRemote !== undefined) setIsRemote(data.isRemote);
+                if (data.employmentType) setEmploymentType(data.employmentType);
+              }}
+            />
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>

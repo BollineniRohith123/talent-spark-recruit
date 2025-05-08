@@ -48,11 +48,16 @@ const JobDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const adminUser = isAdmin(user?.role);
-  const isHiringManager = user?.role === 'branch-manager' || user?.role === 'marketing-head' || user?.role === 'marketing-supervisor';
+  const isHiringManager = user?.role === 'branch-manager';
+  const isMarketingHead = user?.role === 'marketing-head';
+  const isMarketingSupervisor = user?.role === 'marketing-supervisor';
   const isScout = user?.role === 'marketing-recruiter';
   const isTeamMember = user?.role === 'marketing-associate';
-  // Admin can always see client budget
-  const canSeeClientBudget = adminUser || isHiringManager;
+
+  // Two-level profit tracking visibility
+  // Client-to-company profit should only be visible to CEO, Branch Manager, and Marketing Supervisor
+  const canSeeClientBudget = adminUser || isHiringManager || isMarketingSupervisor;
+  // Company-to-candidate splits should be visible to all employees
 
   const [job, setJob] = useState<JobListing | null>(null);
   const [candidates, setCandidates] = useState<JobCandidate[]>([]);
@@ -61,6 +66,9 @@ const JobDetailsPage: React.FC = () => {
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isNotificationDialogOpen, setIsNotificationDialogOpen] = useState(false);
   const [assignedUser, setAssignedUser] = useState<{ id: string; name: string } | null>(null);
+  const [isMatchingCandidates, setIsMatchingCandidates] = useState(false);
+  const [matchedCandidates, setMatchedCandidates] = useState<Array<{id: string; name: string; matchScore: number; resumeUrl: string}>>([]);
+  const [showMatchResults, setShowMatchResults] = useState(false);
 
   useEffect(() => {
     if (!jobId) return;
@@ -188,6 +196,35 @@ const JobDetailsPage: React.FC = () => {
     });
   };
 
+  // Handle job matching with RAG
+  const handleMatchCandidates = () => {
+    if (!job) return;
+
+    setIsMatchingCandidates(true);
+
+    // In a real app, this would be an API call to the RAG system
+    // Simulating the matching process with a timeout
+    setTimeout(() => {
+      // Mock data for matched candidates
+      const mockMatches = [
+        { id: 'cand-001', name: 'Alex Johnson', matchScore: 92, resumeUrl: '#' },
+        { id: 'cand-002', name: 'Jamie Smith', matchScore: 87, resumeUrl: '#' },
+        { id: 'cand-003', name: 'Taylor Wilson', matchScore: 81, resumeUrl: '#' },
+        { id: 'cand-004', name: 'Morgan Lee', matchScore: 76, resumeUrl: '#' },
+        { id: 'cand-005', name: 'Casey Brown', matchScore: 68, resumeUrl: '#' },
+      ];
+
+      setMatchedCandidates(mockMatches);
+      setIsMatchingCandidates(false);
+      setShowMatchResults(true);
+
+      toast({
+        title: "Candidates Matched",
+        description: `Found ${mockMatches.length} matching candidates for this job`,
+      });
+    }, 2000);
+  };
+
   // Get candidate status badge color
   const getCandidateStatusColor = (status: JobCandidate['status']) => {
     switch (status) {
@@ -274,6 +311,7 @@ const JobDetailsPage: React.FC = () => {
             Candidates ({totalCandidates})
           </TabsTrigger>
           <TabsTrigger value="description">Description</TabsTrigger>
+          <TabsTrigger value="matching">TalentPulse Matching</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -729,6 +767,131 @@ const JobDetailsPage: React.FC = () => {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="matching" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>TalentPulse Matching</CardTitle>
+              <CardDescription>
+                Find matching candidates using our AI-powered matching system
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!showMatchResults ? (
+                <div className="text-center py-8">
+                  <div className="mx-auto w-16 h-16 mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Users className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-medium mb-2">Find Matching Candidates</h3>
+                  <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                    Our AI-powered TalentPulse system will analyze the job requirements and find the best matching candidates from our database.
+                  </p>
+                  <Button
+                    onClick={handleMatchCandidates}
+                    disabled={isMatchingCandidates}
+                    className="min-w-[200px]"
+                  >
+                    {isMatchingCandidates ? (
+                      <>
+                        <span className="animate-spin mr-2">⟳</span>
+                        Matching...
+                      </>
+                    ) : (
+                      <>Find Matching Candidates</>
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-medium">Matching Results</h3>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowMatchResults(false)}
+                      size="sm"
+                    >
+                      Run New Match
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {matchedCandidates.map((candidate) => (
+                      <div key={candidate.id} className="border rounded-lg p-4 transition-all hover:border-primary/50 hover:bg-muted/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <Avatar className="h-10 w-10 mr-3">
+                              <AvatarFallback>{candidate.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <h4 className="font-medium">{candidate.name}</h4>
+                              <p className="text-sm text-muted-foreground">Candidate ID: {candidate.id}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="mr-4 text-right">
+                              <div className="text-sm font-medium">Match Score</div>
+                              <div className={`text-lg font-bold ${
+                                candidate.matchScore >= 90 ? 'text-green-600' :
+                                candidate.matchScore >= 80 ? 'text-green-500' :
+                                candidate.matchScore >= 70 ? 'text-yellow-600' :
+                                candidate.matchScore >= 60 ? 'text-yellow-500' :
+                                'text-muted-foreground'
+                              }`}>
+                                {candidate.matchScore}%
+                              </div>
+                            </div>
+                            <Button size="sm">
+                              View Profile
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="mt-2">
+                          <div className="text-sm font-medium mb-1">Match Strength</div>
+                          <div className="w-full bg-muted rounded-full h-2.5">
+                            <div
+                              className={`h-2.5 rounded-full ${
+                                candidate.matchScore >= 90 ? 'bg-green-600' :
+                                candidate.matchScore >= 80 ? 'bg-green-500' :
+                                candidate.matchScore >= 70 ? 'bg-yellow-600' :
+                                candidate.matchScore >= 60 ? 'bg-yellow-500' :
+                                'bg-muted-foreground'
+                              }`}
+                              style={{ width: `${candidate.matchScore}%` }}
+                            ></div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end mt-4 space-x-2">
+                          <Button variant="outline" size="sm">
+                            <FileText className="h-4 w-4 mr-1" />
+                            View Resume
+                          </Button>
+                          <Button size="sm">
+                            <UserPlus className="h-4 w-4 mr-1" />
+                            Add to Candidates
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <h4 className="font-medium mb-2 flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-2 text-primary" />
+                      How TalentPulse Matching Works
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      TalentPulse uses advanced Retrieval-Augmented Generation (RAG) technology to match job requirements with candidate resumes.
+                      The system analyzes skills, experience, education, and other factors to provide a comprehensive match score.
+                      Candidates with higher scores are more likely to be a good fit for the position.
+                    </p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

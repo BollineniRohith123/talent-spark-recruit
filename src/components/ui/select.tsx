@@ -81,6 +81,7 @@ const SelectContent = React.forwardRef<
       position={position}
       {...props}
     >
+      {/* Select component doesn't require explicit title/description as it's handled by the trigger */}
       <SelectScrollUpButton />
       <SelectPrimitive.Viewport
         className={cn(

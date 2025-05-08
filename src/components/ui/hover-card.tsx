@@ -20,7 +20,10 @@ const HoverCardContent = React.forwardRef<
       className
     )}
     {...props}
-  />
+  >
+    {/* HoverCard doesn't require title or description for accessibility */}
+    {props.children}
+  </HoverCardPrimitive.Content>
 ))
 HoverCardContent.displayName = HoverCardPrimitive.Content.displayName
 

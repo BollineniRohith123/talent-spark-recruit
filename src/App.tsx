@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import MainLayout from "@/components/layout/MainLayout";
@@ -22,8 +22,6 @@ import AdminPanelPage from "./pages/admin/AdminPanelPage";
 
 // Resume Pages
 import ResumeUploadPage from "./pages/resume/ResumeUploadPage";
-import JobDescriptionPage from "./pages/resume/JobDescriptionPage";
-import JobMatchingResultsPage from "./pages/resume/JobMatchingResultsPage";
 
 // Screening Pages
 import ScreeningsPage from "./pages/screening/ScreeningsPage";
@@ -50,10 +48,10 @@ import ProfileDetailsPage from "./pages/teams/ProfileDetailsPage";
 // Reports Page
 import ReportsPage from "./pages/reports/ReportsPage";
 
-// Job Listings Pages
-import JobListingsPage from "./pages/jobs/JobListingsPage";
+// Job Pages
 import JobDetailsPage from "./pages/jobs/JobDetailsPage";
 import JobCreatePage from "./pages/jobs/JobCreatePage";
+import UnifiedJobsPage from "./pages/jobs/UnifiedJobsPage";
 
 // Profit Pages
 import ProfitCalculatorPage from "./pages/profit/ProfitCalculatorPage";
@@ -170,28 +168,16 @@ const App = () => (
               }
             />
 
-            {/* Job Descriptions - For All Roles except Applicant */}
+            {/* Job Descriptions - Redirect to Unified Jobs Management */}
             <Route
               path="/job-descriptions"
-              element={
-                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate']}>
-                  <MainLayout>
-                    <JobDescriptionPage />
-                  </MainLayout>
-                </AuthProtection>
-              }
+              element={<Navigate to="/jobs-management" replace />}
             />
 
-            {/* Job Matching Results - For All Roles except Applicant */}
+            {/* Job Matching Results - Redirect to Unified Jobs Management */}
             <Route
               path="/job-matching-results"
-              element={
-                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate']}>
-                  <MainLayout>
-                    <JobMatchingResultsPage />
-                  </MainLayout>
-                </AuthProtection>
-              }
+              element={<Navigate to="/jobs-management" replace />}
             />
 
             {/* Screenings - For CEO, Marketing Recruiter */}
@@ -268,16 +254,22 @@ const App = () => (
               }
             />
 
-            {/* Job Listings - For All Roles except Applicant */}
+            {/* Unified Jobs Management - For All Roles except Applicant */}
             <Route
-              path="/jobs"
+              path="/jobs-management"
               element={
                 <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate']}>
                   <MainLayout>
-                    <JobListingsPage />
+                    <UnifiedJobsPage />
                   </MainLayout>
                 </AuthProtection>
               }
+            />
+
+            {/* Legacy Job Listings - Redirect to Unified Jobs Management */}
+            <Route
+              path="/jobs"
+              element={<Navigate to="/jobs-management" replace />}
             />
 
             {/* Job Details - For All Roles except Applicant */}

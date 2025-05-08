@@ -1,6 +1,6 @@
 
 import { useState, useCallback, useEffect } from 'react';
-import { Upload, FileUp, X, Check, FileText, Clock, Calendar, User, Briefcase, GraduationCap, Award, Tag, Eye, Download, Trash2, Phone, Mail } from 'lucide-react';
+import { Upload, FileUp, X, Check, FileText, Clock, Calendar, User, Briefcase, GraduationCap, Award, Tag, Eye, Download, Trash2, Phone, Mail, Info, MapPin, Building } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { fileToText, parseResume, ParsedResume } from '@/utils/resumeParser';
+import { mockLocations, getLocationById } from '@/types/organization';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -116,6 +118,8 @@ interface UploadedResume {
   id: string;
   status: 'processing' | 'completed' | 'error';
   uploadedBy: UserInfo;
+  locationId?: string; // ID of the location this resume is associated with
+  locationName?: string; // Name of the location (for display purposes)
 }
 
 // Mock users for demonstration
@@ -171,8 +175,15 @@ const ResumeUploadPage = () => {
   const [currentUser, setCurrentUser] = useState<UserInfo>(mockUsers[0]); // Default to CEO (admin)
   const [showRoleSelector, setShowRoleSelector] = useState(false);
 
+  // State for location selection (for CEO users)
+  const [selectedLocationId, setSelectedLocationId] = useState<string>(mockLocations[0].id);
+  const [selectedLocation, setSelectedLocation] = useState(mockLocations[0]);
+
   // Check if user is admin (CEO or Branch Manager)
   const isAdmin = currentUser.role === 'CEO' || currentUser.role === 'Branch Manager';
+
+  // Check if user is CEO (needs location selector)
+  const isCEO = currentUser.role === 'CEO';
 
   // Generate a unique ID for each resume
   const generateId = () => {
@@ -232,7 +243,9 @@ const ResumeUploadPage = () => {
       uploadDate: new Date('2023-05-15'),
       status: 'completed',
       uploadedBy: mockUsers[0], // CEO
-      file: new File(['dummy content'], 'john_anderson_resume.pdf', { type: 'application/pdf' })
+      file: new File(['dummy content'], 'john_anderson_resume.pdf', { type: 'application/pdf' }),
+      locationId: 'loc-1',
+      locationName: 'Miami Headquarters'
     },
     {
       id: 'resume-2',
@@ -276,7 +289,9 @@ const ResumeUploadPage = () => {
       uploadDate: new Date('2023-06-22'),
       status: 'completed',
       uploadedBy: mockUsers[2], // Marketing Recruiter
-      file: new File(['dummy content'], 'sarah_williams_resume.pdf', { type: 'application/pdf' })
+      file: new File(['dummy content'], 'sarah_williams_resume.pdf', { type: 'application/pdf' }),
+      locationId: 'loc-2',
+      locationName: 'New York Office'
     },
     {
       id: 'resume-3',
@@ -325,7 +340,9 @@ const ResumeUploadPage = () => {
       uploadDate: new Date('2023-07-10'),
       status: 'completed',
       uploadedBy: mockUsers[1], // Branch Manager
-      file: new File(['dummy content'], 'michael_chen_resume.pdf', { type: 'application/pdf' })
+      file: new File(['dummy content'], 'michael_chen_resume.pdf', { type: 'application/pdf' }),
+      locationId: 'loc-3',
+      locationName: 'San Francisco Branch'
     },
     {
       id: 'resume-4',
@@ -369,9 +386,19 @@ const ResumeUploadPage = () => {
       uploadDate: new Date('2023-08-05'),
       status: 'completed',
       uploadedBy: mockUsers[3], // Marketing Associate
-      file: new File(['dummy content'], 'emily_rodriguez_resume.pdf', { type: 'application/pdf' })
+      file: new File(['dummy content'], 'emily_rodriguez_resume.pdf', { type: 'application/pdf' }),
+      locationId: 'loc-4',
+      locationName: 'Chicago Office'
     }
   ];
+
+  // Update selected location when locationId changes
+  useEffect(() => {
+    const location = mockLocations.find(loc => loc.id === selectedLocationId);
+    if (location) {
+      setSelectedLocation(location);
+    }
+  }, [selectedLocationId]);
 
   // Load saved resumes from localStorage on component mount or when user changes
   useEffect(() => {
@@ -431,17 +458,41 @@ const ResumeUploadPage = () => {
   };
 
   const handleNewFiles = async (newFiles: File[]) => {
-    // Filter for only PDFs and DOCs
-    const validFiles = newFiles.filter(file => {
+    // Check file types and sizes
+    const maxSizeMB = 10; // 10MB max file size
+    const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+    const validFiles: File[] = [];
+    const invalidFiles: {name: string, reason: string}[] = [];
+
+    newFiles.forEach(file => {
       const ext = file.name.split('.').pop()?.toLowerCase();
-      return ext === 'pdf' || ext === 'doc' || ext === 'docx';
+      const isValidType = ext === 'pdf' || ext === 'doc' || ext === 'docx';
+      const isValidSize = file.size <= maxSizeBytes;
+
+      if (!isValidType) {
+        invalidFiles.push({
+          name: file.name,
+          reason: `Invalid file type. Only PDF, DOC, and DOCX files are accepted.`
+        });
+      } else if (!isValidSize) {
+        invalidFiles.push({
+          name: file.name,
+          reason: `File exceeds maximum size of ${maxSizeMB}MB.`
+        });
+      } else {
+        validFiles.push(file);
+      }
     });
 
-    if (validFiles.length !== newFiles.length) {
-      toast({
-        title: "Invalid File Type",
-        description: "Only PDF, DOC, and DOCX files are accepted",
-        variant: "destructive",
+    if (invalidFiles.length > 0) {
+      // Show detailed error messages for each invalid file
+      invalidFiles.forEach(file => {
+        toast({
+          title: `Error with file: ${file.name}`,
+          description: file.reason,
+          variant: "destructive",
+        });
       });
     }
 
@@ -454,7 +505,7 @@ const ResumeUploadPage = () => {
         const text = await fileToText(file);
         const parsedResume = parseResume(text);
 
-        // Create a new uploaded resume entry with current user information
+        // Create a new uploaded resume entry with current user information and location
         const newResume: UploadedResume = {
           file: file,
           parsedData: parsedResume,
@@ -466,7 +517,14 @@ const ResumeUploadPage = () => {
             name: currentUser.name,
             role: currentUser.role,
             avatar: currentUser.avatar
-          }
+          },
+          // For CEO users, use the selected location
+          // For Branch Managers, use their assigned location (in a real app, this would come from user data)
+          // For this demo, we'll use a mock location based on user role
+          locationId: isCEO ? selectedLocationId :
+                     (currentUser.role === 'Branch Manager' ? 'loc-2' : undefined),
+          locationName: isCEO ? selectedLocation.name :
+                       (currentUser.role === 'Branch Manager' ? 'New York Office' : undefined)
         };
 
         // Add to the uploaded resumes list
@@ -504,10 +562,21 @@ const ResumeUploadPage = () => {
         });
       }
 
-      // Show success message
+      // Show detailed success message with location information
       toast({
-        title: "Resume Parsed Successfully",
-        description: `${validFiles.length} resume${validFiles.length > 1 ? 's' : ''} uploaded and parsed`,
+        title: "Resume Upload Successful",
+        description: (
+          <div className="space-y-1">
+            <p>{`${validFiles.length} resume${validFiles.length > 1 ? 's' : ''} uploaded and parsed successfully`}</p>
+            <p className="text-xs text-muted-foreground">Uploaded by {currentUser.name} ({currentUser.role})</p>
+            {(isCEO || currentUser.role === 'Branch Manager') && (
+              <p className="text-xs text-muted-foreground">
+                Location: {isCEO ? selectedLocation.name : 'New York Office'}
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground">Timestamp: {new Date().toLocaleString()}</p>
+          </div>
+        ),
       });
     } catch (error) {
       toast({
@@ -735,7 +804,7 @@ const ResumeUploadPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-muted/30 p-4 rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-muted/30 p-4 rounded-lg">
             <div className="flex items-center">
               <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
               <div>
@@ -769,6 +838,15 @@ const ResumeUploadPage = () => {
                 </div>
               </div>
             </div>
+            {resume.locationId && (
+              <div className="flex items-center">
+                <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Location</p>
+                  <p className="text-sm font-medium">{resume.locationName}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           <Separator />
@@ -943,20 +1021,90 @@ const ResumeUploadPage = () => {
                 Upload Resumes
               </CardTitle>
               <CardDescription>
-                Upload candidate resumes (.pdf, .doc, .docx)
+                Upload candidate resumes to parse and store in the system
               </CardDescription>
             </CardHeader>
           <CardContent className="px-4 md:px-6 space-y-4">
+            {/* Location Selector for CEO */}
+            {isCEO && (
+              <div className="bg-primary/5 p-4 rounded-lg border border-primary/20 mb-4">
+                <h3 className="font-medium text-sm mb-3 flex items-center">
+                  <MapPin className="h-4 w-4 mr-2 text-primary" />
+                  Select Location for Resume Upload
+                </h3>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    As CEO, you need to specify which location these resumes should be associated with.
+                  </p>
+                  <div className="grid grid-cols-1 gap-2">
+                    <Select
+                      value={selectedLocationId}
+                      onValueChange={setSelectedLocationId}
+                    >
+                      <SelectTrigger className="w-full">
+                        <div className="flex items-center">
+                          <Building className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <SelectValue placeholder="Select a location" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {mockLocations.map(location => (
+                          <SelectItem key={location.id} value={location.id}>
+                            {location.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {selectedLocation && (
+                      <div className="bg-muted/30 p-2 rounded-md text-xs text-muted-foreground">
+                        <p className="font-medium text-foreground">Selected Location:</p>
+                        <p>{selectedLocation.name}</p>
+                        <p>{selectedLocation.address}, {selectedLocation.city}, {selectedLocation.state} {selectedLocation.zipCode}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Instructions */}
+            <div className="bg-muted/30 p-4 rounded-lg border border-muted">
+              <h3 className="font-medium text-sm mb-2 flex items-center">
+                <FileText className="h-4 w-4 mr-2 text-primary" />
+                Upload Instructions
+              </h3>
+              <ul className="text-sm space-y-1 text-muted-foreground list-disc pl-5">
+                <li>Accepted file formats: <span className="font-medium text-foreground">.pdf, .doc, .docx</span></li>
+                <li>Maximum file size: <span className="font-medium text-foreground">10MB per file</span></li>
+                <li>You can upload multiple files at once</li>
+                <li>Uploaded resumes will be automatically parsed to extract candidate information</li>
+                <li>All uploads are tracked with your user information and timestamp</li>
+                {isCEO && (
+                  <li>Resumes will be associated with the <span className="font-medium text-foreground">selected location</span></li>
+                )}
+              </ul>
+            </div>
+
             {/* Drop Zone */}
             <div
-              className="border-2 border-dashed rounded-lg p-4 md:p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer"
+              className="border-2 border-dashed rounded-lg p-4 md:p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer relative overflow-hidden group"
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleFileDrop}
               onClick={() => document.getElementById('fileInput')?.click()}
+              aria-label="Drop zone for resume files"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  document.getElementById('fileInput')?.click();
+                }
+              }}
             >
-              <Upload className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground mx-auto mb-2 md:mb-3" />
-              <h3 className="font-medium mb-1">Drag & Drop Files Here</h3>
-              <p className="text-sm text-muted-foreground mb-2 md:mb-3">
+              <div className="absolute inset-0 bg-primary/5 scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom" aria-hidden="true"></div>
+              <Upload className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground mx-auto mb-2 md:mb-3 relative z-10" />
+              <h3 className="font-medium mb-1 relative z-10">Drag & Drop Files Here</h3>
+              <p className="text-sm text-muted-foreground mb-2 md:mb-3 relative z-10">
                 or click to browse files
               </p>
               <Input
@@ -966,8 +1114,9 @@ const ResumeUploadPage = () => {
                 accept=".pdf,.doc,.docx"
                 onChange={handleFileChange}
                 className="hidden"
+                aria-label="File input for resumes"
               />
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="relative z-10">
                 <FileUp className="mr-2 h-4 w-4" />
                 Select Files
               </Button>
@@ -981,17 +1130,29 @@ const ResumeUploadPage = () => {
                   {files.map((file, index) => (
                     <div
                       key={`${file.name}-${index}`}
-                      className="flex items-center justify-between bg-muted p-2 rounded-md hover:bg-muted/80"
+                      className="flex items-center justify-between bg-muted p-3 rounded-md hover:bg-muted/80"
                     >
                       <div className="flex items-center overflow-hidden">
-                        <div className="flex-shrink-0 h-8 w-8 bg-primary/10 rounded-md flex items-center justify-center">
-                          <FileUp className="h-4 w-4 text-primary" />
+                        <div className="flex-shrink-0 h-10 w-10 bg-primary/10 rounded-md flex items-center justify-center">
+                          <FileUp className="h-5 w-5 text-primary" />
                         </div>
-                        <div className="ml-2 overflow-hidden">
+                        <div className="ml-3 overflow-hidden">
                           <p className="text-sm font-medium truncate">{file.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {(file.size / 1024).toFixed(0)} KB
-                          </p>
+                          <div className="flex items-center text-xs text-muted-foreground mt-0.5 space-x-2">
+                            <span>{(file.size / 1024).toFixed(0)} KB</span>
+                            <span className="flex items-center">
+                              <User className="h-3 w-3 mr-1" />
+                              <span className="truncate max-w-[120px]">Will be uploaded by {currentUser.name}</span>
+                            </span>
+                            {(isCEO || currentUser.role === 'Branch Manager') && (
+                              <span className="flex items-center">
+                                <MapPin className="h-3 w-3 mr-1" />
+                                <span className="truncate max-w-[120px]">
+                                  {isCEO ? selectedLocation.name : 'New York Office'}
+                                </span>
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <Button
@@ -1001,39 +1162,65 @@ const ResumeUploadPage = () => {
                           setFiles(prev => prev.filter((_, i) => i !== index));
                         }}
                         className="h-8 w-8 p-0"
+                        aria-label={`Remove ${file.name}`}
                       >
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
                   ))}
+
+                  <div className="bg-muted/20 p-2 rounded-md mt-2">
+                    <p className="text-xs text-muted-foreground flex items-center">
+                      <Info className="h-3 w-3 mr-1" />
+                      All uploads are tracked with your user information and timestamp for audit purposes
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
 
             {uploading && (
-              <div className="space-y-2">
+              <div className="space-y-2 bg-muted/30 p-3 rounded-md border border-muted animate-pulse">
                 <div className="flex justify-between text-sm">
-                  <span>Uploading...</span>
-                  <span>{uploadProgress}%</span>
+                  <span className="flex items-center">
+                    <Clock className="h-4 w-4 mr-2 animate-spin" />
+                    Uploading and parsing resumes...
+                  </span>
+                  <span className="font-medium">{uploadProgress}%</span>
                 </div>
-                <Progress value={uploadProgress} />
+                <Progress value={uploadProgress} className="h-2.5" />
+                <p className="text-xs text-muted-foreground mt-1 flex items-center">
+                  <Info className="h-3 w-3 mr-1" />
+                  Files will be automatically parsed to extract candidate information
+                </p>
               </div>
             )}
 
             <Button
-              className="w-full"
+              className="w-full relative overflow-hidden group"
               disabled={uploading || parsing || files.length === 0}
               onClick={handleUpload}
+              aria-label="Upload selected resume files"
             >
               {uploading ? (
-                <>Processing...</>
+                <div className="flex items-center justify-center">
+                  <Clock className="animate-spin h-4 w-4 mr-2" />
+                  Processing...
+                </div>
               ) : (
                 <>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload Resumes
+                  <div className="absolute inset-0 bg-primary-foreground/10 scale-x-0 group-hover:scale-x-100 transition-transform origin-left" aria-hidden="true"></div>
+                  <Upload className="mr-2 h-4 w-4 relative z-10" />
+                  <span className="relative z-10">Upload {files.length} Resume{files.length !== 1 ? 's' : ''}</span>
                 </>
               )}
             </Button>
+
+            {files.length === 0 && !uploading && (
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                Select files to upload by dragging and dropping or using the file browser
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -1075,6 +1262,7 @@ const ResumeUploadPage = () => {
                       <TableHead>Candidate</TableHead>
                       <TableHead>Skills</TableHead>
                       {isAdmin && <TableHead>Uploaded By</TableHead>}
+                      {isAdmin && <TableHead>Location</TableHead>}
                       <TableHead>Upload Date</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -1122,6 +1310,18 @@ const ResumeUploadPage = () => {
                                 <p className="text-xs text-muted-foreground">{resume.uploadedBy.role}</p>
                               </div>
                             </div>
+                          </TableCell>
+                        )}
+                        {isAdmin && (
+                          <TableCell>
+                            {resume.locationName ? (
+                              <div className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm">{resume.locationName}</span>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">Not specified</span>
+                            )}
                           </TableCell>
                         )}
                         <TableCell>
@@ -1206,6 +1406,7 @@ const ResumeUploadPage = () => {
                         <TableHead>Candidate</TableHead>
                         <TableHead className="hidden md:table-cell">Skills</TableHead>
                         {isAdmin && <TableHead className="hidden lg:table-cell">Uploaded By</TableHead>}
+                        {isAdmin && <TableHead className="hidden lg:table-cell">Location</TableHead>}
                         <TableHead className="hidden md:table-cell">Date</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
@@ -1221,8 +1422,14 @@ const ResumeUploadPage = () => {
                               <div>
                                 <p className="font-medium text-sm md:text-base">{resume.parsedData.name}</p>
                                 <p className="text-xs text-muted-foreground truncate max-w-[120px] md:max-w-none">{resume.parsedData.email}</p>
-                                <div className="md:hidden text-xs text-muted-foreground mt-1">
-                                  {format(resume.uploadDate, 'MM/dd/yy')}
+                                <div className="md:hidden text-xs text-muted-foreground mt-1 flex items-center space-x-2">
+                                  <span>{format(resume.uploadDate, 'MM/dd/yy')}</span>
+                                  {isAdmin && resume.locationName && (
+                                    <span className="flex items-center">
+                                      <MapPin className="h-3 w-3 mr-1" />
+                                      {resume.locationName}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -1256,6 +1463,18 @@ const ResumeUploadPage = () => {
                                   <p className="text-xs text-muted-foreground">{resume.uploadedBy.role}</p>
                                 </div>
                               </div>
+                            </TableCell>
+                          )}
+                          {isAdmin && (
+                            <TableCell className="hidden lg:table-cell">
+                              {resume.locationName ? (
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                                  <span className="text-sm">{resume.locationName}</span>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">Not specified</span>
+                              )}
                             </TableCell>
                           )}
                           <TableCell className="hidden md:table-cell">

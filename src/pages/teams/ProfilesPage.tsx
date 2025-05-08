@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, UserPlus, Filter, MoreHorizontal, Mail, Phone, Briefcase, Calendar } from 'lucide-react';
+import { Search, UserPlus, Filter, MoreHorizontal, Mail, Phone, Briefcase, Calendar, MapPin, Building } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,147 +20,89 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
+import { isAdmin, isBranchManagerOrHigher } from '@/utils/adminPermissions';
+import { mockUsers } from '@/types/users';
+import { mockLocations, mockDepartments } from '@/types/organization';
 
-// Mock employee profile data
-const mockProfiles = [
-  {
-    id: '1',
-    name: 'Alex Johnson',
-    email: 'alex.johnson@recruitai.com',
-    phone: '(555) 123-4567',
-    role: 'Hiring Manager',
-    department: 'Engineering',
-    hireDate: '2022-03-15',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    skills: ['Technical Recruiting', 'Team Leadership', 'Budget Management'],
-    stats: {
-      openRequisitions: 5,
-      activeCandidates: 18,
-      totalHires: 12
-    }
-  },
-  {
-    id: '2',
-    name: 'Morgan Smith',
-    email: 'morgan.smith@talentspark.com',
-    phone: '(555) 234-5678',
-    role: 'Talent Scout',
-    department: 'Recruiting',
-    hireDate: '2023-01-10',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    skills: ['Candidate Sourcing', 'Resume Screening', 'Interview Coordination'],
-    stats: {
-      openRequisitions: 8,
-      activeCandidates: 32,
-      totalHires: 24
-    }
-  },
-  {
-    id: '3',
-    name: 'Jamie Garcia',
-    email: 'jamie.garcia@recruitai.com',
-    phone: '(555) 345-6789',
-    role: 'Team Member',
-    department: 'Engineering',
-    hireDate: '2022-08-05',
-    avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    skills: ['Software Development', 'Technical Assessment', 'Mentoring'],
-    stats: {
-      openRequisitions: 2,
-      activeCandidates: 7,
-      totalHires: 5
-    }
-  },
-  {
-    id: '4',
-    name: 'Robin Taylor',
-    email: 'robin.taylor@talentspark.com',
-    phone: '(555) 456-7890',
-    role: 'Company Admin',
-    department: 'Executive',
-    hireDate: '2021-06-20',
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    skills: ['Strategic Planning', 'Team Management', 'Process Optimization'],
-    stats: {
-      openRequisitions: 12,
-      activeCandidates: 45,
-      totalHires: 38
-    }
-  },
-  {
-    id: '5',
-    name: 'Casey Wilson',
-    email: 'casey.wilson@talentspark.com',
-    phone: '(555) 567-8901',
-    role: 'Talent Scout',
-    department: 'Recruiting',
-    hireDate: '2023-04-12',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    skills: ['Candidate Sourcing', 'Social Recruiting', 'Diversity Hiring'],
-    stats: {
-      openRequisitions: 6,
-      activeCandidates: 28,
-      totalHires: 19
-    }
-  },
-  {
-    id: '6',
-    name: 'Jordan Lee',
-    email: 'jordan.lee@talentspark.com',
-    phone: '(555) 678-9012',
-    role: 'Hiring Manager',
-    department: 'Design',
-    hireDate: '2022-11-08',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    skills: ['UX/UI Assessment', 'Team Building', 'Budget Planning'],
-    stats: {
-      openRequisitions: 3,
-      activeCandidates: 14,
-      totalHires: 9
-    }
-  },
-];
+// Helper function to get stats for a user
+const getUserStats = (userId: string) => {
+  // In a real app, this would be fetched from an API
+  return {
+    openRequisitions: Math.floor(Math.random() * 10) + 1,
+    activeCandidates: Math.floor(Math.random() * 30) + 5,
+    totalHires: Math.floor(Math.random() * 20)
+  };
+};
 
 const ProfilesPage = () => {
   const navigate = useNavigate();
-  const [profiles, setProfiles] = useState(mockProfiles);
+  const { user } = useAuth();
+  const adminUser = isAdmin(user?.role);
+  const managerOrHigher = isBranchManagerOrHigher(user?.role);
+
+  const [employees, setEmployees] = useState(mockUsers);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('all');
   const [showAddProfileDialog, setShowAddProfileDialog] = useState(false);
   const [newProfile, setNewProfile] = useState({
     name: '',
     email: '',
     phone: '',
-    role: 'team-member',
+    role: 'marketing-associate',
     department: '',
+    location: '',
   });
   const [activeTab, setActiveTab] = useState('grid');
 
-  const handleViewProfile = (profileId) => {
+  const handleViewProfile = (profileId: string) => {
     navigate(`/profiles/${profileId}`);
   };
 
-  const filteredProfiles = profiles.filter(profile => {
-    const matchesSearch = profile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          profile.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          profile.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          profile.department.toLowerCase().includes(searchTerm.toLowerCase());
+  // Filter employees based on user's role and selected filters
+  const filteredEmployees = employees.filter(employee => {
+    // CEO can see all employees
+    // Branch managers can only see employees in their location
+    if (!adminUser && user?.locationId && employee.locationId !== user.locationId) {
+      return false;
+    }
 
-    const matchesRole = roleFilter === 'all' ||
-                         profile.role.toLowerCase() === roleFilter.toLowerCase();
+    const matchesSearch =
+      employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (employee.position || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (employee.department || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (employee.location || '').toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesDepartment = departmentFilter === 'all' ||
-                               profile.department.toLowerCase() === departmentFilter.toLowerCase();
+    const matchesRole =
+      roleFilter === 'all' ||
+      employee.role.toLowerCase() === roleFilter.toLowerCase();
 
-    return matchesSearch && matchesRole && matchesDepartment;
+    // For department filtering, we need to match by name since we're showing unique department names
+    const matchesDepartment =
+      departmentFilter === 'all' ||
+      (employee.department && departments.find(d => d.id === departmentFilter)?.name === employee.department);
+
+    const matchesLocation =
+      locationFilter === 'all' ||
+      (employee.locationId && locationFilter === employee.locationId);
+
+    return matchesSearch && matchesRole && matchesDepartment && matchesLocation;
   });
 
-  const departments = Array.from(new Set(profiles.map(p => p.department)));
-  const roles = Array.from(new Set(profiles.map(p => p.role)));
+  // Get unique departments, roles, and locations for filters
+  // Group departments by name to avoid duplicates in the filter
+  const uniqueDepartments = Array.from(
+    new Map(mockDepartments.map(dept => [dept.name, dept])).values()
+  );
+  const departments = uniqueDepartments;
+  const locations = mockLocations;
+  const roles = Array.from(new Set(employees.map(e => e.role)));
 
   const handleAddProfile = () => {
-    if (!newProfile.name.trim() || !newProfile.email.trim() || !newProfile.department.trim()) {
+    if (!newProfile.name.trim() || !newProfile.email.trim() || !newProfile.department.trim() || !newProfile.location.trim()) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
@@ -169,37 +111,49 @@ const ProfilesPage = () => {
       return;
     }
 
-    const newProfileEntry = {
-      id: `profile-${Date.now()}`,
+    // Split the name into first and last name
+    const nameParts = newProfile.name.trim().split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+    // Find the department and location IDs
+    const departmentObj = departments.find(d => d.name === newProfile.department);
+    const locationObj = locations.find(l => l.name === newProfile.location);
+
+    const newEmployee = {
+      id: `user-${Date.now()}`,
       name: newProfile.name,
       email: newProfile.email,
-      phone: newProfile.phone || '(555) 000-0000',
-      role: newProfile.role === 'hiring-manager' ? 'Hiring Manager' :
-            newProfile.role === 'talent-scout' ? 'Talent Scout' :
-            newProfile.role === 'company-admin' ? 'Company Admin' : 'Team Member',
-      department: newProfile.department,
-      hireDate: new Date().toISOString().split('T')[0],
+      role: newProfile.role,
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      phone: newProfile.phone || '(555) 000-0000',
+      department: newProfile.department,
+      departmentId: departmentObj?.id || '',
+      location: newProfile.location,
+      locationId: locationObj?.id || '',
+      position: newProfile.role === 'marketing-recruiter' ? 'Marketing Recruiter' :
+                newProfile.role === 'marketing-associate' ? 'Marketing Associate' :
+                newProfile.role === 'marketing-supervisor' ? 'Marketing Supervisor' :
+                newProfile.role === 'marketing-head' ? 'Marketing Head' :
+                newProfile.role === 'branch-manager' ? 'Branch Manager' : 'Employee',
       skills: [],
-      stats: {
-        openRequisitions: 0,
-        activeCandidates: 0,
-        totalHires: 0
-      }
+      hireDate: new Date().toISOString(),
+      status: 'active' as const
     };
 
-    setProfiles([...profiles, newProfileEntry]);
+    setEmployees([...employees, newEmployee]);
     setNewProfile({
       name: '',
       email: '',
       phone: '',
-      role: 'team-member',
+      role: 'marketing-associate',
       department: '',
+      location: '',
     });
     setShowAddProfileDialog(false);
 
     toast({
-      title: "Profile Added",
+      title: "Employee Added",
       description: `${newProfile.name} has been added successfully.`,
     });
   };
@@ -208,9 +162,13 @@ const ProfilesPage = () => {
     <div className="space-y-8 animate-fade-in">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Team Profiles</h1>
+          <h1 className="text-3xl font-bold">Employee Directory</h1>
           <p className="text-muted-foreground mt-2">
-            Manage your organization's team members and their roles
+            {adminUser
+              ? "Manage all employees across all locations"
+              : managerOrHigher
+                ? "Manage employees in your location"
+                : "View employees in your location"}
           </p>
         </div>
 
@@ -218,14 +176,14 @@ const ProfilesPage = () => {
           <DialogTrigger asChild>
             <Button>
               <UserPlus className="mr-2 h-4 w-4" />
-              Add Team Member
+              Add Employee
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Add New Team Member</DialogTitle>
+              <DialogTitle>Add New Employee</DialogTitle>
               <DialogDescription>
-                Add a new team member to your organization.
+                Add a new employee to your organization.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -269,21 +227,52 @@ const ProfilesPage = () => {
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="company-admin">Company Admin</SelectItem>
-                    <SelectItem value="hiring-manager">Hiring Manager</SelectItem>
-                    <SelectItem value="talent-scout">Talent Scout</SelectItem>
-                    <SelectItem value="team-member">Team Member</SelectItem>
+                    {adminUser && <SelectItem value="ceo">CEO</SelectItem>}
+                    {adminUser && <SelectItem value="branch-manager">Branch Manager</SelectItem>}
+                    {(adminUser || managerOrHigher) && <SelectItem value="marketing-head">Marketing Head</SelectItem>}
+                    {(adminUser || managerOrHigher) && <SelectItem value="marketing-supervisor">Marketing Supervisor</SelectItem>}
+                    <SelectItem value="marketing-recruiter">Marketing Recruiter</SelectItem>
+                    <SelectItem value="marketing-associate">Marketing Associate</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="department">Department</Label>
-                <Input
-                  id="department"
+                <Select
                   value={newProfile.department}
-                  onChange={(e) => setNewProfile({ ...newProfile, department: e.target.value })}
-                  placeholder="Engineering"
-                />
+                  onValueChange={(value: string) =>
+                    setNewProfile({ ...newProfile, department: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Marketing (Recruitment)">Marketing (Recruitment)</SelectItem>
+                    <SelectItem value="Sales">Sales</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="location">Location</Label>
+                <Select
+                  value={newProfile.location}
+                  onValueChange={(value: string) =>
+                    setNewProfile({ ...newProfile, location: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locations.map(loc => (
+                      <SelectItem key={loc.id} value={loc.name}>
+                        {loc.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <DialogFooter>
@@ -291,7 +280,7 @@ const ProfilesPage = () => {
                 Cancel
               </Button>
               <Button onClick={handleAddProfile}>
-                Add Team Member
+                Add Employee
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -315,16 +304,17 @@ const ProfilesPage = () => {
               <SelectTrigger>
                 <div className="flex items-center">
                   <Filter className="mr-2 h-4 w-4" />
-                  <span>{roleFilter === 'all' ? 'All Roles' : roleFilter}</span>
+                  <span>Role</span>
                 </div>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Roles</SelectItem>
-                {roles.map(role => (
-                  <SelectItem key={role} value={role.toLowerCase()}>
-                    {role}
-                  </SelectItem>
-                ))}
+                <SelectItem value="ceo">CEO</SelectItem>
+                <SelectItem value="branch-manager">Branch Manager</SelectItem>
+                <SelectItem value="marketing-head">Marketing Head</SelectItem>
+                <SelectItem value="marketing-supervisor">Marketing Supervisor</SelectItem>
+                <SelectItem value="marketing-recruiter">Marketing Recruiter</SelectItem>
+                <SelectItem value="marketing-associate">Marketing Associate</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -334,19 +324,42 @@ const ProfilesPage = () => {
               <SelectTrigger>
                 <div className="flex items-center">
                   <Briefcase className="mr-2 h-4 w-4" />
-                  <span>{departmentFilter === 'all' ? 'All Departments' : departmentFilter}</span>
+                  <span>Department</span>
                 </div>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Departments</SelectItem>
-                {departments.map(dept => (
-                  <SelectItem key={dept} value={dept.toLowerCase()}>
-                    {dept}
-                  </SelectItem>
-                ))}
+                {/* Only show Marketing (Recruitment) and Sales departments */}
+                <SelectItem value={departments.find(d => d.name === 'Marketing (Recruitment)')?.id || ''}>
+                  Marketing (Recruitment)
+                </SelectItem>
+                <SelectItem value={departments.find(d => d.name === 'Sales')?.id || ''}>
+                  Sales
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {adminUser && (
+            <div className="w-[180px]">
+              <Select value={locationFilter} onValueChange={setLocationFilter}>
+                <SelectTrigger>
+                  <div className="flex items-center">
+                    <MapPin className="mr-2 h-4 w-4" />
+                    <span>Location</span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Locations</SelectItem>
+                  {locations.map(loc => (
+                    <SelectItem key={loc.id} value={loc.id}>
+                      {loc.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -365,162 +378,201 @@ const ProfilesPage = () => {
 
       {activeTab === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProfiles.map((profile) => (
-            <Card key={profile.id} className="overflow-hidden hover:shadow-md transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={profile.avatar} alt={profile.name} />
-                    <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <CardTitle className="text-lg">{profile.name}</CardTitle>
-                    <CardDescription>{profile.role}</CardDescription>
-                  </div>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleViewProfile(profile.id)}>
-                      View Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() =>
-                      toast({
-                        title: "Edit Profile",
-                        description: `Editing profile for ${profile.name}`,
-                      })
-                    }>
-                      Edit Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() =>
-                      toast({
-                        title: "Email Sent",
-                        description: `Email drafted to ${profile.name}`,
-                      })
-                    }>
-                      Send Email
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm">
-                      <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
-                      <span>{profile.email}</span>
+          {filteredEmployees.length > 0 ? (
+            filteredEmployees.map((employee) => {
+              const stats = getUserStats(employee.id);
+              return (
+                <Card key={employee.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={employee.avatar} alt={employee.name} />
+                        <AvatarFallback>{employee.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <CardTitle className="text-lg">{employee.name}</CardTitle>
+                        <CardDescription>{employee.position || employee.role}</CardDescription>
+                      </div>
                     </div>
-                    <div className="flex items-center text-sm">
-                      <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
-                      <span>{profile.phone}</span>
-                    </div>
-                    <div className="flex items-center text-sm">
-                      <Briefcase className="h-4 w-4 mr-2 text-muted-foreground" />
-                      <span>{profile.department}</span>
-                    </div>
-                    <div className="flex items-center text-sm">
-                      <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                      <span>Joined {new Date(profile.hireDate).toLocaleDateString()}</span>
-                    </div>
-                  </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleViewProfile(employee.id)}>
+                          View Profile
+                        </DropdownMenuItem>
+                        {(adminUser || managerOrHigher) && (
+                          <DropdownMenuItem onClick={() =>
+                            toast({
+                              title: "Edit Profile",
+                              description: `Editing profile for ${employee.name}`,
+                            })
+                          }>
+                            Edit Profile
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() =>
+                          toast({
+                            title: "Email Sent",
+                            description: `Email drafted to ${employee.name}`,
+                          })
+                        }>
+                          Send Email
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center text-sm">
+                          <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span>{employee.email}</span>
+                        </div>
+                        {employee.phone && (
+                          <div className="flex items-center text-sm">
+                            <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
+                            <span>{employee.phone}</span>
+                          </div>
+                        )}
+                        {employee.department && (
+                          <div className="flex items-center text-sm">
+                            <Briefcase className="h-4 w-4 mr-2 text-muted-foreground" />
+                            <span>{employee.department}</span>
+                          </div>
+                        )}
+                        {employee.location && (
+                          <div className="flex items-center text-sm">
+                            <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                            <span>{employee.location}</span>
+                          </div>
+                        )}
+                        {employee.hireDate && (
+                          <div className="flex items-center text-sm">
+                            <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+                            <span>Joined {new Date(employee.hireDate).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                      </div>
 
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Skills & Expertise</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {profile.skills.map((skill, i) => (
-                        <Badge key={i} variant="secondary">{skill}</Badge>
-                      ))}
-                    </div>
-                  </div>
+                      {employee.skills && employee.skills.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-medium mb-2">Skills & Expertise</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {employee.skills.map((skill, i) => (
+                              <Badge key={i} variant="secondary">{skill}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
-                  <div className="grid grid-cols-3 gap-2 pt-2">
-                    <div className="text-center p-2 bg-muted rounded-md">
-                      <p className="text-xs text-muted-foreground">Requisitions</p>
-                      <p className="font-medium">{profile.stats.openRequisitions}</p>
+                      {(employee.role === 'marketing-recruiter' || employee.role === 'marketing-supervisor' ||
+                        employee.role === 'marketing-head' || employee.role === 'branch-manager' ||
+                        employee.role === 'ceo') && (
+                        <div className="grid grid-cols-3 gap-2 pt-2">
+                          <div className="text-center p-2 bg-muted rounded-md">
+                            <p className="text-xs text-muted-foreground">Requisitions</p>
+                            <p className="font-medium">{stats.openRequisitions}</p>
+                          </div>
+                          <div className="text-center p-2 bg-muted rounded-md">
+                            <p className="text-xs text-muted-foreground">Candidates</p>
+                            <p className="font-medium">{stats.activeCandidates}</p>
+                          </div>
+                          <div className="text-center p-2 bg-muted rounded-md">
+                            <p className="text-xs text-muted-foreground">Hires</p>
+                            <p className="font-medium">{stats.totalHires}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-center p-2 bg-muted rounded-md">
-                      <p className="text-xs text-muted-foreground">Candidates</p>
-                      <p className="font-medium">{profile.stats.activeCandidates}</p>
-                    </div>
-                    <div className="text-center p-2 bg-muted rounded-md">
-                      <p className="text-xs text-muted-foreground">Hires</p>
-                      <p className="font-medium">{profile.stats.totalHires}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </CardContent>
+                </Card>
+              );
+            })
+          ) : (
+            <div className="col-span-3 text-center py-12">
+              <p className="text-muted-foreground">No employees found matching your filters.</p>
+            </div>
+          )}
         </div>
       ) : (
         <Card>
           <CardContent className="p-0">
             <div className="rounded-md border">
-              <div className="grid grid-cols-6 p-4 text-sm font-medium border-b bg-muted/50">
+              <div className="grid grid-cols-7 p-4 text-sm font-medium border-b bg-muted/50">
                 <div className="col-span-2">Name</div>
                 <div className="col-span-1">Role</div>
                 <div className="col-span-1">Department</div>
+                <div className="col-span-1">Location</div>
                 <div className="col-span-1">Hire Date</div>
                 <div className="col-span-1">Actions</div>
               </div>
               <div className="divide-y">
-                {filteredProfiles.map((profile) => (
-                  <div key={profile.id} className="grid grid-cols-6 items-center p-4 text-sm">
-                    <div className="col-span-2 flex items-center">
-                      <Avatar className="h-8 w-8 mr-3">
-                        <AvatarImage src={profile.avatar} alt={profile.name} />
-                        <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{profile.name}</p>
-                        <p className="text-xs text-muted-foreground">{profile.email}</p>
+                {filteredEmployees.length > 0 ? (
+                  filteredEmployees.map((employee) => (
+                    <div key={employee.id} className="grid grid-cols-7 items-center p-4 text-sm">
+                      <div className="col-span-2 flex items-center">
+                        <Avatar className="h-8 w-8 mr-3">
+                          <AvatarImage src={employee.avatar} alt={employee.name} />
+                          <AvatarFallback>{employee.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{employee.name}</p>
+                          <p className="text-xs text-muted-foreground">{employee.email}</p>
+                        </div>
+                      </div>
+                      <div className="col-span-1">{employee.position || employee.role}</div>
+                      <div className="col-span-1">{employee.department || '-'}</div>
+                      <div className="col-span-1">{employee.location || '-'}</div>
+                      <div className="col-span-1">{employee.hireDate ? new Date(employee.hireDate).toLocaleDateString() : '-'}</div>
+                      <div className="col-span-1 flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewProfile(employee.id)}
+                        >
+                          View
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {(adminUser || managerOrHigher) && (
+                              <DropdownMenuItem onClick={() =>
+                                toast({
+                                  title: "Edit Profile",
+                                  description: `Editing profile for ${employee.name}`,
+                                })
+                              }>
+                                Edit Profile
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem onClick={() =>
+                              toast({
+                                title: "Email Sent",
+                                description: `Email drafted to ${employee.name}`,
+                              })
+                            }>
+                              Send Email
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
-                    <div className="col-span-1">{profile.role}</div>
-                    <div className="col-span-1">{profile.department}</div>
-                    <div className="col-span-1">{new Date(profile.hireDate).toLocaleDateString()}</div>
-                    <div className="col-span-1 flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleViewProfile(profile.id)}
-                      >
-                        View
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() =>
-                            toast({
-                              title: "Edit Profile",
-                              description: `Editing profile for ${profile.name}`,
-                            })
-                          }>
-                            Edit Profile
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() =>
-                            toast({
-                              title: "Email Sent",
-                              description: `Email drafted to ${profile.name}`,
-                            })
-                          }>
-                            Send Email
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+                  ))
+                ) : (
+                  <div className="p-8 text-center">
+                    <p className="text-muted-foreground">No employees found matching your filters.</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </CardContent>
