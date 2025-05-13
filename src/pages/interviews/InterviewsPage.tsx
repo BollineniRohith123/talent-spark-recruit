@@ -1,10 +1,9 @@
-
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Calendar, Clock, Video, User, FileText, Plus, ChevronDown,
   MapPin, Building2, BarChart3, PieChart, Download, Filter,
-  ArrowUpDown, Layers, Users, Search
+  ArrowUpDown, Layers, Users, Search, CheckSquare
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,10 +39,15 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { mockLocations, mockDepartments, getLocationById, getDepartmentById } from '@/types/organization';
+import { useAuth } from '@/context/AuthContext';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 // Enhanced mock interview data with location and department information
 const mockInterviews = [
@@ -189,7 +193,27 @@ const interviewTypes = [
   { value: 'final', label: 'Final Round' },
 ];
 
+// Feedback rating options
+const ratingOptions = [
+  { value: '1', label: '1 - Poor' },
+  { value: '2', label: '2 - Below Average' },
+  { value: '3', label: '3 - Average' },
+  { value: '4', label: '4 - Good' },
+  { value: '5', label: '5 - Excellent' },
+];
+
+// Recommendation options
+const recommendationOptions = [
+  { value: 'hire', label: 'Hire' },
+  { value: 'consider', label: 'Consider' },
+  { value: 'reject', label: 'Reject' },
+];
+
 const InterviewsPage = () => {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [filter, setFilter] = useState('upcoming');
   const [date, setDate] = useState<Date>();
   const [selectedCandidate, setSelectedCandidate] = useState('');
@@ -197,6 +221,8 @@ const InterviewsPage = () => {
   const [selectedInterviewers, setSelectedInterviewers] = useState<string[]>([]);
   const [interviewTime, setInterviewTime] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
+  const [selectedInterview, setSelectedInterview] = useState<any>(null);
   const [locationFilter, setLocationFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
@@ -206,50 +232,134 @@ const InterviewsPage = () => {
   const [sortOrder, setSortOrder] = useState<'date' | 'name'>('date');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [feedbackForm, setFeedbackForm] = useState({
+    rating: '3',
+    strengths: '',
+    weaknesses: '',
+    notes: '',
+    recommendation: 'consider'
+  });
 
-  // Compute metrics and filters
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Get user's assigned location and department based on role
+  const userAssignedLocationId = useMemo(() => {
+    if (user?.role === 'branch-manager') {
+      // For demo, assign branch manager to Miami (loc-1)
+      return 'loc-1';
+    }
+    return null;
+  }, [user]);
+
+  const userAssignedDepartmentId = useMemo(() => {
+    if (['marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate'].includes(user?.role || '')) {
+      // For demo, assign marketing roles to Marketing (Recruitment) department (dept-1)
+      return 'dept-1';
+    }
+    return null;
+  }, [user]);
+
+  // Filter interviews based on user role
+  const roleFilteredInterviews = useMemo(() => {
+    if (!user) return [];
+
+    // CEO can see all interviews
+    if (user.role === 'ceo') {
+      return mockInterviews;
+    }
+
+    // Branch Manager can only see interviews from their location
+    if (user.role === 'branch-manager' && userAssignedLocationId) {
+      return mockInterviews.filter(interview => interview.locationId === userAssignedLocationId);
+    }
+
+    // Marketing roles can only see interviews from their department and location
+    if (['marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate'].includes(user.role)) {
+      if (userAssignedDepartmentId && userAssignedLocationId) {
+        return mockInterviews.filter(
+          interview => interview.departmentId === userAssignedDepartmentId &&
+                      interview.locationId === userAssignedLocationId
+        );
+      }
+    }
+
+    return [];
+  }, [user, userAssignedLocationId, userAssignedDepartmentId]);
+
+  // Compute metrics
   const interviewsByLocation = useMemo(() => {
     const result: Record<string, number> = {};
-    mockInterviews.forEach(interview => {
+    roleFilteredInterviews.forEach(interview => {
       if (interview.locationId) {
         result[interview.locationId] = (result[interview.locationId] || 0) + 1;
       }
     });
     return result;
-  }, []);
+  }, [roleFilteredInterviews]);
 
   const interviewsByDepartment = useMemo(() => {
     const result: Record<string, number> = {};
-    mockInterviews.forEach(interview => {
+    roleFilteredInterviews.forEach(interview => {
       if (interview.departmentId) {
         result[interview.departmentId] = (result[interview.departmentId] || 0) + 1;
       }
     });
     return result;
-  }, []);
+  }, [roleFilteredInterviews]);
 
   const interviewsBySource = useMemo(() => {
     const result: Record<string, number> = {};
-    mockInterviews.forEach(interview => {
+    roleFilteredInterviews.forEach(interview => {
       if (interview.source) {
         result[interview.source] = (result[interview.source] || 0) + 1;
       }
     });
     return result;
-  }, []);
+  }, [roleFilteredInterviews]);
 
   const interviewsByType = useMemo(() => {
     const result: Record<string, number> = {};
-    mockInterviews.forEach(interview => {
+    roleFilteredInterviews.forEach(interview => {
       if (interview.type) {
         result[interview.type] = (result[interview.type] || 0) + 1;
       }
     });
     return result;
-  }, []);
+  }, [roleFilteredInterviews]);
+
+  // Calculate conversion metrics
+  const interviewMetrics = useMemo(() => {
+    const completed = roleFilteredInterviews.filter(i => i.status === 'completed').length;
+    const scheduled = roleFilteredInterviews.filter(i => i.status === 'scheduled').length;
+    const total = roleFilteredInterviews.length;
+
+    // Calculate completion rate
+    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    // Calculate success rate (interviews with positive feedback)
+    const successfulInterviews = roleFilteredInterviews.filter(
+      i => i.status === 'completed' && i.feedback && ['good', 'excellent', 'strong'].some(term => i.feedback!.toLowerCase().includes(term))
+    ).length;
+    const successRate = completed > 0 ? Math.round((successfulInterviews / completed) * 100) : 0;
+
+    return {
+      completed,
+      scheduled,
+      total,
+      completionRate,
+      successRate,
+      successfulInterviews
+    };
+  }, [roleFilteredInterviews]);
 
   // Filter interviews based on status, location, department, and search term
-  const filteredInterviews = mockInterviews.filter(interview => {
+  const filteredInterviews = roleFilteredInterviews.filter(interview => {
     // Filter by status
     if (filter === 'upcoming') {
       if (interview.status !== 'scheduled') return false;
@@ -283,13 +393,12 @@ const InterviewsPage = () => {
     if (sortOrder === 'date') {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     }
-
     // Sort by name (alphabetical)
     return a.candidate.localeCompare(b.candidate);
   });
 
   // Get unique values for filters
-  const sources = ['all', ...new Set(mockInterviews.filter(i => i.source).map(i => i.source as string))];
+  const sources = ['all', ...new Set(roleFilteredInterviews.filter(i => i.source).map(i => i.source as string))];
 
   // Handle actions
   const handleJoinInterview = (id: string) => {
@@ -300,10 +409,43 @@ const InterviewsPage = () => {
   };
 
   const handleViewFeedback = (id: string) => {
+    const interview = roleFilteredInterviews.find(i => i.id === id);
+    if (interview) {
+      setSelectedInterview(interview);
+      setIsFeedbackDialogOpen(true);
+    }
+  };
+
+  const handleSubmitFeedback = () => {
+    if (!selectedInterview) return;
+
+    if (!feedbackForm.strengths || !feedbackForm.weaknesses || !feedbackForm.notes) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all feedback fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
     toast({
-      title: "View Feedback",
-      description: "Opening interview feedback",
+      title: "Feedback Submitted",
+      description: `Feedback for ${selectedInterview.candidate} has been submitted successfully`,
     });
+
+    setIsFeedbackDialogOpen(false);
+    resetFeedbackForm();
+  };
+
+  const resetFeedbackForm = () => {
+    setFeedbackForm({
+      rating: '3',
+      strengths: '',
+      weaknesses: '',
+      notes: '',
+      recommendation: 'consider'
+    });
+    setSelectedInterview(null);
   };
 
   const handleScheduleInterview = () => {
@@ -347,779 +489,6 @@ const InterviewsPage = () => {
     );
   };
 
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Interviews</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage and schedule candidate interviews
-          </p>
-        </div>
-
-        <div className="flex gap-2">
-          <Button
-            variant={showDashboard ? "default" : "outline"}
-            onClick={() => setShowDashboard(true)}
-            className="flex items-center gap-1"
-          >
-            <BarChart3 className="h-4 w-4" />
-            <span className="hidden sm:inline">Dashboard</span>
-          </Button>
-          <Button
-            variant={!showDashboard ? "default" : "outline"}
-            onClick={() => setShowDashboard(false)}
-            className="flex items-center gap-1"
-          >
-            <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">Interviews</span>
-          </Button>
-
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" /> Schedule Interview
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Schedule New Interview</DialogTitle>
-              <DialogDescription>
-                Set up an interview with a candidate and team members
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="candidate">Candidate</Label>
-                <Select value={selectedCandidate} onValueChange={setSelectedCandidate}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a candidate" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockCandidatesList.map((candidate) => (
-                      <SelectItem key={candidate.id} value={candidate.id}>
-                        {candidate.name} - {candidate.position}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="type">Interview Type</Label>
-                <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select interview type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {interviewTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Location</Label>
-                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                    <SelectTrigger>
-                      <div className="flex items-center">
-                        <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <SelectValue placeholder="Select location" />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockLocations.map((location) => (
-                        <SelectItem key={location.id} value={location.id}>
-                          {location.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Department</Label>
-                  <Select
-                    value={selectedDepartment}
-                    onValueChange={setSelectedDepartment}
-                    disabled={!selectedLocation}
-                  >
-                    <SelectTrigger>
-                      <div className="flex items-center">
-                        <Building2 className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <SelectValue placeholder="Select department" />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockDepartments
-                        .filter(dept => !selectedLocation || dept.locationId === selectedLocation)
-                        .map((department) => (
-                          <SelectItem key={department.id} value={department.id}>
-                            {department.name}
-                          </SelectItem>
-                        ))
-                      }
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !date && "text-muted-foreground"
-                        )}
-                      >
-                        <Calendar className="mr-2 h-4 w-4" />
-                        {date ? format(date, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <CalendarComponent
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="time">Time</Label>
-                  <Input
-                    id="time"
-                    type="time"
-                    value={interviewTime}
-                    onChange={(e) => setInterviewTime(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Interviewers</Label>
-                <div className="border rounded-md px-4 py-2 max-h-40 overflow-y-auto">
-                  {mockTeamMembers.map((member) => (
-                    <div
-                      key={member.id}
-                      className="flex items-center py-2 border-b last:border-b-0"
-                    >
-                      <input
-                        type="checkbox"
-                        id={`member-${member.id}`}
-                        className="h-4 w-4 rounded border-gray-300"
-                        checked={selectedInterviewers.includes(member.id)}
-                        onChange={() => toggleInterviewer(member.id)}
-                      />
-                      <label
-                        htmlFor={`member-${member.id}`}
-                        className="ml-2 text-sm font-medium"
-                      >
-                        {member.name}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleScheduleInterview}>Schedule</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Stats Overview */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center">
-              <div className="bg-recruit-info/30 p-2 rounded-full mb-3">
-                <Calendar className="h-5 w-5 text-recruit-secondary" />
-              </div>
-              <div className="text-2xl font-bold">{mockInterviews.length}</div>
-              <p className="text-sm text-muted-foreground">Total Interviews</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center">
-              <div className="bg-amber-100 p-2 rounded-full mb-3">
-                <Clock className="h-5 w-5 text-amber-600" />
-              </div>
-              <div className="text-2xl font-bold">{mockInterviews.filter(i => i.status === 'scheduled').length}</div>
-              <p className="text-sm text-muted-foreground">Upcoming</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center">
-              <div className="bg-green-100 p-2 rounded-full mb-3">
-                <FileCheck className="h-5 w-5 text-green-600" />
-              </div>
-              <div className="text-2xl font-bold">{mockInterviews.filter(i => i.status === 'completed').length}</div>
-              <p className="text-sm text-muted-foreground">Completed</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center">
-              <div className="bg-blue-100 p-2 rounded-full mb-3">
-                <User className="h-5 w-5 text-blue-600" />
-              </div>
-              <div className="text-2xl font-bold">{new Set(mockInterviews.map(i => i.candidate)).size}</div>
-              <p className="text-sm text-muted-foreground">Unique Candidates</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Dashboard View */}
-      {showDashboard && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Location Distribution */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-muted-foreground" />
-                Interviews by Location
-              </CardTitle>
-              <CardDescription>
-                Distribution of interviews across different office locations
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {mockLocations.map(location => {
-                  const count = interviewsByLocation[location.id] || 0;
-                  const percentage = mockInterviews.length > 0 ? Math.round((count / mockInterviews.length) * 100) : 0;
-
-                  return (
-                    <div key={location.id} className="space-y-1">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium text-sm">{location.name}</span>
-                        </div>
-                        <div className="text-sm">
-                          <span className="font-medium">{count}</span>
-                          <span className="text-muted-foreground ml-1">({percentage}%)</span>
-                        </div>
-                      </div>
-                      <Progress value={percentage} className="h-2" />
-                      <p className="text-xs text-muted-foreground">{location.city}, {location.state}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-            <CardFooter className="border-t pt-4 flex justify-between">
-              <Button variant="outline" size="sm" onClick={() => {
-                setLocationFilter('all');
-                setShowDashboard(false);
-              }}>
-                View All Locations
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => toast({ title: "Export", description: "Exporting location data" })}>
-                <Download className="h-4 w-4" />
-              </Button>
-            </CardFooter>
-          </Card>
-
-          {/* Department Distribution */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-muted-foreground" />
-                Interviews by Department
-              </CardTitle>
-              <CardDescription>
-                Distribution of interviews across different departments
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {mockDepartments.map(department => {
-                  const count = interviewsByDepartment[department.id] || 0;
-                  const percentage = mockInterviews.length > 0 ? Math.round((count / mockInterviews.length) * 100) : 0;
-                  const location = mockLocations.find(loc => loc.id === department.locationId);
-
-                  return (
-                    <div key={department.id} className="space-y-1">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium text-sm">{department.name}</span>
-                        </div>
-                        <div className="text-sm">
-                          <span className="font-medium">{count}</span>
-                          <span className="text-muted-foreground ml-1">({percentage}%)</span>
-                        </div>
-                      </div>
-                      <Progress value={percentage} className="h-2" />
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="h-3 w-3" />
-                        <span>{location?.name}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-            <CardFooter className="border-t pt-4 flex justify-between">
-              <Button variant="outline" size="sm" onClick={() => {
-                setDepartmentFilter('all');
-                setShowDashboard(false);
-              }}>
-                View All Departments
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => toast({ title: "Export", description: "Exporting department data" })}>
-                <Download className="h-4 w-4" />
-              </Button>
-            </CardFooter>
-          </Card>
-
-          {/* Interview Type Distribution */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <PieChart className="h-5 w-5 text-muted-foreground" />
-                Interviews by Type
-              </CardTitle>
-              <CardDescription>
-                Distribution of interviews by type
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {Object.entries(interviewsByType).map(([type, count]) => {
-                  const percentage = mockInterviews.length > 0 ? Math.round((count / mockInterviews.length) * 100) : 0;
-                  const typeColors: Record<string, string> = {
-                    technical: 'bg-blue-100',
-                    behavioral: 'bg-green-100',
-                    portfolio: 'bg-purple-100',
-                    final: 'bg-amber-100'
-                  };
-                  const typeTextColors: Record<string, string> = {
-                    technical: 'text-blue-800',
-                    behavioral: 'text-green-800',
-                    portfolio: 'text-purple-800',
-                    final: 'text-amber-800'
-                  };
-
-                  return (
-                    <div key={type} className="space-y-1">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <Badge className={`${typeColors[type]} ${typeTextColors[type]}`}>
-                            {type.charAt(0).toUpperCase() + type.slice(1)}
-                          </Badge>
-                        </div>
-                        <div className="text-sm">
-                          <span className="font-medium">{count}</span>
-                          <span className="text-muted-foreground ml-1">({percentage}%)</span>
-                        </div>
-                      </div>
-                      <Progress value={percentage} className="h-2" indicatorClassName={typeColors[type]} />
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Source Distribution */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Layers className="h-5 w-5 text-muted-foreground" />
-                Interviews by Source
-              </CardTitle>
-              <CardDescription>
-                Distribution of interviews by candidate source
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {Object.entries(interviewsBySource).map(([source, count]) => {
-                  const percentage = mockInterviews.length > 0 ? Math.round((count / mockInterviews.length) * 100) : 0;
-
-                  return (
-                    <div key={source} className="space-y-1">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="h-5 px-2">
-                            {source}
-                          </Badge>
-                        </div>
-                        <div className="text-sm">
-                          <span className="font-medium">{count}</span>
-                          <span className="text-muted-foreground ml-1">({percentage}%)</span>
-                        </div>
-                      </div>
-                      <Progress value={percentage} className="h-2" />
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Filters */}
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-          <div className="relative sm:col-span-4">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search candidates..."
-              className="pl-8"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          <div className="sm:col-span-2">
-            <Select value={locationFilter} onValueChange={setLocationFilter}>
-              <SelectTrigger>
-                <div className="flex items-center">
-                  <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                  <SelectValue placeholder="Location" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Locations</SelectItem>
-                {mockLocations.map((location) => (
-                  <SelectItem key={location.id} value={location.id}>
-                    {location.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="sm:col-span-2">
-            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-              <SelectTrigger>
-                <div className="flex items-center">
-                  <Building2 className="h-4 w-4 mr-2 text-muted-foreground" />
-                  <SelectValue placeholder="Department" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
-                {mockDepartments.map((department) => (
-                  <SelectItem key={department.id} value={department.id}>
-                    {department.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="sm:col-span-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                    <span>{filter === 'upcoming' ? 'Upcoming' : filter === 'past' ? 'Past' : 'All'}</span>
-                  </div>
-                  <ChevronDown className="h-4 w-4 opacity-50" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setFilter('upcoming')}>
-                  Upcoming
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilter('past')}>
-                  Past Interviews
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilter('all')}>
-                  All
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          <div className="sm:col-span-2 flex gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <ArrowUpDown className="h-4 w-4" />
-                  <span className="sr-only">Sort</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setSortOrder('date')}>
-                  Sort by Date
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortOrder('name')}>
-                  Sort by Name
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        {/* Advanced Filters */}
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-            className="flex items-center gap-1 text-muted-foreground"
-          >
-            <Filter className="h-4 w-4" />
-            {showAdvancedFilters ? 'Hide Advanced Filters' : 'Show Advanced Filters'}
-            <ChevronDown className={`h-4 w-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
-          </Button>
-
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setFilter('all');
-                setLocationFilter('all');
-                setDepartmentFilter('all');
-                setSourceFilter('all');
-                setSearchTerm('');
-              }}
-              className="text-xs"
-            >
-              Clear Filters
-            </Button>
-
-            <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none">
-              {filteredInterviews.length} interviews
-            </Badge>
-          </div>
-        </div>
-
-        {showAdvancedFilters && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 border rounded-md bg-muted/10">
-            <div>
-              <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                <SelectTrigger>
-                  <div className="flex items-center">
-                    <Layers className="h-4 w-4 mr-2 text-muted-foreground" />
-                    <SelectValue placeholder="Source" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Sources</SelectItem>
-                  {sources.filter(s => s !== 'all').map((source) => (
-                    <SelectItem key={source} value={source}>
-                      {source}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => toast({
-                  title: "Export Filtered Results",
-                  description: "Exporting filtered interviews to CSV"
-                })}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Export Results
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Interviews List */}
-      <div className="space-y-6">
-        {filteredInterviews.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground">
-            No {filter} interviews found
-          </div>
-        ) : (
-          filteredInterviews.map((interview) => (
-            <Card key={interview.id}>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-4">
-                    <div className="h-12 w-12 rounded-full overflow-hidden flex-shrink-0">
-                      <img
-                        src={interview.avatarUrl}
-                        alt={interview.candidate}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center">
-                        <h3 className="font-semibold text-lg">{interview.candidate}</h3>
-                        <Badge
-                          className="ml-3"
-                          variant={interview.status === 'completed' ? 'outline' : 'default'}
-                        >
-                          {interview.status === 'completed' ? 'Completed' : 'Upcoming'}
-                        </Badge>
-                      </div>
-
-                      <p className="text-muted-foreground">{interview.position}</p>
-
-                      <div className="flex flex-wrap mt-2 gap-3">
-                        <div className="flex items-center text-sm">
-                          <Calendar className="h-4 w-4 mr-1 text-muted-foreground" />
-                          {new Date(interview.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                        </div>
-
-                        <div className="flex items-center text-sm">
-                          <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
-                          {new Date(interview.date).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-
-                        <div className="flex items-center text-sm">
-                          <User className="h-4 w-4 mr-1 text-muted-foreground" />
-                          {interview.interviewers.join(', ')}
-                        </div>
-
-                        <Badge variant="outline" className="bg-accent/50 text-sm font-normal">
-                          {interview.type.charAt(0).toUpperCase() + interview.type.slice(1)} Interview
-                        </Badge>
-                      </div>
-
-                      <div className="flex flex-wrap mt-2 gap-3">
-                        {interview.locationId && (
-                          <div className="flex items-center text-sm">
-                            <MapPin className="h-4 w-4 mr-1 text-muted-foreground" />
-                            {getLocationById(interview.locationId)?.name || 'Unknown Location'}
-                          </div>
-                        )}
-
-                        {interview.departmentId && (
-                          <div className="flex items-center text-sm">
-                            <Building2 className="h-4 w-4 mr-1 text-muted-foreground" />
-                            {getDepartmentById(interview.departmentId)?.name || 'Unknown Department'}
-                          </div>
-                        )}
-
-                        {interview.source && (
-                          <div className="flex items-center text-sm">
-                            <Layers className="h-4 w-4 mr-1 text-muted-foreground" />
-                            {interview.source}
-                          </div>
-                        )}
-                      </div>
-
-                      {interview.feedback && (
-                        <div className="mt-3 border-t pt-3">
-                          <div className="flex items-center text-sm font-medium mb-1">
-                            <FileText className="h-4 w-4 mr-1 text-muted-foreground" />
-                            Feedback
-                          </div>
-                          <p className="text-sm">{interview.feedback}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex-shrink-0">
-                    {interview.status === 'scheduled' ? (
-                      <Button onClick={() => handleJoinInterview(interview.id)}>
-                        <Video className="h-4 w-4 mr-2" />
-                        Join Interview
-                      </Button>
-                    ) : (
-                      <Button variant="outline" onClick={() => handleViewFeedback(interview.id)}>
-                        <FileText className="h-4 w-4 mr-2" />
-                        View Feedback
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
-
-      {/* Guidelines Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Interview Guidelines</CardTitle>
-          <CardDescription>Tips for conducting effective interviews</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 bg-muted rounded-lg">
-                <h3 className="font-medium mb-2">Before the Interview</h3>
-                <ul className="text-sm space-y-1">
-                  <li>• Review the candidate's resume</li>
-                  <li>• Prepare specific questions</li>
-                  <li>• Test your video and audio setup</li>
-                  <li>• Log in 5 minutes early</li>
-                </ul>
-              </div>
-
-              <div className="p-4 bg-muted rounded-lg">
-                <h3 className="font-medium mb-2">During the Interview</h3>
-                <ul className="text-sm space-y-1">
-                  <li>• Start with a brief introduction</li>
-                  <li>• Follow the structured question format</li>
-                  <li>• Allow time for candidate questions</li>
-                  <li>• Take clear, objective notes</li>
-                </ul>
-              </div>
-
-              <div className="p-4 bg-muted rounded-lg">
-                <h3 className="font-medium mb-2">After the Interview</h3>
-                <ul className="text-sm space-y-1">
-                  <li>• Submit feedback within 24 hours</li>
-                  <li>• Be specific and objective</li>
-                  <li>• Include examples from responses</li>
-                  <li>• Provide a clear hire/no-hire recommendation</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="mt-4 text-center">
-              <Link to="/feedback">
-                <Button variant="outline">
-                  <FileText className="h-4 w-4 mr-2" />
-                  View Interview Templates
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
+}; // Add missing closing brace for InterviewsPage component
 
 export default InterviewsPage;
