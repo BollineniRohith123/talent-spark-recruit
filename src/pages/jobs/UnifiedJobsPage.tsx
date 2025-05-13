@@ -111,28 +111,29 @@ const UnifiedJobsPage: React.FC = () => {
     if (adminUser) {
       // CEO sees all jobs across all locations
       jobs = [...mockJobListings];
-    } else if (isHiringManager) {
+    } else if (isHiringManager && user?.locationId) {
       // Branch Manager sees jobs for their location
-      // In a real app, we would get the manager's location from their profile
-      const managerLocationId = 'loc-1'; // Miami for demo
-      jobs = getJobListingsByLocationId(managerLocationId);
+      jobs = getJobListingsByLocationId(user.locationId);
     } else if (isMarketingHead) {
       // Marketing Head sees all marketing jobs across locations
       jobs = mockJobListings.filter(job => job.department.includes('Marketing'));
-    } else if (isMarketingSupervisor) {
+    } else if (isMarketingSupervisor && user?.locationId) {
       // Marketing Supervisor sees marketing jobs for their location
-      const supervisorLocationId = 'loc-1'; // Miami for demo
-      const locationJobs = getJobListingsByLocationId(supervisorLocationId);
+      const locationJobs = getJobListingsByLocationId(user.locationId);
       jobs = locationJobs.filter(job => job.department.includes('Marketing'));
-    } else if (isScout) {
-      // Marketing Recruiter sees jobs assigned to them and can reassign
+    } else if (isScout && user?.locationId) {
+      // Marketing Recruiter sees jobs assigned to them and can reassign, but only from their location
       jobs = mockJobListings.filter(job =>
-        job.assignedTo === user?.id ||
-        (job.department.includes('Marketing') && job.status === 'published')
+        (job.assignedTo === user?.id ||
+         (job.department.includes('Marketing') && job.status === 'published')) &&
+        job.locationId === user.locationId
       );
-    } else if (isTeamMember) {
-      // Marketing Associate sees only jobs assigned to them
-      jobs = mockJobListings.filter(job => job.assignedTo === user?.id);
+    } else if (isTeamMember && user?.locationId) {
+      // Marketing Associate sees only jobs assigned to them from their location
+      jobs = mockJobListings.filter(job =>
+        job.assignedTo === user?.id &&
+        job.locationId === user.locationId
+      );
     }
 
     setJobListings(jobs);

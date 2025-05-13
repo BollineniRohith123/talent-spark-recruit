@@ -295,6 +295,30 @@ const ReportsPage = () => {
   const isAdmin = user?.role === 'ceo';
   const isHiringManager = user?.role === 'branch-manager' || user?.role === 'marketing-head' || user?.role === 'marketing-supervisor';
 
+  // Filter location performance data based on user's role and location
+  const filteredLocationData = (() => {
+    if (isAdmin) {
+      return locationPerformanceData; // CEO sees all locations
+    } else if (isHiringManager && user?.locationId) {
+      // Map locationId to location name
+      const locationMap: Record<string, string> = {
+        'loc-1': 'Miami Headquarters',
+        'loc-2': 'New York Office',
+        'loc-3': 'San Francisco Office',
+        'loc-4': 'Chicago Office'
+      };
+
+      const userLocationName = locationMap[user.locationId];
+
+      // Filter to only show data for the user's location
+      return locationPerformanceData.filter(location =>
+        location.location === userLocationName
+      );
+    }
+
+    return locationPerformanceData;
+  })();
+
   const handleExportReport = () => {
     toast({
       title: "Report Exported",
@@ -901,7 +925,7 @@ const ReportsPage = () => {
                   <div className="h-[350px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
-                        data={locationPerformanceData}
+                        data={filteredLocationData}
                         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" />
@@ -927,7 +951,7 @@ const ReportsPage = () => {
                   <div className="h-[350px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
-                        data={locationPerformanceData}
+                        data={filteredLocationData}
                         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" />
@@ -1121,7 +1145,7 @@ const ReportsPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {locationPerformanceData.map((location, i) => (
+                      {filteredLocationData.map((location, i) => (
                         <tr key={i} className="border-b hover:bg-muted/50">
                           <td className="py-3 px-4 font-medium">{location.location}</td>
                           <td className="py-3 px-4">{location.openPositions}</td>

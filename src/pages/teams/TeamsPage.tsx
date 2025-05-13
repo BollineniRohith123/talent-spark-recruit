@@ -28,16 +28,16 @@ const TeamsPage = () => {
   const [userLocation, setUserLocation] = useState<Location | null>(null);
 
   useEffect(() => {
-    // For branch managers and other managers, find their assigned location
+    // For branch managers and other managers, use their assigned location from the user object
     if (user?.role === 'branch-manager' || user?.role === 'marketing-head' || user?.role === 'marketing-supervisor') {
-      // In a real app, this would be fetched from an API
-      // For now, just use the first location as an example
-      const hiringManagerLocation = mockLocations.find(
-        location => location.hiringManagerIds.includes(user.id)
-      ) || mockLocations[0];
+      if (user.locationId) {
+        const userLocationObj = mockLocations.find(location => location.id === user.locationId);
 
-      setUserLocation(hiringManagerLocation);
-      setDepartments(getDepartmentsByLocationId(hiringManagerLocation.id));
+        if (userLocationObj) {
+          setUserLocation(userLocationObj);
+          setDepartments(getDepartmentsByLocationId(userLocationObj.id));
+        }
+      }
     }
   }, [user]);
 

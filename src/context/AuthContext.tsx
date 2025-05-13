@@ -8,6 +8,8 @@ interface User {
   email: string;
   role: UserRole;
   avatar?: string;
+  locationId?: string;
+  departmentId?: string;
 }
 
 interface AuthContextType {
@@ -27,41 +29,50 @@ const demoUsers: Record<UserRole, User> = {
     email: 'ceo@qore.io',
     role: 'ceo',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    // CEO has access to all locations and departments
   },
   'branch-manager': {
     id: '2',
     name: 'Michael Thompson',
     email: 'branch-manager@qore.io',
     role: 'branch-manager',
-    avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-1' // Miami Headquarters
   },
   'marketing-head': {
     id: '3',
     name: 'Emma Rodriguez',
     email: 'marketing-head@qore.io',
     role: 'marketing-head',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    departmentId: 'dept-1' // Marketing (Recruitment)
   },
   'marketing-supervisor': {
     id: '4',
     name: 'David Kim',
     email: 'marketing-supervisor@qore.io',
     role: 'marketing-supervisor',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-1', // Miami Headquarters
+    departmentId: 'dept-1' // Marketing (Recruitment)
   },
   'marketing-recruiter': {
     id: '5',
     name: 'Jordan Lee',
     email: 'recruiter@qore.io',
     role: 'marketing-recruiter',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-1', // Miami Headquarters
+    departmentId: 'dept-1' // Marketing (Recruitment)
   },
   'marketing-associate': {
     id: '6',
     name: 'Taylor Smith',
     email: 'associate@qore.io',
     role: 'marketing-associate',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locationId: 'loc-1', // Miami Headquarters
+    departmentId: 'dept-1' // Marketing (Recruitment)
   },
   'applicant': {
     id: '7',

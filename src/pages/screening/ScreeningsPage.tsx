@@ -173,40 +173,76 @@ const ScreeningsPage = () => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [sortOrder, setSortOrder] = useState<'date' | 'name'>('date');
 
+  // Get role-filtered screenings for metrics
+  const roleFilteredScreeningsForMetrics = useMemo(() => {
+    // CEO can see all screenings
+    if (user?.role === 'ceo') {
+      return mockScreenings;
+    }
+
+    // Branch Manager can only see screenings from their location
+    if (user?.role === 'branch-manager' && user?.locationId) {
+      return mockScreenings.filter(screening => screening.locationId === user.locationId);
+    }
+
+    // Department roles can only see screenings from their department and location
+    if (['marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate'].includes(user?.role || '')) {
+      let filteredScreenings = mockScreenings;
+
+      // Filter by department if available
+      if (user?.departmentId) {
+        filteredScreenings = filteredScreenings.filter(screening => screening.departmentId === user.departmentId);
+      }
+
+      // Filter by location if available
+      if (user?.locationId) {
+        filteredScreenings = filteredScreenings.filter(screening => screening.locationId === user.locationId);
+      }
+
+      return filteredScreenings;
+    }
+
+    return mockScreenings;
+  }, [user]);
+
   // Compute metrics and filters
   const screeningsByLocation = useMemo(() => {
     const result: Record<string, number> = {};
-    mockScreenings.forEach(screening => {
+    roleFilteredScreeningsForMetrics.forEach(screening => {
       if (screening.locationId) {
         result[screening.locationId] = (result[screening.locationId] || 0) + 1;
       }
     });
     return result;
-  }, []);
+  }, [roleFilteredScreeningsForMetrics]);
 
   const screeningsByDepartment = useMemo(() => {
     const result: Record<string, number> = {};
-    mockScreenings.forEach(screening => {
+    roleFilteredScreeningsForMetrics.forEach(screening => {
       if (screening.departmentId) {
         result[screening.departmentId] = (result[screening.departmentId] || 0) + 1;
       }
     });
     return result;
-  }, []);
+  }, [roleFilteredScreeningsForMetrics]);
 
   const screeningsBySource = useMemo(() => {
     const result: Record<string, number> = {};
-    mockScreenings.forEach(screening => {
+    roleFilteredScreeningsForMetrics.forEach(screening => {
       if (screening.source) {
         result[screening.source] = (result[screening.source] || 0) + 1;
       }
     });
     return result;
-  }, []);
+  }, [roleFilteredScreeningsForMetrics]);
 
-  // Filter screenings based on tab, search term, position, location, and department
+  // Filter screenings based on user role, tab, search term, position, location, and department
   const filterScreenings = () => {
-    return mockScreenings.filter(screening => {
+    // First filter by user role - use the same logic as roleFilteredScreeningsForMetrics
+    let roleFilteredScreenings = roleFilteredScreeningsForMetrics;
+
+    // Then apply other filters
+    return roleFilteredScreenings.filter(screening => {
       // Filter by tab (status)
       if (activeTab !== 'all' && screening.status !== activeTab) return false;
 
@@ -238,15 +274,15 @@ const ScreeningsPage = () => {
   };
 
   // Get unique values for filters
-  const positions = ['all', ...new Set(mockScreenings.map(s => s.position))];
-  const sources = ['all', ...new Set(mockScreenings.filter(s => s.source).map(s => s.source as string))];
+  const positions = ['all', ...new Set(roleFilteredScreeningsForMetrics.map(s => s.position))];
+  const sources = ['all', ...new Set(roleFilteredScreeningsForMetrics.filter(s => s.source).map(s => s.source as string))];
 
   // Calculate metrics for dashboard
-  const totalScreenings = mockScreenings.length;
+  const totalScreenings = roleFilteredScreeningsForMetrics.length;
   const screeningsByStatus = {
-    pending: mockScreenings.filter(s => s.status === 'pending').length,
-    scheduled: mockScreenings.filter(s => s.status === 'scheduled').length,
-    completed: mockScreenings.filter(s => s.status === 'completed').length,
+    pending: roleFilteredScreeningsForMetrics.filter(s => s.status === 'pending').length,
+    scheduled: roleFilteredScreeningsForMetrics.filter(s => s.status === 'scheduled').length,
+    completed: roleFilteredScreeningsForMetrics.filter(s => s.status === 'completed').length,
   };
 
   // Handle actions - Admin can always send screenings for any candidate

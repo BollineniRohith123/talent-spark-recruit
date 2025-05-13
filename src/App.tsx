@@ -32,6 +32,7 @@ import CandidateDetailsPage from "./pages/candidates/CandidateDetailsPage";
 
 // Interview Pages
 import InterviewsPage from "./pages/interviews/InterviewsPage";
+import FeedbackPage from "./pages/interviews/FeedbackPage";
 
 // Application Pages
 import ApplicationPage from "./pages/application/ApplicationPage";
@@ -180,11 +181,11 @@ const App = () => (
               element={<Navigate to="/jobs-management" replace />}
             />
 
-            {/* Screenings - For CEO, Marketing Recruiter */}
+            {/* Screenings - For CEO, Branch Manager, Marketing Recruiter */}
             <Route
               path="/screenings"
               element={
-                <AuthProtection allowedRoles={['ceo', 'marketing-recruiter']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-recruiter']}>
                   <MainLayout>
                     <ScreeningsPage />
                   </MainLayout>
@@ -216,11 +217,11 @@ const App = () => (
               }
             />
 
-            {/* Interviews - For CEO, Marketing Associate */}
+            {/* Interviews - For CEO, Branch Manager, Marketing Associate */}
             <Route
               path="/interviews"
               element={
-                <AuthProtection allowedRoles={['ceo', 'marketing-associate']}>
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-associate']}>
                   <MainLayout>
                     <InterviewsPage />
                   </MainLayout>
@@ -228,7 +229,17 @@ const App = () => (
               }
             />
 
-            {/* Feedback has been integrated into Profile Details page */}
+            {/* Interview Feedback - For CEO, Branch Manager, Marketing Associate */}
+            <Route
+              path="/interviews/feedback"
+              element={
+                <AuthProtection allowedRoles={['ceo', 'branch-manager', 'marketing-associate']}>
+                  <MainLayout>
+                    <FeedbackPage />
+                  </MainLayout>
+                </AuthProtection>
+              }
+            />
 
             {/* Application - For Applicants */}
             <Route

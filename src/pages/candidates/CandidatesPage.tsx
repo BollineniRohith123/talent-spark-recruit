@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { CandidateCard, Candidate, CandidateStatus } from '@/components/ui/candidate-card';
 import { mockLocations, mockDepartments, getLocationById, getDepartmentById } from '@/types/organization';
+import { useAuth } from '@/context/AuthContext';
 import {
   Select,
   SelectContent,
@@ -265,6 +266,7 @@ const candidateTimes: Record<string, string> = {
 
 const CandidatesPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [positionFilter, setPositionFilter] = useState<string>('all');
@@ -276,39 +278,73 @@ const CandidatesPage = () => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [showDashboard, setShowDashboard] = useState(true);
 
+  // Filter candidates based on user role
+  const roleFilteredCandidates = useMemo(() => {
+    if (!user) return mockCandidates;
+
+    // CEO can see all candidates
+    if (user.role === 'ceo') {
+      return mockCandidates;
+    }
+
+    // Branch Manager can only see candidates from their location
+    if (user.role === 'branch-manager' && user.locationId) {
+      return mockCandidates.filter(candidate => candidate.locationId === user.locationId);
+    }
+
+    // Department roles can only see candidates from their department and location
+    if (['marketing-head', 'marketing-supervisor', 'marketing-recruiter', 'marketing-associate'].includes(user.role)) {
+      let filteredCandidates = mockCandidates;
+
+      // Filter by department if available
+      if (user.departmentId) {
+        filteredCandidates = filteredCandidates.filter(candidate => candidate.departmentId === user.departmentId);
+      }
+
+      // Filter by location if available
+      if (user.locationId) {
+        filteredCandidates = filteredCandidates.filter(candidate => candidate.locationId === user.locationId);
+      }
+
+      return filteredCandidates;
+    }
+
+    return mockCandidates;
+  }, [user]);
+
   // Compute metrics and filters
   const candidatesByLocation = useMemo(() => {
     const result: Record<string, number> = {};
-    mockCandidates.forEach(candidate => {
+    roleFilteredCandidates.forEach(candidate => {
       if (candidate.locationId) {
         result[candidate.locationId] = (result[candidate.locationId] || 0) + 1;
       }
     });
     return result;
-  }, []);
+  }, [roleFilteredCandidates]);
 
   const candidatesByDepartment = useMemo(() => {
     const result: Record<string, number> = {};
-    mockCandidates.forEach(candidate => {
+    roleFilteredCandidates.forEach(candidate => {
       if (candidate.departmentId) {
         result[candidate.departmentId] = (result[candidate.departmentId] || 0) + 1;
       }
     });
     return result;
-  }, []);
+  }, [roleFilteredCandidates]);
 
   const candidatesBySource = useMemo(() => {
     const result: Record<string, number> = {};
-    mockCandidates.forEach(candidate => {
+    roleFilteredCandidates.forEach(candidate => {
       if (candidate.source) {
         result[candidate.source] = (result[candidate.source] || 0) + 1;
       }
     });
     return result;
-  }, []);
+  }, [roleFilteredCandidates]);
 
   // Filter and sort candidates
-  const filteredCandidates = mockCandidates
+  const filteredCandidates = roleFilteredCandidates
     .filter(candidate => {
       // Filter by search term
       if (searchTerm && !candidate.name.toLowerCase().includes(searchTerm.toLowerCase())) {
@@ -357,17 +393,17 @@ const CandidatesPage = () => {
     });
 
   // Get unique values for filters
-  const positions = ['all', ...new Set(mockCandidates.map(c => c.position))];
-  const sources = ['all', ...new Set(mockCandidates.filter(c => c.source).map(c => c.source as string))];
+  const positions = ['all', ...new Set(roleFilteredCandidates.map(c => c.position))];
+  const sources = ['all', ...new Set(roleFilteredCandidates.filter(c => c.source).map(c => c.source as string))];
 
   // Calculate metrics for dashboard
-  const totalCandidates = mockCandidates.length;
+  const totalCandidates = roleFilteredCandidates.length;
   const candidatesByStatus = {
-    screening: mockCandidates.filter(c => c.status === 'screening').length,
-    interview: mockCandidates.filter(c => c.status === 'interview').length,
-    offer: mockCandidates.filter(c => c.status === 'offer').length,
-    hired: mockCandidates.filter(c => c.status === 'hired').length,
-    rejected: mockCandidates.filter(c => c.status === 'rejected').length,
+    screening: roleFilteredCandidates.filter(c => c.status === 'screening').length,
+    interview: roleFilteredCandidates.filter(c => c.status === 'interview').length,
+    offer: roleFilteredCandidates.filter(c => c.status === 'offer').length,
+    hired: roleFilteredCandidates.filter(c => c.status === 'hired').length,
+    rejected: roleFilteredCandidates.filter(c => c.status === 'rejected').length,
   };
 
   // Handle actions
